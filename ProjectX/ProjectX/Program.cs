@@ -97,14 +97,14 @@ namespace ProjectX
 
             sw.Restart();
             List<EParsingParam> eParsingParams = new List<EParsingParam>();
-            EParsingParam parsingParam1 = new EParsingParam(fileName1, "A1");
+            EParsingParam parsingParam1 = new EParsingParam(fileName1, "A0");
             ESheet eSheet = new ESheet(null, "D");
             string[] bufIndex1 = { "B" };
             eSheet.AddBufIndex(bufIndex1);
-            eSheet.AddCountIndex("A1", "E");
-            eSheet.AddCountIndex("A2", "F");
-            eSheet.AddCountIndex("A3", "G");
-            eSheet.AddCountIndex("A4", "H");
+            eSheet.AddCountIndex("A0", "E");
+            eSheet.AddCountIndex("A1", "F");
+            eSheet.AddCountIndex("A2", "G");
+            eSheet.AddCountIndex("A3", "H");
             parsingParam1.Add(eSheet);
 
             eParsingParams.Add(parsingParam1);
@@ -114,11 +114,11 @@ namespace ProjectX
             string[] bufIndex2 = { "B", "D" };
             eSheet = new ESheet("1 Шины (Краснодар Индустриальны", "U");
             eSheet.AddBufIndex(bufIndex2);
-            eSheet.AddCountIndex("A1", "S");
+            eSheet.AddCountIndex("A0", "S");
             parsingParam1.Add(eSheet);
             eSheet = new ESheet("3 Шины (Москва)", "U");
             eSheet.AddBufIndex(bufIndex2);
-            eSheet.AddCountIndex("A2", "S");
+            eSheet.AddCountIndex("A1", "S");
             parsingParam1.Add(eSheet);
             eParsingParams.Add(parsingParam1);
 
@@ -184,24 +184,24 @@ namespace ProjectX
 
 
             sw.Restart();
-            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data.xlsx", new string[] { "A1", "A2" });
+            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data.xlsx", new string[] { "A0", "A1" });
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
 
-            dBase.SaveDataOnlyProviderExcell(@"C:\Users\ACER\Desktop\Прайсы\Data3.xlsx", new string[] { "A1", "A2" });
+            dBase.SaveDataOnlyProviderExcell(@"C:\Users\ACER\Desktop\Прайсы\Data3.xlsx", new string[] { "A0", "A1" });
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data3.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            EParsingParam parsingParam2 = new EParsingParam(fileName1, "A1");
+            EParsingParam parsingParam2 = new EParsingParam(fileName1, "A0");
             ESheet eSheet2 = new ESheet(null, "D");
             eSheet2.AddBufIndex(bufIndex1);
-            eSheet2.AddCountIndex("A2", "F");
+            eSheet2.AddCountIndex("A1", "F");
             parsingParam2.Add(eSheet2);
             sw.Stop();
-            Console.WriteLine("Подготовка данных для 2-го парсинга (только для A1-A2)" + sw.ElapsedMilliseconds + " мс");
+            Console.WriteLine("Подготовка данных для 2-го парсинга (только для A0-A1)" + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
             List<ParsingRow> parsings2 = EParsing.GetParsingRows(parsingParam2, out warning);
@@ -224,7 +224,7 @@ namespace ProjectX
             Console.WriteLine("Сохранение базы XML " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data2.xlsx", new string[] { "A1" });
+            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data2.xlsx", new string[] { "A0" });
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data2.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
@@ -256,24 +256,24 @@ namespace ProjectX
 
             sw.Restart();
             List<EParsingParam> eParsingParams = new List<EParsingParam>();
-            EParsingParam parsingParam1 = new EParsingParam(fileName1, "A1");
+            EParsingParam parsingParam1 = new EParsingParam(fileName1, "A0");
             ESheet eSheet = new ESheet(null, "D");
             string[] bufIndex1 = { "B" };
             eSheet.AddBufIndex(bufIndex1);
-            eSheet.AddCountIndex("A1", "E");
-            eSheet.AddCountIndex("A2", "F");
-            eSheet.AddCountIndex("A3", "G");
-            eSheet.AddCountIndex("A4", "H");
+            eSheet.AddCountIndex("A0", "E");
+            eSheet.AddCountIndex("A1", "F");
+            eSheet.AddCountIndex("A2", "G");
+            eSheet.AddCountIndex("A3", "H");
             parsingParam1.Add(eSheet);
 
             eParsingParams.Add(parsingParam1);
 
 
-            parsingParam1 = new EParsingParam(fileName2, "A2");
+            parsingParam1 = new EParsingParam(fileName2, "A1");
             string[] bufIndex2 = { "B", "D" };
             eSheet = new ESheet("3 Шины (Москва)", "U");
             eSheet.AddBufIndex(bufIndex2);
-            eSheet.AddCountIndex("A2", "S");
+            eSheet.AddCountIndex("A1", "S");
             parsingParam1.Add(eSheet);
             eParsingParams.Add(parsingParam1);
 
@@ -317,19 +317,19 @@ namespace ProjectX
 
 
             sw.Restart();
-            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data4.xlsx", new string[] { "A2" });
+            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data4.xlsx", new string[] { "A1" });
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data4.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
 
-            dBase.SaveDataOnlyProviderExcell(@"C:\Users\ACER\Desktop\Прайсы\Data5.xlsx", new string[] { "A1" });
+            dBase.SaveDataOnlyProviderExcell(@"C:\Users\ACER\Desktop\Прайсы\Data5.xlsx", new string[] { "A0" });
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data5.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
 
             sw.Restart();
-            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data6.xlsx", new string[] { "A1" },new ExcelDefaultOutParametrics(false,false,false
+            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data6.xlsx", new string[] { "A0" },new ExcelDefaultOutParametrics(false,false,false
                 ,false,false,false,true,true),new ExcelProviderOutParametrics(providers,true,false,false,true),new ExcelProductOutParametrics(dictionary,true,false,
                 false,false,false,true,false,false,false,false,false,true,true,true,false,false,false,false,false,false,false,true,false));
             sw.Stop();

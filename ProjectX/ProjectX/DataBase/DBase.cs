@@ -33,6 +33,32 @@ namespace ProjectX.DataBase
             DBRows = new List<DBRow>();
             pathXML = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\DataBase.xml");
 
+            if (!File.Exists(pathXML))
+            {
+                string dataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data");
+                if (!Directory.Exists(dataDirectory)) { Directory.CreateDirectory(dataDirectory); }
+                GenId = new GenId('A', -1, 1);
+                FileStream fs = new FileStream(pathXML, FileMode.Create);
+                XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.Unicode)
+                {
+                    Formatting = Formatting.Indented
+                };
+                xmlOut.WriteStartDocument();
+                xmlOut.WriteStartElement("root");
+                xmlOut.WriteEndElement();
+                xmlOut.WriteEndDocument();
+                xmlOut.Close();
+                fs.Close();
+                Save();
+
+            }
+            else {
+                InitBase();
+            }
+
+        }
+
+        private void InitBase() {
 
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(pathXML);
@@ -50,6 +76,7 @@ namespace ProjectX.DataBase
             {
                 DBRows.Add(new DBRow(x));
             }
+
         }
 
         public void AddRows(ParsingRow[] parsingRows)

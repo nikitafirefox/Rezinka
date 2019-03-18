@@ -29,14 +29,39 @@ namespace ProjectX.Dict
             pathXML = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\Dictionary.xml");
             Log = new SystemLoger(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\DictLog.txt"));
 
+            if (!File.Exists(pathXML)) {
 
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+                string dataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data");
+                if (!Directory.Exists(dataDirectory)) { Directory.CreateDirectory(dataDirectory); }
+                IdGen = new GenId('A', -1, 1);
+                FileStream fs = new FileStream(pathXML,FileMode.Create);
+                XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.Unicode)
+                {
+                    Formatting = Formatting.Indented
+                };
+                xmlOut.WriteStartDocument();
+                xmlOut.WriteStartElement("root");
+                xmlOut.WriteEndElement();
+                xmlOut.WriteEndDocument();
+                xmlOut.Close();
+                fs.Close();
+                Save("Создание документа");
 
-            InitDictionary();
-            
-            sw.Stop();
-            WriteLog("Инициализация ("+ sw.ElapsedMilliseconds+"мс)");
+
+
+            }
+            else {
+
+
+
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
+                InitDictionary();
+
+                sw.Stop();
+                WriteLog("Инициализация (" + sw.ElapsedMilliseconds + "мс)");
+            }
 
             AutoSaveThead = new Thread(new ThreadStart(AutoSave));
             AutoSaveThead.Priority = ThreadPriority.BelowNormal;

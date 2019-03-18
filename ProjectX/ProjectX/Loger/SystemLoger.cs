@@ -20,7 +20,7 @@ namespace ProjectX.Loger
 
             }
             catch (IOException) {
-                File.Create(path);
+                File.Create(path).Close();
             }
             WriteLog("Сессия открыта");
         }
@@ -35,7 +35,7 @@ namespace ProjectX.Loger
             }
         }
 
-        public void WriteLog(Object o) {
+        public void WriteLog(object o) {
             WriteLog(o.ToString());
         }
 

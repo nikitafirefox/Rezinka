@@ -21,6 +21,38 @@ namespace ProjectX.Information
             pathXML = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\Providers.xml");
 
 
+
+            if (!File.Exists(pathXML))
+            {
+                string dataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data");
+                if (!Directory.Exists(dataDirectory)) { Directory.CreateDirectory(dataDirectory); }
+                GenId = new GenId('A', -1, 1);
+
+                FileStream fs = new FileStream(pathXML, FileMode.Create);
+                XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.Unicode)
+                {
+                    Formatting = Formatting.Indented
+                };
+                xmlOut.WriteStartDocument();
+                xmlOut.WriteStartElement("root");
+                xmlOut.WriteEndElement();
+                xmlOut.WriteEndDocument();
+                xmlOut.Close();
+                fs.Close();
+                Save();
+
+
+            }
+            else
+            {
+                InitProviders();
+            }
+
+
+        }
+
+        private void InitProviders() {
+
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(pathXML);
             XmlElement xroot = xmlDocument.DocumentElement;
@@ -35,8 +67,6 @@ namespace ProjectX.Information
             {
                 ProvidersList.Add(new Provider(x));
             }
-
-
 
         }
 
