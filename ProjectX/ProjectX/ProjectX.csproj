@@ -33,8 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>
-    </StartupObject>
+    <StartupObject>ProjectX.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -70,6 +69,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnalysisType\ProviderRegulars.cs" />
     <Compile Include="DataBase\DBase.cs" />
     <Compile Include="Dict\Brand.cs" />
     <Compile Include="Dict\Dictionary.cs" />

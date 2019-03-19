@@ -27,11 +27,12 @@ namespace ProjectX.Loger
 
         public void WriteLog(string message) {
             lock (this) {
-                StreamWriter stream = new StreamWriter(pathLog, true);
-                using (StreamWriter sw = stream) {
+                
+                using (StreamWriter sw = new StreamWriter(pathLog, true)) {
                     sw.WriteLine(DateTime.Now + ":\t"+message);
                 }
-                stream.Close();
+                
+               
             }
         }
 

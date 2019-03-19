@@ -41,8 +41,8 @@ namespace ProjectX.Dict
             TreadwearIndex = x.SelectSingleNode("treadwearIndex").InnerText;
             FlangeProtection = x.SelectSingleNode("flangeProtection").InnerText;
 
-            ExtraLoad = Boolean.Parse(x.SelectSingleNode("extraLoad").Attributes.GetNamedItem("value").Value);
-            RunFlat = Boolean.Parse(x.SelectSingleNode("runFlat").Attributes.GetNamedItem("value").Value);
+            ExtraLoad = bool.Parse(x.SelectSingleNode("extraLoad").Attributes.GetNamedItem("value").Value);
+            RunFlat = bool.Parse(x.SelectSingleNode("runFlat").Attributes.GetNamedItem("value").Value);
 
             foreach (XmlNode xNode in x.SelectSingleNode("accomadations").ChildNodes)
             {

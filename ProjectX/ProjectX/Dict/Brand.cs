@@ -58,7 +58,7 @@ namespace ProjectX.Dict
         public Brand(string id, string name, string country, string description, string runFlatName) {
 
             Images = new HashSet<string>();
-            IdGen = new GenId('A', 0, 1);
+            IdGen = new GenId('A', -1, 1);
             Variations = new HashSet<string>();
             Models = new List<Model>();
 

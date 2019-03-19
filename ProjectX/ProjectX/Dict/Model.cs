@@ -73,7 +73,7 @@ namespace ProjectX.Dict
             string whileLetters, bool mudSnow) {
 
             Images = new HashSet<string>();
-            IdGen = new GenId('A', 0, 1);
+            IdGen = new GenId('A', -1, 1);
             Variations = new HashSet<string>();
             Markings = new List<Marking>();
 
@@ -188,14 +188,12 @@ namespace ProjectX.Dict
             }
         }
 
-        public List<Marking> AnalysisMarking(string parsingBufer)
+        public List<Marking> AnalysisMarking(string width,string height,string diameter)
         {
             List<Marking> Resault = new List<Marking>();
             foreach (var item in Markings)
             {
-                if (Regex.IsMatch(parsingBufer,item.Width+@"/"+item.Height+@"R"+item.Diameter,RegexOptions.IgnoreCase)||
-                    Regex.IsMatch(parsingBufer, item.Width + @"/" + item.Height + @"ZR" + item.Diameter , RegexOptions.IgnoreCase)||
-                    Regex.IsMatch(parsingBufer, item.Width + @"/" + item.Height + @"/" + item.Diameter, RegexOptions.IgnoreCase)) {
+                if (width==item.Width && height == item.Height && diameter == item.Diameter) {
                     Resault.Add(item);
                 }
             }

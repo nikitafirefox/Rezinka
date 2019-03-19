@@ -10,6 +10,7 @@ using ProjectX.ExcelParsing;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ProjectX.AnalysisType;
 
 namespace ProjectX.Dict
 {
@@ -464,11 +465,54 @@ namespace ProjectX.Dict
 
             List<ParsingRow> Resault = new List<ParsingRow>();
 
+            ProviderRegulars providerRegulars = new ProviderRegulars();
+            providerRegulars.Add("A0");
+            string idR = providerRegulars.Add("A0", "[0-9]{3}/[0-9]{2}R[0-9]{2}", 0);
+            providerRegulars.Add("A0", idR, "[0-9]{3}", 0, "width");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 1, "height");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
+
+            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{2}\\.[0-9]{1}R[0-9]{2}", 0);
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
+            providerRegulars.Add("A0", idR, "[0-9]{2}\\.[0-9]{1}", 0, "height");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
+
+            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{2}\\.[0-9]{2}R[0-9]{2}", 0);
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
+            providerRegulars.Add("A0", idR, "[0-9]{2}\\.[0-9]{2}", 0, "height");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 3, "diameter");
+
+            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{1}\\.[0-9]{2}R[0-9]{2}", 0);
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
+            providerRegulars.Add("A0", idR, "[0-9]{1}\\.[0-9]{2}", 0, "height");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
+
+            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{1}\\.[0-9]{1}R[0-9]{2}", 0);
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
+            providerRegulars.Add("A0", idR, "[0-9]{1}\\.[0-9]{1}", 0, "height");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 1, "diameter");
+
+
+            providerRegulars.Add("A1");
+            idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}R[0-9]{2}", 0);
+            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
+
+            idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}ZR[0-9]{2}", 0);
+            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
+
+
+
+
+
+
             foreach (var item in parsingRows)
             {
-                if (Regex.IsMatch(item.ParsingBufer, @"[0-9]{3}/[0-9]{2}R[0-9]{2}", RegexOptions.IgnoreCase) ||
-                    Regex.IsMatch(item.ParsingBufer, @"[0-9]{3}/[0-9]{2}ZR[0-9]{2}", RegexOptions.IgnoreCase) ||
-                     Regex.IsMatch(item.ParsingBufer, @"[0-9]{3}/[0-9]{2}/[0-9]{2}", RegexOptions.IgnoreCase))
+                if 
+                     (providerRegulars.IsContainMarking(item.IdProvider,item.ParsingBufer))
                 {
                     List<Brand> brands = AnalysisBrand(item.ParsingBufer);
                     string name = "Товар";
@@ -481,35 +525,26 @@ namespace ProjectX.Dict
                         {
                             id += "-" + models.First().Id;
                             name += " " + models.First().Name;
-                            List <Marking> markings = models.First().AnalysisMarking(item.ParsingBufer);
+
+                            Dictionary<string, string> keyValues = providerRegulars.GetDictionary(item.IdProvider, item.ParsingBufer, out string s);
+
+                            string width;
+                            string height ;
+                            string diameter ;
+
+                            try
+                            {
+                                 width = keyValues["width"];
+                                 height = keyValues["height"];
+                                 diameter = keyValues["diameter"];
+                            }
+                            catch {
+                                continue;
+                            }
+
+                            List <Marking> markings = models.First().AnalysisMarking(width,height, diameter);
                             if (markings.Count == 0)
                             {
-                                
-                                string mark = null;
-                                string width = null;
-                                string height = null;
-                                string diameter = null;
-                                if (Regex.IsMatch(item.ParsingBufer, @"[0-9]{3}/[0-9]{2}R[0-9]{2}", RegexOptions.IgnoreCase))
-                                {
-                                    mark = Regex.Match(item.ParsingBufer, @"[0-9]{3}/[0-9]{2}R[0-9]{2}", RegexOptions.IgnoreCase).Value;
-                                    width = Regex.Match(mark, @"[0-9]{3}", RegexOptions.IgnoreCase).Value;
-                                    height = Regex.Match(mark, @"/[0-9]{2}", RegexOptions.IgnoreCase).Value.Replace("/", "");
-                                    diameter = Regex.Match(mark, @"R[0-9]{2}", RegexOptions.IgnoreCase).Value.ToUpper().Replace("R", "");
-                                }
-                                else if (Regex.IsMatch(item.ParsingBufer, @"[0-9]{3}/[0-9]{2}ZR[0-9]{2}", RegexOptions.IgnoreCase))
-                                {
-                                    mark = Regex.Match(item.ParsingBufer, @"[0-9]{3}/[0-9]{2}ZR[0-9]{2}", RegexOptions.IgnoreCase).Value;
-                                    width = Regex.Match(mark, @"[0-9]{3}", RegexOptions.IgnoreCase).Value;
-                                    height = Regex.Match(mark, @"/[0-9]{2}", RegexOptions.IgnoreCase).Value.Replace("/", "");
-                                    diameter = Regex.Match(mark, @"R[0-9]{2}", RegexOptions.IgnoreCase).Value.ToUpper().Replace("R", "");
-                                }
-                                else
-                                {
-                                    mark = Regex.Match(item.ParsingBufer, @"[0-9]{3}/[0-9]{2}/[0-9]{2}", RegexOptions.IgnoreCase).Value;
-                                    width = Regex.Match(mark, @"[0-9]{3}", RegexOptions.IgnoreCase).Value;
-                                    height = Regex.Matches(mark, @"/[0-9]{2}", RegexOptions.IgnoreCase)[0].Value.Replace("/", "");
-                                    diameter = Regex.Matches(mark, @"/[0-9]{2}", RegexOptions.IgnoreCase)[1].Value.ToUpper().Replace("/", "");
-                                }
 
                                 id += "-" + models.First().Add(width, height, diameter, "", "", "", "", "", "", false, false, "");
                                 name += " " + width + "/" + height + "R" + diameter;

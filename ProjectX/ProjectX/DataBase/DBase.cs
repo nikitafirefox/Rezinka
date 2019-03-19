@@ -38,6 +38,7 @@ namespace ProjectX.DataBase
                 string dataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data");
                 if (!Directory.Exists(dataDirectory)) { Directory.CreateDirectory(dataDirectory); }
                 GenId = new GenId('A', -1, 1);
+                DefaultMarkup = 10;
                 FileStream fs = new FileStream(pathXML, FileMode.Create);
                 XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.Unicode)
                 {
@@ -640,7 +641,7 @@ namespace ProjectX.DataBase
             IdPosition = idPosition;
             PriceProv = priceProv;
             Markup = markup;
-            TotalPrice = Math.Round((priceProv * (1 + markup / 100)) / 10) * 10;
+            TotalPrice = Math.Round((priceProv * (1 + markup / 100)) / 10, MidpointRounding.AwayFromZero) * 10;
             Count = count;
         }
 
@@ -695,7 +696,7 @@ namespace ProjectX.DataBase
     }
 
 
-    class DBSortedMarking
+    public class DBSortedMarking
     {
         public string IdProduct { get; set; }
         public string IdPosition { get; set; }

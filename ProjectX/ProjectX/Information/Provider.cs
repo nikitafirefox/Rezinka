@@ -167,7 +167,7 @@ namespace ProjectX.Information
             Id = id;
             Name = name;
             Priority = priority;
-            GenId = new GenId('A',0,0);
+            GenId = new GenId('A',-1,1);
             Stocks = new List<Stock>();
         }
 
