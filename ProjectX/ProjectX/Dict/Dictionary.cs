@@ -554,6 +554,8 @@ namespace ProjectX.Dict
             idR = providerRegulars.Add("A0", "XL", 2);
             providerRegulars.Add("A0", idR, "XL", 0, "extraLoad");
 
+            providerRegulars.AddPassString("A0","CHLEN");
+
 
             providerRegulars.Add("A1");
             idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}R[0-9]{2}", 0);
@@ -604,6 +606,9 @@ namespace ProjectX.Dict
             idR = providerRegulars.Add("A1", "XL", 2);
             providerRegulars.Add("A1", idR, "XL", 0, "extraLoad");
 
+            providerRegulars.Save();
+
+            providerRegulars = new ProviderRegulars();
 
 
 

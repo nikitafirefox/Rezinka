@@ -137,6 +137,21 @@ namespace ProjectX.AnalysisType
             return id;
         }
 
+        public void AddPassString(string idProv, string passString) {
+            int i = ProviderRegularsList.FindIndex(x => x.IdProvier == idProv);
+            ProviderRegular PR;
+            if (i == -1)
+            {
+                ProviderRegularsList.Add(PR = new ProviderRegular(idProv));
+            }
+            else
+            {
+                PR = ProviderRegularsList[i];
+            }
+
+            PR.AddPassString(passString);
+        }
+
         public bool IsContainMarking(string idProv, string buffer) {
 
             var config = ProviderRegularsList.Where(x => x.IdProvier == idProv).First().GetListByPriority(0);
@@ -184,7 +199,8 @@ namespace ProjectX.AnalysisType
             Dictionary<string, string> keyValues = new Dictionary<string, string>();
             outBuffer = buffer;
 
-            var priorityArray = ProviderRegularsList.Where(x => x.IdProvier == idProv).First().GetPrioritys();
+            var thisProviderRegular = ProviderRegularsList.Where(x => x.IdProvier == idProv).First();
+            var priorityArray = thisProviderRegular.GetPrioritys();
             foreach (var item in priorityArray)
             {
                 var config = ProviderRegularsList.Where(x => x.IdProvier == idProv).First().GetListByPriority(item);
@@ -234,7 +250,12 @@ namespace ProjectX.AnalysisType
                      
                 }
 
+
+
             }
+
+            outBuffer = thisProviderRegular.Replace(outBuffer);
+
             return keyValues;
         }
     }
@@ -246,12 +267,13 @@ namespace ProjectX.AnalysisType
         public string IdProvier { get; private set; }
 
         private List<PrimaryRegular> PrimaryRegulars { get; set; }
-
+        private List<string> PassString { get; set; }
 
 
         public ProviderRegular(XmlNode x)
         {
             PrimaryRegulars = new List<PrimaryRegular>();
+            PassString = new List<string>();
 
             IdProvier = x.Attributes.GetNamedItem("id").Value;
 
@@ -264,6 +286,10 @@ namespace ProjectX.AnalysisType
             {
                 PrimaryRegulars.Add(new PrimaryRegular(xNode));
             }
+
+            foreach (XmlNode xNode in x.SelectSingleNode("passStrings").ChildNodes) {
+                PassString.Add(xNode.InnerText);
+            }
         }
 
         public ProviderRegular(string idProv)
@@ -271,6 +297,7 @@ namespace ProjectX.AnalysisType
             IdProvier = idProv;
             Gen = new GenId('A', -1, 1);
             PrimaryRegulars = new List<PrimaryRegular>();
+            PassString = new List<string>();
         }
 
         public XmlNode GetXmlNode(XmlDocument xmlDocument)
@@ -287,8 +314,24 @@ namespace ProjectX.AnalysisType
                 regularsElement.AppendChild(item.GetXmlNode(xmlDocument));
             }
 
+            XmlElement passStringsElem;
+            element.AppendChild(passStringsElem = xmlDocument.CreateElement("passStrings"));
+            XmlElement e;
+            foreach (var item in PassString)
+            {
+                e = xmlDocument.CreateElement("passString");
+                e.InnerText = item;
+                passStringsElem.AppendChild(e);
+
+            }
+
             return element;
         }
+
+        public void AddPassString(string s) {
+            PassString.Add(s);
+        }
+
 
         public string Add(string reg, int priority)
         {
@@ -323,7 +366,7 @@ namespace ProjectX.AnalysisType
             return PrimaryRegulars.Select(x => x.Priority).Distinct().ToArray();
         }
 
-        internal string Add(string idReg, string value, string name)
+        public string Add(string idReg, string value, string name)
         {
             int i = PrimaryRegulars.FindIndex(x => x.Id == idReg);
             PrimaryRegular PR;
@@ -337,6 +380,15 @@ namespace ProjectX.AnalysisType
             string id = PR.Add(value,name);
 
             return id;
+        }
+
+        public string Replace(string str) {
+            string outStr = str;
+            foreach (var item in PassString)
+            {
+                outStr = outStr.Replace(item, "");
+            }
+            return str;
         }
     }
 
