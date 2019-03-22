@@ -27,6 +27,7 @@ namespace ProjectX.ExcelParsing
             Price = price;
             ExcelRowIndex = ERIndex;
             IdProvider = idProvider;
+            Resault = null;
         }
 
         public override string ToString() {

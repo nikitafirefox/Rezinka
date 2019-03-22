@@ -156,9 +156,8 @@ namespace ProjectX.AnalysisType
 
             var config = ProviderRegularsList.Where(x => x.IdProvier == idProv).First().GetListByPriority(0);
 
-            config.Sort((x, y) => x.RegularString.CompareTo(y.RegularString));
+            config.Sort((x, y) => y.RegularString.Length.CompareTo(x.RegularString.Length));
 
-            config.Reverse();
 
             bool b = false;
 
@@ -205,9 +204,8 @@ namespace ProjectX.AnalysisType
             {
                 var config = ProviderRegularsList.Where(x => x.IdProvier == idProv).First().GetListByPriority(item);
 
-                config.Sort((x, y) => x.RegularString.CompareTo(y.RegularString));
+                config.Sort((x, y) => y.RegularString.Length.CompareTo(x.RegularString.Length));
 
-                config.Reverse();
 
 
                 PrimaryRegular primary = null;
@@ -386,9 +384,13 @@ namespace ProjectX.AnalysisType
             string outStr = str;
             foreach (var item in PassString)
             {
-                outStr = outStr.Replace(item, "");
+                string sov_item = Regex.Match(outStr, Regex.Escape(item), RegexOptions.IgnoreCase).Value;
+                if (sov_item != "")
+                {
+                    outStr = outStr.Replace(sov_item, "");
+                }
             }
-            return str;
+            return outStr;
         }
     }
 

@@ -296,7 +296,10 @@ namespace ProjectX
 
 
             sw.Restart();
-            ParsingRow[] rows = dictionary.Analysis(ref parsings).Where(x => x.Resault is GResault).ToArray();
+            var res = dictionary.Analysis(ref parsings);
+            ParsingRow[] rows = res.Where(x => x.Resault is GResault).ToArray();
+            ParsingRow[] bRows= res.Where(x => x.Resault is BResault).ToArray();
+            ParsingRow[] NRows = res.Where(x => x.Resault is NResault).ToArray();
             sw.Stop();
             Console.WriteLine("Анализ данных " + sw.ElapsedMilliseconds + " мс");
 
@@ -329,7 +332,7 @@ namespace ProjectX
 
 
             sw.Restart();
-            dBase.SaveDataExcel(@"C:\Users\mark\Downloads\Прайсы\Data6.xlsx", new string[] { "A0" },new ExcelDefaultOutParametrics(false,false,false
+            dBase.SaveDataExcel(@"C:\Users\mark\Downloads\Прайсы\Data6.xlsx", new string[] { "A0","A1" },new ExcelDefaultOutParametrics(false,false,false
                 ,false,false,false,true,true),new ExcelProviderOutParametrics(providers,true,false,false,true),new ExcelProductOutParametrics(dictionary,true,false,
                 false,false,false,true,false,false,true,false,false,true,true,true,true,true,false,false,false,false,false,true,false));
             sw.Stop();

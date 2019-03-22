@@ -37,6 +37,16 @@ namespace ProjectX.ExcelParsing
 
     public class NResault : Resault
     {
+        private Dictionary<string, string> KeyValuePairs { get; set;}
+        
+        public string BufferAfterParse;
+
+        public NResault(string mes,Dictionary<string,string> keyValues,string bufferAfterParsing) {
+            BufferAfterParse = bufferAfterParsing;
+            KeyValuePairs = keyValues;
+            Message = mes;
+
+        }
         
     }
 

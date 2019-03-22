@@ -182,34 +182,12 @@ namespace ProjectX.Dict
             }
         }
 
-        public List<Model> AnalysisModel(string parsingBufer)
-        {
-            Models.Sort((x1,x2)=> x1.Name.ToLower().CompareTo(x2.Name.ToLower()));
-            List<Model> Resault = new List<Model>();
-            foreach (var item in Models)
-            {
-                if (item.IsMatched(parsingBufer)) {
-                    bool b = false;
-                    Model resmodel = null;
-                    foreach (var item2 in Resault)
-                    {
-                        if (Regex.IsMatch(item.Name, item2.Name, RegexOptions.IgnoreCase)) {
-                            resmodel = item2;
-                            b = true;
-                            break;
-                        }
-                    }
-                    if (b) {
-                        Resault.Remove(resmodel);
-                    }
-                    Resault.Add(item);
-                }
-            }
-            return Resault;
-        }
-
         public List<Model> AnalysisModel(string parsingBufer,out List<string> variationStrings)
         {
+            if (parsingBufer.Contains("205/70R15 96T UltraGrip Ice Arctic SUV D-Stud(шип.) Goodyear"))
+            {
+                int i = 0;
+            }
             Models.Sort((x1, x2) => x1.Name.ToLower().CompareTo(x2.Name.ToLower()));
             List<Model> Resault = new List<Model>();
             variationStrings = new List<string>();
@@ -219,12 +197,14 @@ namespace ProjectX.Dict
                 if (item.IsMatched(parsingBufer, out variation))
                 {
                     bool b = false;
-                    Model resmodel = null;
-                    foreach (var item2 in Resault)
+                    string resmodel = "";
+                    foreach (var var2 in variationStrings)
                     {
-                        if (Regex.IsMatch(item.Name, item2.Name, RegexOptions.IgnoreCase))
+                     
+                        if (Regex.IsMatch(variation, Regex.Escape(var2), RegexOptions.IgnoreCase))
                         {
-                            resmodel = item2;
+                           
+                            resmodel = var2;
                             b = true;
                             
                             break;
@@ -232,7 +212,8 @@ namespace ProjectX.Dict
                     }
                     if (b)
                     {
-                        Resault.Remove(resmodel);
+                        Resault.RemoveAt(variationStrings.FindIndex(x => x == resmodel));
+                        variationStrings.Remove(resmodel);
                     }
                     Resault.Add(item);
                     variationStrings.Add(variation);

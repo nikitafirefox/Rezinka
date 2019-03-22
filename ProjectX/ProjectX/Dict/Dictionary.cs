@@ -450,17 +450,7 @@ namespace ProjectX.Dict
 
         public void Close() => AutoSaveThead.Interrupt();
 
-        public List<Brand> AnalysisBrand(string buffer) {
-            List<Brand> Resault = new List<Brand>();
-            foreach (var item in Brands)
-            {
 
-                if (item.IsMatch(buffer)) {
-                    Resault.Add(item);
-                }
-            }
-            return Resault;
-        }
 
         public List<Brand> AnalysisBrand(string buffer, out List<string> variationsStrings)
         {
@@ -473,12 +463,13 @@ namespace ProjectX.Dict
                 {
 
                     bool b = false;
-                    Brand resBrand = null;
-                    foreach (var item2 in Resault)
+                    string resBrand = "";
+                    foreach (var var2 in variationsStrings)
                     {
-                        if (Regex.IsMatch(item.Name, item2.Name, RegexOptions.IgnoreCase))
+
+                        if (Regex.IsMatch(variation, Regex.Escape(var2), RegexOptions.IgnoreCase))
                         {
-                            resBrand = item2;
+                            resBrand = var2;
                             b = true;
 
                             break;
@@ -486,9 +477,9 @@ namespace ProjectX.Dict
                     }
                     if (b)
                     {
-                        Resault.Remove(resBrand);
+                        Resault.RemoveAt(variationsStrings.FindIndex(x => x == resBrand));
+                        variationsStrings.Remove(resBrand);
                     }
-
                     Resault.Add(item);
                     variationsStrings.Add(variation);
                 }
@@ -497,8 +488,12 @@ namespace ProjectX.Dict
         }
 
 
+        public List<ParsingRow> Analysis(ref List<ParsingRow> parsingRows) {
+            return Analysis(ref parsingRows, false);
+        }   
 
-        public  List<ParsingRow> Analysis(ref List<ParsingRow> parsingRows)
+
+        public  List<ParsingRow> Analysis(ref List<ParsingRow> parsingRows,bool deepSearch)
         {
             
 
@@ -646,6 +641,8 @@ namespace ProjectX.Dict
             idR = providerRegulars.Add("A1", "Да", 3);
             providerRegulars.Add("A1", idR, "Зимняя шипованная", "season");
 
+            providerRegulars.AddPassString("A1","TL");
+
 
 
 
@@ -654,130 +651,176 @@ namespace ProjectX.Dict
                 string parsBuf = item.ParsingBufer;
 
                 int countMarking = providerRegulars.CountMarking(item.IdProvider, item.ParsingBufer);
-                if
-                     (countMarking == 1)
+                if (countMarking == 1)
                 {
-                    List<string> variationsStrings = new List<string>();
+                    List<string> variationsStringsBrands = new List<string>();
+                    List<string> variationsStringsModels = new List<string>();
                     string sov_variation;
-                    List<Brand> brands = AnalysisBrand(item.ParsingBufer, out variationsStrings);
-                    foreach (string variation in variationsStrings)
+                    List<Brand> brands = AnalysisBrand(item.ParsingBufer, out variationsStringsBrands);
+                    
+                    string name = "Товар";
+                    string id = "";
+                   
+                   
+                    bool already_find_model = false;
+  
+                    Brand findedBrand = null;
+                    Model findedModel = null;
+                    if (brands.Count == 0 && deepSearch)
                     {
-                        sov_variation = Regex.Match(parsBuf,variation,RegexOptions.IgnoreCase).Value;
+                        brands = Brands;
+                    }
+                    else if (brands.Count == 0 && !deepSearch) {
+                        continue;
+                    }
+                    
+
+                    foreach (Brand brand in brands)
+                        {
+                            List<string> variationsStrings = new List<string>();
+                            List<Model> models = brand.AnalysisModel(item.ParsingBufer, out variationsStrings);
+                           
+                            if (models.Count == 1 && !(already_find_model))
+                            {
+                                findedModel = models.First();
+                                findedBrand = brand;
+                                already_find_model = true;
+                                variationsStringsModels = variationsStrings;
+                            }
+                            else if (models.Count == 0 && !(already_find_model))
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                already_find_model = false;
+                                item.Resault = new BResault("Более 1 модели");
+                                break;
+
+                            }
+                        }
+
+                    if (item.IdProvider == "A0") {
+                        int i = 0;
+                    }
+
+                    if (!already_find_model)
+                    {
+                        if (item.Resault == null)
+                        {
+                            Dictionary<string,string> keyValuePairs = providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string str);
+                            string mes = "Не найдена модель";
+                            if (brands.Count==0||brands.Count == Brands.Count) { mes = "Не найден производитель"; }
+
+                            item.Resault = new NResault(mes, keyValuePairs,str);
+                        }
+                       continue;
+                    }
+
+                    variationsStringsBrands.Sort((x, y) => y.Length.CompareTo(x.Length));
+                    foreach (string variation in variationsStringsBrands)
+                    {
+                        sov_variation = Regex.Match(parsBuf, Regex.Escape(variation), RegexOptions.IgnoreCase).Value;
                         if (sov_variation != "")
                         {
                             parsBuf = parsBuf.Replace(sov_variation, "");
                         }
                     }
 
-
-                    string name = "Товар";
-                    
-
-                    if (brands.Count == 1)
+                    variationsStringsModels.Sort((x, y) => y.Length.CompareTo(x.Length));
+                    foreach (string variation in variationsStringsModels)
                     {
-                        if (brands.First().Name == "Achilles")
+                        sov_variation = Regex.Match(parsBuf, Regex.Escape(variation), RegexOptions.IgnoreCase).Value;
+                        if (sov_variation != "")
                         {
-                            int i = 0;
+                            parsBuf = parsBuf.Replace(sov_variation, "");
                         }
-
-                        string id = brands.First().Id;
-                        name += " " + brands.First().Name;
-                        List<Model> models = brands.First().AnalysisModel(item.ParsingBufer, out variationsStrings);
-                        if (models.Count == 1)
-                        {
-                            id += "-" + models.First().Id;
-                            name += " " + models.First().Name;
-
-                            variationsStrings.Sort((x, y) => y.Length.CompareTo(x.Length));
-                            foreach (string variation in variationsStrings)
-                            {
-                                sov_variation = Regex.Match(parsBuf, variation, RegexOptions.IgnoreCase).Value;
-                                if (sov_variation != "")
-                                {
-                                    parsBuf = parsBuf.Replace(sov_variation, "");
-                                }
-                            }
-
-
-                            Dictionary<string, string> keyValues = providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string s);
-                            if (s.Trim() != ""){
-                                continue;
-                            }
-                          
-                            string width;
-                            string height;
-                            string diameter;
-                            bool commercial = false;
-                            string indexSpeed = "";
-                            string loadIndex = "";
-                            bool extraLoad = false;
-                            string season = "";
-                            bool runFlat = false;
-                            string countryBrand = "";
-                            string countryMarking = "";
-                            string tractionIndex = "";
-                            string temperatureIndex = "";
-                            string treadwearIndex = "";
-                            string flangeProtection = "";
-                            string whileLetters = "";
-                            bool mudSnow = false;
-                            string runFlatName = "";
-                            string type = "";
-
-
-                            try
-                            {
-                                width = keyValues["width"];
-                                height = keyValues["height"];
-                                diameter = keyValues["diameter"];
-
-                            }
-                            catch
-                            {
-                                continue;
-                            }
-
-                            if (keyValues.ContainsKey("commercial")) { commercial = true; }
-                            if (keyValues.ContainsKey("speedIndex")) { indexSpeed = keyValues["speedIndex"]; }
-                            if (keyValues.ContainsKey("loadIndex")) { loadIndex = keyValues["loadIndex"]; }
-                            if (keyValues.ContainsKey("extraLoad")) { extraLoad = true; }
-                            if (keyValues.ContainsKey("season")) { season = keyValues["season"];  }
-                            if (keyValues.ContainsKey("runFlat")) { runFlat = true; }
-                            if (keyValues.ContainsKey("countryBrand")) { countryBrand = keyValues["countryBrand"]; }
-                            if (keyValues.ContainsKey("countryMarking")) { countryMarking = keyValues["countryMarking"]; }
-                            if (keyValues.ContainsKey("tractionIndex")) { tractionIndex = keyValues["tractionIndex"]; }
-                            if (keyValues.ContainsKey("temperatureIndex")) { temperatureIndex = keyValues["temperatureIndex"]; }
-                            if (keyValues.ContainsKey("treadwearIndex")) { treadwearIndex = keyValues["treadwearIndex"]; }
-                            if (keyValues.ContainsKey("whileLetters")) { whileLetters = keyValues["whileLetters"]; }
-                            if (keyValues.ContainsKey("mudSnow")) { mudSnow = true; }
-                            if (keyValues.ContainsKey("runFlatName")) { runFlatName = keyValues["runFlatName"]; }
-                            if (keyValues.ContainsKey("type")) { type = keyValues["type"]; }
-
-
-
-                            Marking marking = models.First().SearchMarking(width,height,diameter,out bool isContainMarking);
-                            if (isContainMarking)
-                            {
-                                id += "-" + marking.Id;
-                                name += " " + marking.Width + "/" + marking.Height + "R" + marking.Diameter;
-                                item.Resault = new GResault(id, name, "Существующий");
-                            }
-                            else
-                            {
-                                id += "-" + models.First().Add(width, height, diameter, indexSpeed, loadIndex, countryMarking, tractionIndex, temperatureIndex, treadwearIndex, extraLoad, runFlat,flangeProtection);
-                                name += " " + width + "/" + height + "R" + diameter;
-                                item.Resault = new GResault(id, name, "Новый");
-                            }
-
-                        }
-
                     }
+
+                    id = findedBrand.Id;
+                    name += " " + findedBrand.Name;
+                    id += "-" + findedModel.Id;
+                    name += " " + findedModel.Name;
+
+                    Dictionary<string, string> keyValues = providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string s);
+                        if (s.Trim() != "")
+                        {
+                            continue;
+                        }
+
+                        string width;
+                        string height;
+                        string diameter;
+                        bool commercial = false;
+                        string indexSpeed = "";
+                        string loadIndex = "";
+                        bool extraLoad = false;
+                        string season = "";
+                        bool runFlat = false;
+                        string countryBrand = "";
+                        string countryMarking = "";
+                        string tractionIndex = "";
+                        string temperatureIndex = "";
+                        string treadwearIndex = "";
+                        string flangeProtection = "";
+                        string whileLetters = "";
+                        bool mudSnow = false;
+                        string runFlatName = "";
+                        string type = "";
+
+
+                        try
+                        {
+                            width = keyValues["width"];
+                            height = keyValues["height"];
+                            diameter = keyValues["diameter"];
+
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+
+                        if (keyValues.ContainsKey("commercial")) { commercial = true; }
+                        if (keyValues.ContainsKey("speedIndex")) { indexSpeed = keyValues["speedIndex"]; }
+                        if (keyValues.ContainsKey("loadIndex")) { loadIndex = keyValues["loadIndex"]; }
+                        if (keyValues.ContainsKey("extraLoad")) { extraLoad = true; }
+                        if (keyValues.ContainsKey("season")) { season = keyValues["season"]; }
+                        if (keyValues.ContainsKey("runFlat")) { runFlat = true; }
+                        if (keyValues.ContainsKey("countryBrand")) { countryBrand = keyValues["countryBrand"]; }
+                        if (keyValues.ContainsKey("countryMarking")) { countryMarking = keyValues["countryMarking"]; }
+                        if (keyValues.ContainsKey("tractionIndex")) { tractionIndex = keyValues["tractionIndex"]; }
+                        if (keyValues.ContainsKey("temperatureIndex")) { temperatureIndex = keyValues["temperatureIndex"]; }
+                        if (keyValues.ContainsKey("treadwearIndex")) { treadwearIndex = keyValues["treadwearIndex"]; }
+                        if (keyValues.ContainsKey("whileLetters")) { whileLetters = keyValues["whileLetters"]; }
+                        if (keyValues.ContainsKey("mudSnow")) { mudSnow = true; }
+                        if (keyValues.ContainsKey("runFlatName")) { runFlatName = keyValues["runFlatName"]; }
+                        if (keyValues.ContainsKey("type")) { type = keyValues["type"]; }
+
+
+
+                        Marking marking = findedModel.SearchMarking(width, height, diameter, out bool isContainMarking);
+                        if (isContainMarking)
+                        {
+                            id += "-" + marking.Id;
+                            name += " " + marking.Width + "/" + marking.Height + "R" + marking.Diameter;
+                            item.Resault = new GResault(id, name, "Существующий");
+                        }
+                        else
+                        {
+                            id += "-" + findedModel.Add(width, height, diameter, indexSpeed, loadIndex, countryMarking, tractionIndex, temperatureIndex, treadwearIndex, extraLoad, runFlat, flangeProtection);
+                            name += " " + width + "/" + height + "R" + diameter;
+                            item.Resault = new GResault(id, name, "Новый");
+                        }
+                    
+                   
                 }
                 else if (countMarking == 0)
                 {
                     item.Resault = new BResault(item.ExcelRowIndex + ") Отсутствие маркировки (error 0)");
                 }
-                else {
+                else
+                {
                     item.Resault = new BResault(item.ExcelRowIndex + ") Найдена несколько маркировок (error 3)");
                 }
             }
