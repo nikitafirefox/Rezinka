@@ -120,6 +120,23 @@ namespace ProjectX.AnalysisType
             return id;
         }
 
+        public string Add(string idProv, string idReg, string value, string name) {
+
+            int i = ProviderRegularsList.FindIndex(x => x.IdProvier == idProv);
+            ProviderRegular PR;
+            if (i == -1)
+            {
+                ProviderRegularsList.Add(PR = new ProviderRegular(idProv));
+            }
+            else
+            {
+                PR = ProviderRegularsList[i];
+            }
+
+            string id = PR.Add(idReg, value, name);
+            return id;
+        }
+
         public bool IsContainMarking(string idProv, string buffer) {
 
             var config = ProviderRegularsList.Where(x => x.IdProvier == idProv).First().GetListByPriority(0);
@@ -190,14 +207,26 @@ namespace ProjectX.AnalysisType
 
                 if (primary == null) { continue;}
                 string str = Regex.Match(outBuffer, primary.RegularString, RegexOptions.IgnoreCase).Value;
-                outBuffer.Replace(str, "");
+                outBuffer = outBuffer.Replace(str, "");
 
                 foreach (RegularParam itemParam in primary)
                 {
-                    string val = Regex.Matches(str, itemParam.RegularString, RegexOptions.IgnoreCase)[itemParam.RegularIndex].Value;
+                    string val;
+
+                    if (itemParam.IsConstant)
+                    {
+                        val = itemParam.Value;
+                    }
+                    else
+                    {
+                        val = Regex.Matches(str, itemParam.RegularString, RegexOptions.IgnoreCase)[itemParam.RegularIndex].Value;
+                    }
+
                     if (keyValues.ContainsKey(itemParam.NameParam))
                     {
-                        keyValues[itemParam.NameParam] = val;
+
+                            keyValues[itemParam.NameParam] = val;
+                        
                     }
                     else {
                         keyValues.Add(itemParam.NameParam, val);
@@ -293,6 +322,22 @@ namespace ProjectX.AnalysisType
         {
             return PrimaryRegulars.Select(x => x.Priority).Distinct().ToArray();
         }
+
+        internal string Add(string idReg, string value, string name)
+        {
+            int i = PrimaryRegulars.FindIndex(x => x.Id == idReg);
+            PrimaryRegular PR;
+
+            if (i == -1)
+            {
+                throw new Exception();
+            }
+
+            PR = PrimaryRegulars[i];
+            string id = PR.Add(value,name);
+
+            return id;
+        }
     }
 
      public class PrimaryRegular : IEnumerable {
@@ -370,6 +415,13 @@ namespace ProjectX.AnalysisType
         {
             return ((IEnumerable)RegularParams).GetEnumerator();
         }
+
+        internal string Add(string value, string name)
+        {
+            string id = Gen.NexVal();
+            RegularParams.Add(new RegularParam(id, value, name));
+            return id;
+        }
     }
 
      public class RegularParam {
@@ -379,13 +431,19 @@ namespace ProjectX.AnalysisType
         public string RegularString { get; set;}
         public int RegularIndex { get; set; }
         public string NameParam { get; set; }
+        public string Value { get; set; }
+        public bool IsConstant { get; set; }
 
         public RegularParam(XmlNode x)
         {
             Id = x.Attributes.GetNamedItem("id").Value;
 
+
+
             RegularString = x.SelectSingleNode("reg").InnerText;
             RegularIndex = int.Parse(x.SelectSingleNode("regIndex").InnerText);
+            Value = x.SelectSingleNode("value").InnerText;
+            IsConstant = bool.Parse(x.SelectSingleNode("isConstant").InnerText);
             NameParam = x.SelectSingleNode("name").InnerText;
         }
 
@@ -395,6 +453,18 @@ namespace ProjectX.AnalysisType
             RegularString = reg;
             RegularIndex = index;
             NameParam = name;
+            IsConstant = false;
+            Value = "";
+        }
+
+        public RegularParam(string id, string value, string name)
+        {
+            Id = id;
+            RegularString = "";
+            RegularIndex = 0;
+            NameParam = name;
+            IsConstant = true;
+            Value = value;
         }
 
         public XmlNode GetXmlNode(XmlDocument xmlDocument)
@@ -408,6 +478,14 @@ namespace ProjectX.AnalysisType
 
             e = xmlDocument.CreateElement("regIndex");
             e.InnerText = RegularIndex.ToString();
+            element.AppendChild(e);
+
+            e = xmlDocument.CreateElement("isConstant");
+            e.InnerText = IsConstant.ToString();
+            element.AppendChild(e);
+
+            e = xmlDocument.CreateElement("value");
+            e.InnerText = Value;
             element.AppendChild(e);
 
             e = xmlDocument.CreateElement("name");

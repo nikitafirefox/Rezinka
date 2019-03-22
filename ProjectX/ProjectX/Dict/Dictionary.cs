@@ -472,6 +472,12 @@ namespace ProjectX.Dict
             providerRegulars.Add("A0", idR, "[0-9]{2}", 1, "height");
             providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
 
+            idR = providerRegulars.Add("A0", "[0-9]{3}/[0-9]{2}R[0-9]{2}C", 0);
+            providerRegulars.Add("A0", idR, "[0-9]{3}", 0, "width");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 1, "height");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
+            providerRegulars.Add("A0", idR, "Yes", "commercial");
+
             idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{2}\\.[0-9]{1}R[0-9]{2}", 0);
             providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
             providerRegulars.Add("A0", idR, "[0-9]{2}\\.[0-9]{1}", 0, "height");
@@ -505,7 +511,7 @@ namespace ProjectX.Dict
             providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
 
 
-
+            providerRegulars.Save();
 
 
 
