@@ -24,6 +24,7 @@ namespace ProjectX.Dict
         private bool HaveChanged { get; set;}
 
 
+
         public Dictionary()
         {
             HaveChanged = false;
@@ -453,12 +454,49 @@ namespace ProjectX.Dict
             List<Brand> Resault = new List<Brand>();
             foreach (var item in Brands)
             {
+
                 if (item.IsMatch(buffer)) {
                     Resault.Add(item);
                 }
             }
             return Resault;
         }
+
+        public List<Brand> AnalysisBrand(string buffer, out List<string> variationsStrings)
+        {
+            List<Brand> Resault = new List<Brand>();
+            variationsStrings = new List<string>();
+            string variation="";
+            foreach (var item in Brands)
+            {
+                if (item.IsMatch(buffer,out variation))
+                {
+
+                    bool b = false;
+                    Brand resBrand = null;
+                    foreach (var item2 in Resault)
+                    {
+                        if (Regex.IsMatch(item.Name, item2.Name, RegexOptions.IgnoreCase))
+                        {
+                            resBrand = item2;
+                            b = true;
+
+                            break;
+                        }
+                    }
+                    if (b)
+                    {
+                        Resault.Remove(resBrand);
+                    }
+
+                    Resault.Add(item);
+                    variationsStrings.Add(variation);
+                }
+            }
+            return Resault;
+        }
+
+
 
         public  List<ParsingRow> Analysis(ref List<ParsingRow> parsingRows)
         {
@@ -531,15 +569,15 @@ namespace ProjectX.Dict
 
 
             idR = providerRegulars.Add("A0", "[0-9]{3}/[0-9]{3}[A-Z]{1}", 1);
-            providerRegulars.Add("A0", idR, "[0-9]{3}", 0, "speedIndex");
+            providerRegulars.Add("A0", idR, "[0-9]{3}/[0-9]{3}", 0, "speedIndex");
             providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
 
             idR = providerRegulars.Add("A0", "[0-9]{3}/[0-9]{2}[A-Z]{1}", 1);
-            providerRegulars.Add("A0", idR, "[0-9]{3}", 0, "speedIndex");
+            providerRegulars.Add("A0", idR, "[0-9]{3}/[0-9]{2}", 0, "speedIndex");
             providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
 
             idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{2}[A-Z]{1}", 1);
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "speedIndex");
+            providerRegulars.Add("A0", idR, "[0-9]{2}/[0-9]{2}", 0, "speedIndex");
             providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
 
             idR = providerRegulars.Add("A0", "[0-9]{3}[A-Z]{1}", 1);
@@ -583,15 +621,15 @@ namespace ProjectX.Dict
 
 
             idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{3}[A-Z]{1}", 1);
-            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "speedIndex");
+            providerRegulars.Add("A1", idR, "[0-9]{3}/[0-9]{3}", 0, "speedIndex");
             providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
 
             idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}[A-Z]{1}", 1);
-            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "speedIndex");
+            providerRegulars.Add("A1", idR, "[0-9]{3}/[0-9]{2}", 0, "speedIndex");
             providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
 
             idR = providerRegulars.Add("A1", "[0-9]{2}/[0-9]{2}[A-Z]{1}", 1);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "speedIndex");
+            providerRegulars.Add("A1", idR, "[0-9]{2}/[0-9]{2}", 0, "speedIndex");
             providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
 
             idR = providerRegulars.Add("A1", "[0-9]{3}[A-Z]{1}", 1);
@@ -613,25 +651,59 @@ namespace ProjectX.Dict
 
             foreach (var item in parsingRows)
             {
+                string parsBuf = item.ParsingBufer;
 
                 int countMarking = providerRegulars.CountMarking(item.IdProvider, item.ParsingBufer);
                 if
                      (countMarking == 1)
                 {
-                    List<Brand> brands = AnalysisBrand(item.ParsingBufer);
+                    List<string> variationsStrings = new List<string>();
+                    string sov_variation;
+                    List<Brand> brands = AnalysisBrand(item.ParsingBufer, out variationsStrings);
+                    foreach (string variation in variationsStrings)
+                    {
+                        sov_variation = Regex.Match(parsBuf,variation,RegexOptions.IgnoreCase).Value;
+                        if (sov_variation != "")
+                        {
+                            parsBuf = parsBuf.Replace(sov_variation, "");
+                        }
+                    }
+
+
                     string name = "Товар";
+                    
+
                     if (brands.Count == 1)
                     {
+                        if (brands.First().Name == "Achilles")
+                        {
+                            int i = 0;
+                        }
+
                         string id = brands.First().Id;
                         name += " " + brands.First().Name;
-                        List<Model> models = brands.First().AnalysisModel(item.ParsingBufer);
+                        List<Model> models = brands.First().AnalysisModel(item.ParsingBufer, out variationsStrings);
                         if (models.Count == 1)
                         {
                             id += "-" + models.First().Id;
                             name += " " + models.First().Name;
 
-                            Dictionary<string, string> keyValues = providerRegulars.GetDictionary(item.IdProvider, item.ParsingBufer, out string s);
+                            variationsStrings.Sort((x, y) => y.Length.CompareTo(x.Length));
+                            foreach (string variation in variationsStrings)
+                            {
+                                sov_variation = Regex.Match(parsBuf, variation, RegexOptions.IgnoreCase).Value;
+                                if (sov_variation != "")
+                                {
+                                    parsBuf = parsBuf.Replace(sov_variation, "");
+                                }
+                            }
 
+
+                            Dictionary<string, string> keyValues = providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string s);
+                            if (s.Trim() != ""){
+                                continue;
+                            }
+                          
                             string width;
                             string height;
                             string diameter;
