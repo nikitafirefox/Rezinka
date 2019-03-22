@@ -247,6 +247,22 @@ namespace ProjectX.Dict
             return b;
         }
 
+        public bool IsMatched(string parsingBufer, out string variation)
+        {
+            variation = "";
+            bool b = false;
+            foreach (var item in Variations)
+            {
+                if (Regex.IsMatch(parsingBufer, Regex.Escape(item.Trim(' ')), RegexOptions.IgnoreCase))
+                {
+                    b = true;
+                    variation = item;
+                    break;
+                }
+            }
+            return b;
+        }
+
         public void Set(string name, string type, string season, string description, bool commercial,
             string whileLetters, bool mudSnow) {
             Name = name;

@@ -208,6 +208,42 @@ namespace ProjectX.Dict
             return Resault;
         }
 
+        public List<Model> AnalysisModel(string parsingBufer,out List<string> variationStrings)
+        {
+            Models.Sort((x1, x2) => x1.Name.ToLower().CompareTo(x2.Name.ToLower()));
+            List<Model> Resault = new List<Model>();
+            variationStrings = new List<string>();
+            string variation;
+            foreach (var item in Models)
+            {
+                if (item.IsMatched(parsingBufer, out variation))
+                {
+                    bool b = false;
+                    Model resmodel = null;
+                    foreach (var item2 in Resault)
+                    {
+                        if (Regex.IsMatch(item.Name, item2.Name, RegexOptions.IgnoreCase))
+                        {
+                            resmodel = item2;
+                            b = true;
+                            
+                            break;
+                        }
+                    }
+                    if (b)
+                    {
+                        Resault.Remove(resmodel);
+                    }
+                    Resault.Add(item);
+                    variationStrings.Add(variation);
+                }
+            }
+            return Resault;
+        }
+
+
+
+
         public void Set(string name, string country, string description, string runFlatName) {
             Name = name;
             Country = country;
@@ -303,6 +339,22 @@ namespace ProjectX.Dict
             {
                 if (Regex.IsMatch(buffer, Regex.Escape(item.Trim(' ')), RegexOptions.IgnoreCase)) {
                     b = true;
+                    break;
+                }
+            }
+            return b;
+        }
+
+        public bool IsMatch(string buffer, out string variationString)
+        {
+            bool b = false;
+            variationString = "";
+            foreach (var item in Variations)
+            {
+                if (Regex.IsMatch(buffer, Regex.Escape(item.Trim(' ')), RegexOptions.IgnoreCase))
+                {
+                    b = true;
+                    variationString = item;
                     break;
                 }
             }
