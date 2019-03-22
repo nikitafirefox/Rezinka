@@ -33,8 +33,8 @@ namespace ProjectX
             Console.WriteLine("********************************************************************\n");
             Console.WriteLine("-------------------------TEST1--------------------------------------\n");
 
-            var fileName1 = @"C:\Users\ACER\Desktop\Прайсы\ВячеСлавик.xlsx";
-            var fileName2 = @"C:\Users\ACER\Desktop\Прайсы\4точки.xlsx";
+            var fileName1 = @"C:\Users\mark\Downloads\VyacheSlavik.xlsx";
+            var fileName2 = @"C:\Users\mark\Downloads\4tocki.xlsx";
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -139,7 +139,7 @@ namespace ProjectX
             Console.WriteLine("Инициализация словаря XML (пустой) " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            dictionary.GetItemFromTxt(@"C:\Users\ACER\Desktop\Прайсы\Dictionary.txt");
+            dictionary.GetItemFromTxt(@"C:\Users\mark\Downloads\Dictionary_new.txt");
             sw.Stop();
             Console.WriteLine("Подгрузка словаря из файла TXT " + sw.ElapsedMilliseconds + " мс");
 
