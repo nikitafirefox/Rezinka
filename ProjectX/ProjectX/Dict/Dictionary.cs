@@ -23,6 +23,7 @@ namespace ProjectX.Dict
         private Thread AutoSaveThead { get; set;}
         private bool HaveChanged { get; set;}
 
+
         public Dictionary()
         {
             HaveChanged = false;
@@ -549,11 +550,13 @@ namespace ProjectX.Dict
             providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "speedIndex");
             providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
 
-
-
             idR = providerRegulars.Add("A0", "XL", 2);
             providerRegulars.Add("A0", idR, "XL", 0, "extraLoad");
 
+            idR = providerRegulars.Add("A0", "Шип",3);
+            providerRegulars.Add("A0", idR, "Зимняя шипованная", "season");
+
+          
 
             providerRegulars.Add("A1");
             idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}R[0-9]{2}", 0);
@@ -599,10 +602,11 @@ namespace ProjectX.Dict
             providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "speedIndex");
             providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
 
-
-
             idR = providerRegulars.Add("A1", "XL", 2);
             providerRegulars.Add("A1", idR, "XL", 0, "extraLoad");
+
+            idR = providerRegulars.Add("A1", "Да", 3);
+            providerRegulars.Add("A1", idR, "Зимняя шипованная", "season");
 
 
 
@@ -631,17 +635,53 @@ namespace ProjectX.Dict
                             string width;
                             string height;
                             string diameter;
+                            bool commercial = false;
+                            string indexSpeed = "";
+                            string loadIndex = "";
+                            bool extraLoad = false;
+                            string season = "";
+                            bool runFlat = false;
+                            string countryBrand = "";
+                            string countryMarking = "";
+                            string tractionIndex = "";
+                            string temperatureIndex = "";
+                            string treadwearIndex = "";
+                            string flangeProtection = "";
+                            string whileLetters = "";
+                            bool mudSnow = false;
+                            string runFlatName = "";
+                            string type = "";
+
 
                             try
                             {
                                 width = keyValues["width"];
                                 height = keyValues["height"];
                                 diameter = keyValues["diameter"];
+
                             }
                             catch
                             {
                                 continue;
                             }
+
+                            if (keyValues.ContainsKey("commercial")) { commercial = true; }
+                            if (keyValues.ContainsKey("speedIndex")) { indexSpeed = keyValues["speedIndex"]; }
+                            if (keyValues.ContainsKey("loadIndex")) { loadIndex = keyValues["loadIndex"]; }
+                            if (keyValues.ContainsKey("extraLoad")) { extraLoad = true; }
+                            if (keyValues.ContainsKey("season")) { season = keyValues["season"];  }
+                            if (keyValues.ContainsKey("runFlat")) { runFlat = true; }
+                            if (keyValues.ContainsKey("countryBrand")) { countryBrand = keyValues["countryBrand"]; }
+                            if (keyValues.ContainsKey("countryMarking")) { countryMarking = keyValues["countryMarking"]; }
+                            if (keyValues.ContainsKey("tractionIndex")) { tractionIndex = keyValues["tractionIndex"]; }
+                            if (keyValues.ContainsKey("temperatureIndex")) { temperatureIndex = keyValues["temperatureIndex"]; }
+                            if (keyValues.ContainsKey("treadwearIndex")) { treadwearIndex = keyValues["treadwearIndex"]; }
+                            if (keyValues.ContainsKey("whileLetters")) { whileLetters = keyValues["whileLetters"]; }
+                            if (keyValues.ContainsKey("mudSnow")) { mudSnow = true; }
+                            if (keyValues.ContainsKey("runFlatName")) { runFlatName = keyValues["runFlatName"]; }
+                            if (keyValues.ContainsKey("type")) { type = keyValues["type"]; }
+
+
 
                             Marking marking = models.First().SearchMarking(width,height,diameter,out bool isContainMarking);
                             if (isContainMarking)
@@ -652,7 +692,7 @@ namespace ProjectX.Dict
                             }
                             else
                             {
-                                id += "-" + models.First().Add(width, height, diameter, "", "", "", "", "", "", false, false, "");
+                                id += "-" + models.First().Add(width, height, diameter, indexSpeed, loadIndex, countryMarking, tractionIndex, temperatureIndex, treadwearIndex, extraLoad, runFlat,flangeProtection);
                                 name += " " + width + "/" + height + "R" + diameter;
                                 item.Resault = new GResault(id, name, "Новый");
                             }
