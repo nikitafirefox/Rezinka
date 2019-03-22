@@ -472,25 +472,87 @@ namespace ProjectX.Dict
             providerRegulars.Add("A0", idR, "[0-9]{2}", 1, "height");
             providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
 
+            idR = providerRegulars.Add("A0", "[0-9]{3}/[0-9]{2}R[0-9]{2}C", 0);
+            providerRegulars.Add("A0", idR, "[0-9]{3}", 0, "width");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 1, "height");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
+            providerRegulars.Add("A0",idR, "C", 0, "commercial");
+
+
             idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{2}\\.[0-9]{1}R[0-9]{2}", 0);
             providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
             providerRegulars.Add("A0", idR, "[0-9]{2}\\.[0-9]{1}", 0, "height");
             providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
+
+            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{2}\\.[0-9]{1}R[0-9]{2}C", 0);
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
+            providerRegulars.Add("A0", idR, "[0-9]{2}\\.[0-9]{1}", 0, "height");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
+            providerRegulars.Add("A0", idR, "C", 0, "commercial");
+
+
 
             idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{2}\\.[0-9]{2}R[0-9]{2}", 0);
             providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
             providerRegulars.Add("A0", idR, "[0-9]{2}\\.[0-9]{2}", 0, "height");
             providerRegulars.Add("A0", idR, "[0-9]{2}", 3, "diameter");
 
+            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{2}\\.[0-9]{2}R[0-9]{2}C", 0);
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
+            providerRegulars.Add("A0", idR, "[0-9]{2}\\.[0-9]{2}", 0, "height");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 3, "diameter");
+            providerRegulars.Add("A0", idR, "C", 0, "commercial");
+
+
             idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{1}\\.[0-9]{2}R[0-9]{2}", 0);
             providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
             providerRegulars.Add("A0", idR, "[0-9]{1}\\.[0-9]{2}", 0, "height");
             providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
 
+            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{1}\\.[0-9]{2}R[0-9]{2}C", 0);
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
+            providerRegulars.Add("A0", idR, "[0-9]{1}\\.[0-9]{2}", 0, "height");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
+            providerRegulars.Add("A0", idR, "C", 0, "commercial");
+
+
             idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{1}\\.[0-9]{1}R[0-9]{2}", 0);
             providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
             providerRegulars.Add("A0", idR, "[0-9]{1}\\.[0-9]{1}", 0, "height");
             providerRegulars.Add("A0", idR, "[0-9]{2}", 1, "diameter");
+
+            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{1}\\.[0-9]{1}R[0-9]{2}C", 0);
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
+            providerRegulars.Add("A0", idR, "[0-9]{1}\\.[0-9]{1}", 0, "height");
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 1, "diameter");
+            providerRegulars.Add("A0", idR, "C", 0, "commercial");
+
+
+
+            idR = providerRegulars.Add("A0", "[0-9]{3}/[0-9]{3}[A-Z]{1}", 1);
+            providerRegulars.Add("A0", idR, "[0-9]{3}", 0, "speedIndex");
+            providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
+
+            idR = providerRegulars.Add("A0", "[0-9]{3}/[0-9]{2}[A-Z]{1}", 1);
+            providerRegulars.Add("A0", idR, "[0-9]{3}", 0, "speedIndex");
+            providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
+
+            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{2}[A-Z]{1}", 1);
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "speedIndex");
+            providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
+
+            idR = providerRegulars.Add("A0", "[0-9]{3}[A-Z]{1}", 1);
+            providerRegulars.Add("A0", idR, "[0-9]{3}", 0, "speedIndex");
+            providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
+
+            idR = providerRegulars.Add("A0", "[0-9]{2}[A-Z]{1}", 1);
+            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "speedIndex");
+            providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
+
+
+
+            idR = providerRegulars.Add("A0", "XL", 2);
+            providerRegulars.Add("A0", idR, "XL", 0, "extraLoad");
 
 
             providerRegulars.Add("A1");
@@ -499,12 +561,48 @@ namespace ProjectX.Dict
             providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
             providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
 
+            idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}R[0-9]{2}C", 0);
+            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
+            providerRegulars.Add("A1", idR, "C", 0, "commercial");
+
             idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}ZR[0-9]{2}", 0);
             providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
             providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
             providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
 
+            idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}ZR[0-9]{2}C", 0);
+            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
+            providerRegulars.Add("A1", idR, "C", 0, "commercial");
 
+
+            idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{3}[A-Z]{1}", 1);
+            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "speedIndex");
+            providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
+
+            idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}[A-Z]{1}", 1);
+            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "speedIndex");
+            providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
+
+            idR = providerRegulars.Add("A1", "[0-9]{2}/[0-9]{2}[A-Z]{1}", 1);
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "speedIndex");
+            providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
+
+            idR = providerRegulars.Add("A1", "[0-9]{3}[A-Z]{1}", 1);
+            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "speedIndex");
+            providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
+
+            idR = providerRegulars.Add("A1", "[0-9]{2}[A-Z]{1}", 1);
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "speedIndex");
+            providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
+
+
+
+            idR = providerRegulars.Add("A1", "XL", 2);
+            providerRegulars.Add("A1", idR, "XL", 0, "extraLoad");
 
 
 
