@@ -511,8 +511,10 @@ namespace ProjectX.Dict
 
             foreach (var item in parsingRows)
             {
-                if 
-                     (providerRegulars.IsContainMarking(item.IdProvider,item.ParsingBufer))
+
+                int countMarking = providerRegulars.CountMarking(item.IdProvider, item.ParsingBufer);
+                if
+                     (countMarking == 1)
                 {
                     List<Brand> brands = AnalysisBrand(item.ParsingBufer);
                     string name = "Товар";
@@ -529,45 +531,44 @@ namespace ProjectX.Dict
                             Dictionary<string, string> keyValues = providerRegulars.GetDictionary(item.IdProvider, item.ParsingBufer, out string s);
 
                             string width;
-                            string height ;
-                            string diameter ;
+                            string height;
+                            string diameter;
 
                             try
                             {
-                                 width = keyValues["width"];
-                                 height = keyValues["height"];
-                                 diameter = keyValues["diameter"];
+                                width = keyValues["width"];
+                                height = keyValues["height"];
+                                diameter = keyValues["diameter"];
                             }
-                            catch {
+                            catch
+                            {
                                 continue;
                             }
 
-                            List <Marking> markings = models.First().AnalysisMarking(width,height, diameter);
-                            if (markings.Count == 0)
+                            Marking marking = models.First().SearchMarking(width,height,diameter,out bool isContainMarking);
+                            if (isContainMarking)
                             {
-
-                                id += "-" + models.First().Add(width, height, diameter, "", "", "", "", "", "", false, false, "");
-                                name += " " + width + "/" + height + "R" + diameter;
-                                item.Resault = new GResault(id, name, "Новый");
-                            }
-                            else if (markings.Count == 1)
-                            {
-                                id += "-" + markings.First().Id;
-                                name += " " + markings.First().Width + "/" + markings.First().Height + "R" + markings.First().Diameter;
+                                id += "-" + marking.Id;
+                                name += " " + marking.Width + "/" + marking.Height + "R" + marking.Diameter;
                                 item.Resault = new GResault(id, name, "Существующий");
                             }
                             else
                             {
-                                item.Resault = new BResault(item.ExcelRowIndex + ") Найдена несколько маркировок (error 3)"); 
+                                id += "-" + models.First().Add(width, height, diameter, "", "", "", "", "", "", false, false, "");
+                                name += " " + width + "/" + height + "R" + diameter;
+                                item.Resault = new GResault(id, name, "Новый");
                             }
 
                         }
 
                     }
                 }
-                else
+                else if (countMarking == 0)
                 {
                     item.Resault = new BResault(item.ExcelRowIndex + ") Отсутствие маркировки (error 0)");
+                }
+                else {
+                    item.Resault = new BResault(item.ExcelRowIndex + ") Найдена несколько маркировок (error 3)");
                 }
             }
 

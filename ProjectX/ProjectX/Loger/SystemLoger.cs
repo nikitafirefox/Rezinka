@@ -11,6 +11,7 @@ namespace ProjectX.Loger
     {
         private readonly string pathLog;
 
+
         public SystemLoger(string path) {
             pathLog = path;
             try
@@ -22,17 +23,28 @@ namespace ProjectX.Loger
             catch (IOException) {
                 File.Create(path).Close();
             }
+
             WriteLog("Сессия открыта");
         }
 
         public void WriteLog(string message) {
             lock (this) {
-                
-                using (StreamWriter sw = new StreamWriter(pathLog, true)) {
-                    sw.WriteLine(DateTime.Now + ":\t"+message);
+                StreamWriter streamWriter;
+                while (true)
+                {
+                    try
+                    {
+
+                        streamWriter = new StreamWriter(pathLog, true);
+                        break;
+                    }
+                    catch {
+                        continue;
+                    }
                 }
-                
                
+                streamWriter.WriteLine(message);
+                streamWriter.Close();
             }
         }
 
@@ -48,6 +60,7 @@ namespace ProjectX.Loger
 
         ~SystemLoger() {
             WriteLog("Сессия закрыта");
+            
         }
     }
 }

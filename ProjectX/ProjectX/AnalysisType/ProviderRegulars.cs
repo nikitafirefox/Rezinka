@@ -141,6 +141,28 @@ namespace ProjectX.AnalysisType
             return b;
         }
 
+        public int CountMarking(string idProv, string buffer) {
+
+            var config = ProviderRegularsList.Where(x => x.IdProvier == idProv).First().GetListByPriority(0);
+
+            config.Sort((x, y) => x.RegularString.CompareTo(y.RegularString));
+
+            config.Reverse();
+
+            int b = 0;
+
+            foreach (var item in config)
+            {
+                if (Regex.IsMatch(buffer, item.RegularString, RegexOptions.IgnoreCase))
+                { 
+                    b = Regex.Matches(buffer, item.RegularString, RegexOptions.IgnoreCase).Count;
+                    break;
+                }
+            }
+
+            return b;
+        }
+
         public Dictionary<string,string> GetDictionary(string idProv, string buffer,out string outBuffer) {
             Dictionary<string, string> keyValues = new Dictionary<string, string>();
             outBuffer = buffer;

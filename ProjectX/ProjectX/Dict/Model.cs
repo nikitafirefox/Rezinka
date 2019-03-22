@@ -200,6 +200,39 @@ namespace ProjectX.Dict
             return Resault;
         }
 
+        public Marking SearchMarking(string width, string height, string diameter,out bool isContain) {
+
+            isContain = false;
+            Marking marking = null;
+            foreach (var item in Markings)
+            {
+                if (width == item.Width && height == item.Height && diameter == item.Diameter)
+                {
+                    marking = item;
+                    isContain = true;
+                    break;
+                }
+            }
+            return marking;
+
+        }
+
+        public Marking SearchMarking(string width, string height, string diameter)
+        {
+
+            Marking marking = null;
+            foreach (var item in Markings)
+            {
+                if (width == item.Width && height == item.Height && diameter == item.Diameter)
+                {
+                    marking = item;
+                    break;
+                }
+            }
+            return marking;
+
+        }
+
         public bool IsMatched(string parsingBufer)
         {
             bool b = false;
