@@ -184,10 +184,7 @@ namespace ProjectX.Dict
 
         public List<Model> AnalysisModel(string parsingBufer,out List<string> variationStrings)
         {
-            if (parsingBufer.Contains("205/70R15 96T UltraGrip Ice Arctic SUV D-Stud(шип.) Goodyear"))
-            {
-                int i = 0;
-            }
+
             Models.Sort((x1, x2) => x1.Name.ToLower().CompareTo(x2.Name.ToLower()));
             List<Model> Resault = new List<Model>();
             variationStrings = new List<string>();
@@ -196,27 +193,34 @@ namespace ProjectX.Dict
             {
                 if (item.IsMatched(parsingBufer, out variation))
                 {
-                    bool b = false;
-                    string resmodel = "";
+                    bool isAdding = true;
+                   List<string> resModels = new List<string>();
                     foreach (var var2 in variationStrings)
                     {
-                     
-                        if (Regex.IsMatch(variation, Regex.Escape(var2), RegexOptions.IgnoreCase))
+
+                        string minStr = variation.Length > var2.Length ? var2 : variation;
+                        string maxStr = variation.Length >= var2.Length ? variation : var2;
+
+                        if (Regex.IsMatch(maxStr,Regex.Escape(minStr), RegexOptions.IgnoreCase))
                         {
-                           
-                            resmodel = var2;
-                            b = true;
-                            
-                            break;
+                            isAdding = false;
+                            if (var2.Length == minStr.Length)
+                            {
+                                resModels.Add(var2);
+                            }
                         }
                     }
-                    if (b)
+                    foreach (var resModel in resModels)
                     {
-                        Resault.RemoveAt(variationStrings.FindIndex(x => x == resmodel));
-                        variationStrings.Remove(resmodel);
+                        Resault.RemoveAt(variationStrings.FindIndex(x => x == resModel));
+                        variationStrings.Remove(resModel);
                     }
-                    Resault.Add(item);
-                    variationStrings.Add(variation);
+
+                    if (resModels.Count != 0 || isAdding)
+                    {
+                        Resault.Add(item);
+                        variationStrings.Add(variation);
+                    }
                 }
             }
             return Resault;

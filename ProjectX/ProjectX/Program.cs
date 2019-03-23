@@ -33,8 +33,33 @@ namespace ProjectX
             Console.WriteLine("********************************************************************\n");
             Console.WriteLine("-------------------------TEST1--------------------------------------\n");
 
-            var fileName1 = @"C:\Users\mark\Downloads\VyacheSlavik.xlsx";
-            var fileName2 = @"C:\Users\mark\Downloads\4tochki.xlsx";
+            var fileName1 = @"C:\Users\ACER\Desktop\Прайсы\ВячеСлавик.xlsx";
+            var fileName2 = @"C:\Users\ACER\Desktop\Прайсы\4точки.xlsx";
+
+            if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data"))) {
+                Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data"));
+            }
+
+            if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\Dictionary.xml")))
+            {
+                File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\Dictionary.xml"));
+            }
+            if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\DictLog.txt")))
+            {
+                File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\DictLog.txt"));
+            }
+            if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\ProvidersRegulars.xml")))
+            {
+                File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\ProvidersRegulars.xml"));
+            }
+            if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\Providers.xml")))
+            {
+                File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\Providers.xml"));
+            }
+            if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\DataBase.xml")))
+            {
+                File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\DataBase.xml"));
+            }
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -139,7 +164,7 @@ namespace ProjectX
             Console.WriteLine("Инициализация словаря XML (пустой) " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            dictionary.GetItemFromTxt(@"C:\Users\mark\Downloads\Dictionary_new.txt");
+            dictionary.GetItemFromTxt(@"C:\Users\ACER\Desktop\Прайсы\Dictionary.txt");
             sw.Stop();
             Console.WriteLine("Подгрузка словаря из файла TXT " + sw.ElapsedMilliseconds + " мс");
 
@@ -158,7 +183,10 @@ namespace ProjectX
 
 
             sw.Restart();
-            ParsingRow[] rows = dictionary.Analysis(ref parsings).Where(x => x.Resault is GResault).ToArray();
+            var res = dictionary.Analysis(ref parsings);
+            ParsingRow[] rows = res.Where(x => x.Resault is GResault).ToArray();
+            ParsingRow[] bRows = res.Where(x => x.Resault is BResault).ToArray();
+            ParsingRow[] NRows = res.Where(x => x.Resault is NResault).ToArray();
             sw.Stop();
             Console.WriteLine("Анализ данных " + sw.ElapsedMilliseconds + " мс");
 
@@ -184,13 +212,13 @@ namespace ProjectX
 
 
             sw.Restart();
-            dBase.SaveDataExcel(@"C:\Users\mark\Downloads\Прайсы\Data.xlsx", new string[] { "A0", "A1" });
+            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data.xlsx", new string[] { "A0", "A1" });
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
 
-            dBase.SaveDataOnlyProviderExcell(@"C:\Users\mark\Downloads\Прайсы\Data3.xlsx", new string[] { "A0", "A1" });
+            dBase.SaveDataOnlyProviderExcell(@"C:\Users\ACER\Desktop\Прайсы\Data3.xlsx", new string[] { "A0", "A1" });
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data3.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
@@ -224,7 +252,7 @@ namespace ProjectX
             Console.WriteLine("Сохранение базы XML " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            dBase.SaveDataExcel(@"C:\Users\mark\Downloads\Прайсы\Data2.xlsx", new string[] { "A0" });
+            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data2.xlsx", new string[] { "A0" });
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data2.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
@@ -244,8 +272,8 @@ namespace ProjectX
             Console.WriteLine("********************************************************************\n");
             Console.WriteLine("-------------------------TEST2--------------------------------------\n");
 
-            var fileName1 = @"C:\Users\mark\Downloads\VyacheSlavik.xlsx";
-            var fileName2 = @"C:\Users\mark\Downloads\4tochki.xlsx";
+            var fileName1 = @"C:\Users\ACER\Desktop\Прайсы\ВячеСлавик.xlsx";
+            var fileName2 = @"C:\Users\ACER\Desktop\Прайсы\4точки.xlsx";
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -320,19 +348,19 @@ namespace ProjectX
 
 
             sw.Restart();
-            dBase.SaveDataExcel(@"C:\Users\mark\Downloads\Прайсы\Data4.xlsx", new string[] { "A1" });
+            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data4.xlsx", new string[] { "A1" });
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data4.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
 
-            dBase.SaveDataOnlyProviderExcell(@"C:\Users\mark\Downloads\Прайсы\Data5.xlsx", new string[] { "A0" });
+            dBase.SaveDataOnlyProviderExcell(@"C:\Users\ACER\Desktop\Прайсы\Data5.xlsx", new string[] { "A0" });
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data5.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
 
             sw.Restart();
-            dBase.SaveDataExcel(@"C:\Users\mark\Downloads\Прайсы\Data6.xlsx", new string[] { "A0","A1" },new ExcelDefaultOutParametrics(false,false,false
+            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data6.xlsx", new string[] { "A0","A1" },new ExcelDefaultOutParametrics(false,false,false
                 ,false,false,false,true,true),new ExcelProviderOutParametrics(providers,true,false,false,true),new ExcelProductOutParametrics(dictionary,true,false,
                 false,false,false,true,false,false,true,false,false,true,true,true,true,true,false,false,false,false,false,true,false));
             sw.Stop();

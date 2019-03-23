@@ -253,7 +253,7 @@ namespace ProjectX.Dict
             bool b = false;
             foreach (var item in Variations)
             {
-                if (Regex.IsMatch(parsingBufer, Regex.Escape(item.Trim(' ')), RegexOptions.IgnoreCase))
+                if (Regex.IsMatch(parsingBufer,Regex.Escape(item), RegexOptions.IgnoreCase))
                 {
                     b = true;
                     variation = item;

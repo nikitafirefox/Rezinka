@@ -384,7 +384,7 @@ namespace ProjectX.AnalysisType
             string outStr = str;
             foreach (var item in PassString)
             {
-                string sov_item = Regex.Match(outStr, Regex.Escape(item), RegexOptions.IgnoreCase).Value;
+                string sov_item = Regex.Match(outStr,Regex.Escape(item), RegexOptions.IgnoreCase).Value;
                 if (sov_item != "")
                 {
                     outStr = outStr.Replace(sov_item, "");

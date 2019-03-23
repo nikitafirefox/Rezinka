@@ -462,26 +462,33 @@ namespace ProjectX.Dict
                 if (item.IsMatch(buffer,out variation))
                 {
 
-                    bool b = false;
-                    string resBrand = "";
+                    bool isAdding = true;
+                    List<string> resBrands = new List<string>();
                     foreach (var var2 in variationsStrings)
                     {
+                        string minStr = variation.Length > var2.Length ? var2 : variation;
+                        string maxStr = variation.Length >= var2.Length ? variation : var2;
 
-                        if (Regex.IsMatch(variation, Regex.Escape(var2), RegexOptions.IgnoreCase))
+                        if (Regex.IsMatch(maxStr, Regex.Escape(minStr), RegexOptions.IgnoreCase))
                         {
-                            resBrand = var2;
-                            b = true;
-
-                            break;
+                            isAdding = false;
+                            if (var2.Length == minStr.Length)
+                            {
+                                resBrands.Add(var2);
+                            }
                         }
                     }
-                    if (b)
+                    foreach(var resBrand in resBrands)
                     {
+
                         Resault.RemoveAt(variationsStrings.FindIndex(x => x == resBrand));
                         variationsStrings.Remove(resBrand);
                     }
-                    Resault.Add(item);
-                    variationsStrings.Add(variation);
+                    if (resBrands.Count != 0 || isAdding)
+                    {
+                        Resault.Add(item);
+                        variationsStrings.Add(variation);
+                    }
                 }
             }
             return Resault;
@@ -589,10 +596,19 @@ namespace ProjectX.Dict
             idR = providerRegulars.Add("A0", "Шип",3);
             providerRegulars.Add("A0", idR, "Зимняя шипованная", "season");
 
+            idR = providerRegulars.Add("A0", "LT", 4);
+                providerRegulars.Add("A0", idR, "Yes", "commercial");
+            
+
           
 
             providerRegulars.Add("A1");
             idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}R[0-9]{2}", 0);
+            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
+
+            idR = providerRegulars.Add("A1", "LT[0-9]{3}/[0-9]{2}R[0-9]{2}", 0);
             providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
             providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
             providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
@@ -603,12 +619,29 @@ namespace ProjectX.Dict
             providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
             providerRegulars.Add("A1", idR, "Yes", "commercial");
 
+            idR = providerRegulars.Add("A1", "LT[0-9]{3}/[0-9]{2}R[0-9]{2}C", 0);
+            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
+            providerRegulars.Add("A1", idR, "Yes", "commercial");
+
             idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}ZR[0-9]{2}", 0);
             providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
             providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
             providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
 
+            idR = providerRegulars.Add("A1", "LT[0-9]{3}/[0-9]{2}ZR[0-9]{2}", 0);
+            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
+
             idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}ZR[0-9]{2}C", 0);
+            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
+            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
+            providerRegulars.Add("A1", idR, "Yes", "commercial");
+
+            idR = providerRegulars.Add("A1", "LT[0-9]{3}/[0-9]{2}ZR[0-9]{2}C", 0);
             providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
             providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
             providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
@@ -644,6 +677,7 @@ namespace ProjectX.Dict
             providerRegulars.AddPassString("A1","TL");
 
 
+            providerRegulars.Save();
 
 
             foreach (var item in parsingRows)
@@ -656,7 +690,7 @@ namespace ProjectX.Dict
                     List<string> variationsStringsBrands = new List<string>();
                     List<string> variationsStringsModels = new List<string>();
                     string sov_variation;
-                    List<Brand> brands = AnalysisBrand(item.ParsingBufer, out variationsStringsBrands);
+                    List<Brand> brands = AnalysisBrand(parsBuf, out variationsStringsBrands);
                     
                     string name = "Товар";
                     string id = "";
@@ -673,12 +707,12 @@ namespace ProjectX.Dict
                     else if (brands.Count == 0 && !deepSearch) {
                         continue;
                     }
-                    
+
 
                     foreach (Brand brand in brands)
                         {
                             List<string> variationsStrings = new List<string>();
-                            List<Model> models = brand.AnalysisModel(item.ParsingBufer, out variationsStrings);
+                            List<Model> models = brand.AnalysisModel(parsBuf, out variationsStrings);
                            
                             if (models.Count == 1 && !(already_find_model))
                             {
@@ -687,22 +721,32 @@ namespace ProjectX.Dict
                                 already_find_model = true;
                                 variationsStringsModels = variationsStrings;
                             }
-                            else if (models.Count == 0 && !(already_find_model))
+                            else if (models.Count != 0)
                             {
+
+                            providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string newBuf);
+                            models = brand.AnalysisModel(newBuf, out variationsStrings);
+
+                            if (models.Count == 1) {
+                                already_find_model = true;
+                                findedModel = models.First();
+                                findedBrand = brand;
+                                already_find_model = true;
+                                variationsStringsModels = variationsStrings;
                                 continue;
                             }
-                            else
-                            {
-                                already_find_model = false;
+
+                            if (item.IdProvider == "A0") {
+                                int i = 0;
+                            }
+
+                            already_find_model = false;
                                 item.Resault = new BResault("Более 1 модели");
                                 break;
 
                             }
                         }
 
-                    if (item.IdProvider == "A0") {
-                        int i = 0;
-                    }
 
                     if (!already_find_model)
                     {
@@ -720,7 +764,7 @@ namespace ProjectX.Dict
                     variationsStringsBrands.Sort((x, y) => y.Length.CompareTo(x.Length));
                     foreach (string variation in variationsStringsBrands)
                     {
-                        sov_variation = Regex.Match(parsBuf, Regex.Escape(variation), RegexOptions.IgnoreCase).Value;
+                        sov_variation = Regex.Match(parsBuf,Regex.Escape(variation), RegexOptions.IgnoreCase).Value;
                         if (sov_variation != "")
                         {
                             parsBuf = parsBuf.Replace(sov_variation, "");
@@ -730,7 +774,7 @@ namespace ProjectX.Dict
                     variationsStringsModels.Sort((x, y) => y.Length.CompareTo(x.Length));
                     foreach (string variation in variationsStringsModels)
                     {
-                        sov_variation = Regex.Match(parsBuf, Regex.Escape(variation), RegexOptions.IgnoreCase).Value;
+                        sov_variation = Regex.Match(parsBuf,Regex.Escape(variation), RegexOptions.IgnoreCase).Value;
                         if (sov_variation != "")
                         {
                             parsBuf = parsBuf.Replace(sov_variation, "");
