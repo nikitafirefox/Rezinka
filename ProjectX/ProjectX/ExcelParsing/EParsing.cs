@@ -100,7 +100,9 @@ namespace ProjectX.ExcelParsing
 
                             if (!int.TryParse(res, out int count))
                             {
-                                continue;
+                                if (!eParam.IsStringValues(res, out count)) {
+                                    continue;
+                                } 
                             }
 
                             counts.Add(new ParsingCount(countIndex.Id, count));
@@ -207,9 +209,11 @@ namespace ProjectX.ExcelParsing
         public string FilePath { get; set; }
         public string IdProvider { get; set; }
         private List<ESheet> ESheets { get; set; }
+        private List<EStringToValue> StringToValues { get; set; }
 
         public EParsingParam(string filePath, string idProvider){
             ESheets = new List<ESheet>();
+            StringToValues = new List<EStringToValue>();
             FilePath = filePath;
             IdProvider = idProvider;
         }
@@ -217,6 +221,21 @@ namespace ProjectX.ExcelParsing
         public void Add(ESheet sheet) {
             ESheets.Add(sheet);
 
+        }
+
+        public void AddStringVal(string str, int val) {
+            StringToValues.Add(new EStringToValue(str, val));
+        }
+
+        public bool IsStringValues(string buf, out int val) {
+            val = -1;
+            foreach (var item in StringToValues)
+            {
+                if (item.IsContain(buf, out val)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public IEnumerator GetEnumerator()
@@ -256,6 +275,31 @@ namespace ProjectX.ExcelParsing
         public IEnumerator GetEnumerator()
         {
             return CountIndexes.GetEnumerator();
+        }
+    }
+
+    public class EStringToValue {
+        public string Str { get; set; }
+        public int Value { get; set; }
+
+        public EStringToValue(string str, int value) {
+            Str = str;
+            Value = value;
+        }
+
+        public bool IsContain(string buf, out int val) {
+            if (Str.ToLower().Equals(buf.Trim().ToLower()))
+            {
+                val = Value;
+                return true;
+            }
+            else
+            {
+                val = -1;
+                return false;
+            }
+
+
         }
     }
 

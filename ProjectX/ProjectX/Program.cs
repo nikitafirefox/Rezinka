@@ -110,6 +110,13 @@ namespace ProjectX
             sw.Stop();
             Console.WriteLine("Добавили склад " + id + "-" + ids + " " + sw.ElapsedMilliseconds + " мс");
 
+            ids = providers.AddStock(id, "Домодедово", "7-9 дней");
+            ids = providers.AddStock(id, "Москва склад 2", "7-9 дней");
+            ids = providers.AddStock(id, "Москва склад 3", "7-9 дней");
+            ids = providers.AddStock(id, "Москва склад 4", "7-9 дней");
+
+
+
             sw.Restart();
             providers.Save();
             sw.Stop();
@@ -123,6 +130,7 @@ namespace ProjectX
             sw.Restart();
             List<EParsingParam> eParsingParams = new List<EParsingParam>();
             EParsingParam parsingParam1 = new EParsingParam(fileName1, "A0");
+            parsingParam1.AddStringVal("более 20", 20);
             ESheet eSheet = new ESheet(null, "D");
             string[] bufIndex1 = { "B" };
             eSheet.AddBufIndex(bufIndex1);
@@ -136,6 +144,8 @@ namespace ProjectX
 
 
             parsingParam1 = new EParsingParam(fileName2, id);
+            parsingParam1.AddStringVal("более 20", 20);
+            parsingParam1.AddStringVal("более 40", 40);
             string[] bufIndex2 = { "B", "D" };
             eSheet = new ESheet("1 Шины (Краснодар Индустриальны", "U");
             eSheet.AddBufIndex(bufIndex2);
@@ -144,6 +154,22 @@ namespace ProjectX
             eSheet = new ESheet("3 Шины (Москва)", "U");
             eSheet.AddBufIndex(bufIndex2);
             eSheet.AddCountIndex("A1", "S");
+            parsingParam1.Add(eSheet);
+            eSheet = new ESheet("4 Шины (Домодедово)", "U");
+            eSheet.AddBufIndex(bufIndex2);
+            eSheet.AddCountIndex("A2", "S");
+            parsingParam1.Add(eSheet);
+            eSheet = new ESheet("5 Шины (Склад 2)", "U");
+            eSheet.AddBufIndex(bufIndex2);
+            eSheet.AddCountIndex("A3", "S");
+            parsingParam1.Add(eSheet);
+            eSheet = new ESheet("6 Шины (Склад 3)", "U");
+            eSheet.AddBufIndex(bufIndex2);
+            eSheet.AddCountIndex("A4", "S");
+            parsingParam1.Add(eSheet);
+            eSheet = new ESheet("7 Шины (Склад 4)", "U");
+            eSheet.AddBufIndex(bufIndex2);
+            eSheet.AddCountIndex("A5", "S");
             parsingParam1.Add(eSheet);
             eParsingParams.Add(parsingParam1);
 
