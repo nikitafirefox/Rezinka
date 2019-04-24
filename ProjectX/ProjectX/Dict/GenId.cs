@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ProjectX.Dict
 {
-    class GenId
+    internal class GenId
     {
         private int NumPlace { get; set; }
         private int NumIndex { get; set; }
@@ -17,30 +14,35 @@ namespace ProjectX.Dict
         {
             CharIndex = charIndex;
             NumIndex = numIndex;
-            NumPlace = numPlace >= NumP(numIndex)? numPlace : NumP(numIndex);
-
+            NumPlace = numPlace >= NumP(numIndex) ? numPlace : NumP(numIndex);
         }
-        
-        public string ThisVal() {
+
+        public string ThisVal()
+        {
             return CharIndex + String.Concat(Enumerable.Repeat("0", NumPlace - NumP(NumIndex))) + NumIndex;
         }
-        public string NexVal() {
-            if (NumP(++NumIndex) > NumPlace) {
+
+        public string NexVal()
+        {
+            if (NumP(++NumIndex) > NumPlace)
+            {
                 if (CharIndex == 'Z')
                 {
                     CharIndex = 'A';
                     NumPlace++;
                 }
-                else {
+                else
+                {
                     CharIndex++;
                 }
                 NumIndex = 0;
             }
             return ThisVal();
         }
-        
-        private static int NumP(int n) {
-            int c=0;
+
+        private static int NumP(int n)
+        {
+            int c = 0;
             do
             {
                 c++;
@@ -49,7 +51,8 @@ namespace ProjectX.Dict
             return c;
         }
 
-        public XmlElement GetXmlNode(XmlDocument document) {
+        public XmlElement GetXmlNode(XmlDocument document)
+        {
             XmlElement element = document.CreateElement("settings");
             XmlElement e = document.CreateElement("charIndex");
             e.InnerText = CharIndex.ToString();
@@ -62,6 +65,5 @@ namespace ProjectX.Dict
             element.AppendChild(e);
             return element;
         }
-
     }
 }

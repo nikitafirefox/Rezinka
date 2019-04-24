@@ -2,41 +2,33 @@
 using ProjectX.Dict;
 using ProjectX.ExcelParsing;
 using ProjectX.Information;
-using ProjectX.Loger;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace ProjectX
 {
-    class Program
+    internal class Program
     {
-
-
         public static void Main(string[] args)
         {
-
-
             Test1();
 
             Test2();
-
         }
 
-        static void Test1() {
-
+        private static void Test1()
+        {
             Console.WriteLine("********************************************************************\n");
             Console.WriteLine("-------------------------TEST1--------------------------------------\n");
 
             var fileName1 = @"C:\Users\ACER\Desktop\Прайсы\ВячеСлавик.xlsx";
             var fileName2 = @"C:\Users\ACER\Desktop\Прайсы\4точки.xlsx";
 
-            if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data"))) {
+            if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data")))
+            {
                 Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data"));
             }
 
@@ -115,8 +107,6 @@ namespace ProjectX
             ids = providers.AddStock(id, "Москва склад 3", "7-9 дней");
             ids = providers.AddStock(id, "Москва склад 4", "7-9 дней");
 
-
-
             sw.Restart();
             providers.Save();
             sw.Stop();
@@ -142,7 +132,7 @@ namespace ProjectX
 
             eParsingParams.Add(parsingParam1);
 
-
+            /*
             parsingParam1 = new EParsingParam(fileName2, id);
             parsingParam1.AddStringVal("более 20", 20);
             parsingParam1.AddStringVal("более 40", 40);
@@ -172,7 +162,7 @@ namespace ProjectX
             eSheet.AddCountIndex("A5", "S");
             parsingParam1.Add(eSheet);
             eParsingParams.Add(parsingParam1);
-
+            */
 
             sw.Stop();
             Console.WriteLine("Подготовили параметры парсинга " + sw.ElapsedMilliseconds + " мс");
@@ -207,7 +197,6 @@ namespace ProjectX
             sw.Stop();
             Console.WriteLine("Инициализация словаря XML " + sw.ElapsedMilliseconds + " мс");
 
-
             sw.Restart();
             var res = dictionary.Analysis(ref parsings);
             ParsingRow[] rows = res.Where(x => x.Resault is GResault).ToArray();
@@ -236,9 +225,8 @@ namespace ProjectX
             sw.Stop();
             Console.WriteLine("Инициализация базы XML " + sw.ElapsedMilliseconds + " мс");
 
-
             sw.Restart();
-            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data.xlsx", new string[] { "A0", "A1" });
+            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data.xlsx", new string[] { "A0", "A1" }, new ExcelProductOutParametrics() { DictionarySrc = dictionary, IsModelCommercial = true});
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
@@ -282,7 +270,6 @@ namespace ProjectX
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data2.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
-
             dictionary.Save();
 
             dictionary.Close();
@@ -290,11 +277,10 @@ namespace ProjectX
             Console.WriteLine("готово");
             Console.WriteLine("********************************************************************\n\n\n");
             Console.ReadKey();
-
         }
 
-        static void Test2() {
-
+        private static void Test2()
+        {
             Console.WriteLine("********************************************************************\n");
             Console.WriteLine("-------------------------TEST2--------------------------------------\n");
 
@@ -322,7 +308,6 @@ namespace ProjectX
 
             eParsingParams.Add(parsingParam1);
 
-
             parsingParam1 = new EParsingParam(fileName2, "A1");
             string[] bufIndex2 = { "B", "D" };
             eSheet = new ESheet("3 Шины (Москва)", "U");
@@ -330,7 +315,6 @@ namespace ProjectX
             eSheet.AddCountIndex("A1", "S");
             parsingParam1.Add(eSheet);
             eParsingParams.Add(parsingParam1);
-
 
             sw.Stop();
             Console.WriteLine("Подготовили параметры парсинга " + sw.ElapsedMilliseconds + " мс");
@@ -347,12 +331,10 @@ namespace ProjectX
             sw.Stop();
             Console.WriteLine("Инициализация словаря XML " + sw.ElapsedMilliseconds + " мс");
 
-
-
             sw.Restart();
             var res = dictionary.Analysis(ref parsings);
             ParsingRow[] rows = res.Where(x => x.Resault is GResault).ToArray();
-            ParsingRow[] bRows= res.Where(x => x.Resault is BResault).ToArray();
+            ParsingRow[] bRows = res.Where(x => x.Resault is BResault).ToArray();
             ParsingRow[] NRows = res.Where(x => x.Resault is NResault).ToArray();
             sw.Stop();
             Console.WriteLine("Анализ данных " + sw.ElapsedMilliseconds + " мс");
@@ -372,7 +354,6 @@ namespace ProjectX
             sw.Stop();
             Console.WriteLine("Сохранение базы XML " + sw.ElapsedMilliseconds + " мс");
 
-
             sw.Restart();
             dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data4.xlsx", new string[] { "A1" });
             sw.Stop();
@@ -384,14 +365,12 @@ namespace ProjectX
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data5.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
-
             sw.Restart();
-            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data6.xlsx", new string[] { "A0","A1" },new ExcelDefaultOutParametrics(false,false,false
-                ,false,false,false,true,true),new ExcelProviderOutParametrics(providers,true,false,false,true),new ExcelProductOutParametrics(dictionary,true,false,
-                false,false,false,true,false,false,true,false,false,true,true,true,true,true,false,false,false,false,false,true,false));
+            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data6.xlsx", new string[] { "A0", "A1" }, new ExcelDefaultOutParametrics(false, false, false
+                , false, false, false, true, true), new ExcelProviderOutParametrics(providers, true, false, false, true), new ExcelProductOutParametrics(dictionary, true, false,
+                false, false, false, true, false, false, true, false, false, true, true, true, true, true, false, false, false, false, false, true, false));
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data6.xlsx' " + sw.ElapsedMilliseconds + " мс");
-
 
             dictionary.Save();
 

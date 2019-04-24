@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-
 
 namespace ProjectX.Dict
 {
     public class Model
     {
-
         public string Id { get; private set; }
-        public string Type { get;  set; }
+        public string Type { get; set; }
 
-        public string Name { get; set;}
+        public string Name { get; set; }
         public string Season { get; set; }
         public string Description { get; set; }
         public bool Commercial { get; set; }
@@ -34,7 +31,6 @@ namespace ProjectX.Dict
             Id = x.Attributes.GetNamedItem("id").Value;
             Type = x.Attributes.GetNamedItem("type").Value;
 
-
             XmlNode xmlSet = x.SelectSingleNode("settings");
             IdGen = new GenId(char.Parse(xmlSet.ChildNodes.Item(0).InnerText),
                 int.Parse(xmlSet.ChildNodes.Item(1).InnerText),
@@ -42,7 +38,6 @@ namespace ProjectX.Dict
 
             Name = x.SelectSingleNode("name").InnerText;
             Description = x.SelectSingleNode("description").InnerText;
-           
 
             WhileLetters = x.SelectSingleNode("whileLetters").InnerText;
             Season = x.SelectSingleNode("season").InnerText;
@@ -60,18 +55,15 @@ namespace ProjectX.Dict
                 Images.Add(xNode.Attributes.GetNamedItem("src").Value);
             }
 
-
-            foreach (XmlNode xNode in x.SelectSingleNode("markings").ChildNodes) {
+            foreach (XmlNode xNode in x.SelectSingleNode("markings").ChildNodes)
+            {
                 Markings.Add(new Marking(xNode));
             }
-
-
-
         }
 
         public Model(string id, string type, string name, string season, string description, bool commercial,
-            string whileLetters, bool mudSnow) {
-
+            string whileLetters, bool mudSnow)
+        {
             Images = new HashSet<string>();
             IdGen = new GenId('A', -1, 1);
             Variations = new HashSet<string>();
@@ -89,17 +81,16 @@ namespace ProjectX.Dict
 
         public override string ToString()
         {
-            return "ID: " + Id + '\n' 
-                + "Type: " + Type + '\n' 
+            return "ID: " + Id + '\n'
+                + "Type: " + Type + '\n'
                 + "Name: " + Name + '\n'
-                + "Season: " + Season + '\n' 
-                + "Commercial: " + Commercial + '\n' 
-                + "MudSnow: "+ MudSnow+'\n' 
+                + "Season: " + Season + '\n'
+                + "Commercial: " + Commercial + '\n'
+                + "MudSnow: " + MudSnow + '\n'
                 + "WhileLetters: " + WhileLetters + '\n'
                 + "Description: " + Description + '\n'
                 + "Image: \n\t" + String.Join("\n\t", Images) + '\n'
                 + "Variations: \n\t" + String.Join("\n\t", Variations);
-
         }
 
         public XmlElement GetXmlNode(XmlDocument document)
@@ -123,12 +114,11 @@ namespace ProjectX.Dict
             e.SetAttribute("value", Commercial.ToString());
             element.AppendChild(e);
             e = document.CreateElement("mudSnow");
-            e.SetAttribute("value",MudSnow.ToString());
+            e.SetAttribute("value", MudSnow.ToString());
             element.AppendChild(e);
             e = document.CreateElement("description");
             e.AppendChild(document.CreateCDataSection(Description));
             element.AppendChild(e);
-          
 
             XmlElement variationsElement;
 
@@ -138,7 +128,6 @@ namespace ProjectX.Dict
                 e = document.CreateElement("variation");
                 e.InnerText = item;
                 variationsElement.AppendChild(e);
-
             }
 
             XmlElement imagesElement;
@@ -149,7 +138,6 @@ namespace ProjectX.Dict
                 e = document.CreateElement("image");
                 e.SetAttribute("src", item);
                 imagesElement.AppendChild(e);
-
             }
 
             XmlElement markingsElement;
@@ -164,10 +152,11 @@ namespace ProjectX.Dict
 
         public string Add(string width, string height, string diameter, string speedIndex,
             string loadIndex, string country, string tractionIndex, string temperatureIndex, string treadwearIndex,
-            bool extraLoad, bool runFlat, string flangeProtection) {
+            bool extraLoad, bool runFlat, string flangeProtection)
+        {
             string id = IdGen.NexVal();
-            Markings.Add(new Marking(id,width,height,diameter,speedIndex,loadIndex,country,tractionIndex,
-                temperatureIndex,treadwearIndex,extraLoad,runFlat,flangeProtection));
+            Markings.Add(new Marking(id, width, height, diameter, speedIndex, loadIndex, country, tractionIndex,
+                temperatureIndex, treadwearIndex, extraLoad, runFlat, flangeProtection));
             return id;
         }
 
@@ -180,7 +169,7 @@ namespace ProjectX.Dict
         {
             try
             {
-                Markings.Find(x => x.Id == idMarking).AddStringValue( value);
+                Markings.Find(x => x.Id == idMarking).AddStringValue(value);
             }
             catch (ArgumentNullException)
             {
@@ -188,20 +177,21 @@ namespace ProjectX.Dict
             }
         }
 
-        public List<Marking> AnalysisMarking(string width,string height,string diameter)
+        public List<Marking> AnalysisMarking(string width, string height, string diameter)
         {
             List<Marking> Resault = new List<Marking>();
             foreach (var item in Markings)
             {
-                if (width==item.Width && height == item.Height && diameter == item.Diameter) {
+                if (width == item.Width && height == item.Height && diameter == item.Diameter)
+                {
                     Resault.Add(item);
                 }
             }
             return Resault;
         }
 
-        public Marking SearchMarking(string width, string height, string diameter,out bool isContain) {
-
+        public Marking SearchMarking(string width, string height, string diameter, out bool isContain)
+        {
             isContain = false;
             Marking marking = null;
             foreach (var item in Markings)
@@ -214,12 +204,10 @@ namespace ProjectX.Dict
                 }
             }
             return marking;
-
         }
 
         public Marking SearchMarking(string width, string height, string diameter)
         {
-
             Marking marking = null;
             foreach (var item in Markings)
             {
@@ -230,7 +218,6 @@ namespace ProjectX.Dict
                 }
             }
             return marking;
-
         }
 
         public bool IsMatched(string parsingBufer)
@@ -253,7 +240,7 @@ namespace ProjectX.Dict
             bool b = false;
             foreach (var item in Variations)
             {
-                if (Regex.IsMatch(parsingBufer,Regex.Escape(item), RegexOptions.IgnoreCase))
+                if (Regex.IsMatch(parsingBufer, Regex.Escape(item), RegexOptions.IgnoreCase))
                 {
                     b = true;
                     variation = item;
@@ -264,7 +251,8 @@ namespace ProjectX.Dict
         }
 
         public void Set(string name, string type, string season, string description, bool commercial,
-            string whileLetters, bool mudSnow) {
+            string whileLetters, bool mudSnow)
+        {
             Name = name;
             Season = season;
             Description = description;
@@ -280,8 +268,8 @@ namespace ProjectX.Dict
         {
             try
             {
-                Markings.Find(x => x.Id == idMarking).Set(speedIndex,loadIndex,country,tractionIndex,temperatureIndex,
-                    treadwearIndex,extraLoad,runFlat,flangeProtection);
+                Markings.Find(x => x.Id == idMarking).Set(speedIndex, loadIndex, country, tractionIndex, temperatureIndex,
+                    treadwearIndex, extraLoad, runFlat, flangeProtection);
             }
             catch (ArgumentNullException)
             {
@@ -309,7 +297,8 @@ namespace ProjectX.Dict
             Images.Add(image);
         }
 
-        public void DeleteImage(string image) {
+        public void DeleteImage(string image)
+        {
             Images.Remove(image);
         }
 

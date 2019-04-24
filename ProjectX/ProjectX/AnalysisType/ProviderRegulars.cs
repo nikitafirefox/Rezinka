@@ -6,21 +6,17 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace ProjectX.AnalysisType
 {
-
-
-
     public class ProviderRegulars
     {
-        private List<ProviderRegular> ProviderRegularsList { get; set;}
+        private List<ProviderRegular> ProviderRegularsList { get; set; }
         private readonly string pathXML;
 
-        public ProviderRegulars() {
-
+        public ProviderRegulars()
+        {
             pathXML = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\ProvidersRegulars.xml");
             ProviderRegularsList = new List<ProviderRegular>();
 
@@ -41,15 +37,15 @@ namespace ProjectX.AnalysisType
                 xmlOut.Close();
                 fs.Close();
                 Save();
-
             }
-            else {
+            else
+            {
                 Init();
             }
         }
 
-        private void Init() {
-
+        private void Init()
+        {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(pathXML);
             XmlElement xroot = xmlDocument.DocumentElement;
@@ -59,11 +55,10 @@ namespace ProjectX.AnalysisType
             {
                 ProviderRegularsList.Add(new ProviderRegular(x));
             }
-
         }
 
-        public void Save() {
-
+        public void Save()
+        {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(pathXML);
             XmlElement xroot = xmlDocument.DocumentElement;
@@ -77,34 +72,37 @@ namespace ProjectX.AnalysisType
             }
 
             xmlDocument.Save(pathXML);
-
         }
 
-        public string Add(string idProv) {
-
-            if (ProviderRegularsList.FindIndex(x => x.IdProvier == idProv) == -1) {
+        public string Add(string idProv)
+        {
+            if (ProviderRegularsList.FindIndex(x => x.IdProvier == idProv) == -1)
+            {
                 ProviderRegularsList.Add(new ProviderRegular(idProv));
             }
 
             return idProv;
         }
 
-        public string Add(string idProv, string reg, int priority) {
+        public string Add(string idProv, string reg, int priority)
+        {
             int index = ProviderRegularsList.FindIndex(x => x.IdProvier == idProv);
             ProviderRegular PR;
             if (index == -1)
             {
                 ProviderRegularsList.Add(PR = new ProviderRegular(idProv));
             }
-            else {
+            else
+            {
                 PR = ProviderRegularsList[index];
             }
 
             string id = PR.Add(reg, priority);
-            return  id;
+            return id;
         }
 
-        public string Add(string idProv, string idReg,string reg, int index, string name) {
+        public string Add(string idProv, string idReg, string reg, int index, string name)
+        {
             int i = ProviderRegularsList.FindIndex(x => x.IdProvier == idProv);
             ProviderRegular PR;
             if (i == -1)
@@ -120,8 +118,8 @@ namespace ProjectX.AnalysisType
             return id;
         }
 
-        public string Add(string idProv, string idReg, string value, string name) {
-
+        public string Add(string idProv, string idReg, string value, string name)
+        {
             int i = ProviderRegularsList.FindIndex(x => x.IdProvier == idProv);
             ProviderRegular PR;
             if (i == -1)
@@ -137,7 +135,8 @@ namespace ProjectX.AnalysisType
             return id;
         }
 
-        public void AddPassString(string idProv, string passString) {
+        public void AddPassString(string idProv, string passString)
+        {
             int i = ProviderRegularsList.FindIndex(x => x.IdProvier == idProv);
             ProviderRegular PR;
             if (i == -1)
@@ -152,40 +151,38 @@ namespace ProjectX.AnalysisType
             PR.AddPassString(passString);
         }
 
-        public bool IsContainMarking(string idProv, string buffer) {
-
+        public bool IsContainMarking(string idProv, string buffer)
+        {
             var config = ProviderRegularsList.Where(x => x.IdProvier == idProv).First().GetListByPriority(0);
 
             config.Sort((x, y) => y.RegularString.Length.CompareTo(x.RegularString.Length));
-
 
             bool b = false;
 
             foreach (var item in config)
             {
-                if (Regex.IsMatch(buffer, item.RegularString, RegexOptions.IgnoreCase)) {
+                if (Regex.IsMatch(buffer, item.RegularString, RegexOptions.IgnoreCase))
+                {
                     b = true;
                     break;
                 }
             }
-          
+
             return b;
         }
 
-        public int CountMarking(string idProv, string buffer) {
-
+        public int CountMarking(string idProv, string buffer)
+        {
             var config = ProviderRegularsList.Where(x => x.IdProvier == idProv).First().GetListByPriority(0);
 
-            config.Sort((x, y) => x.RegularString.CompareTo(y.RegularString));
-
-            config.Reverse();
+            config.Sort((x, y) => y.RegularString.Length.CompareTo(x.RegularString.Length));
 
             int b = 0;
 
             foreach (var item in config)
             {
                 if (Regex.IsMatch(buffer, item.RegularString, RegexOptions.IgnoreCase))
-                { 
+                {
                     b = Regex.Matches(buffer, item.RegularString, RegexOptions.IgnoreCase).Count;
                     break;
                 }
@@ -194,7 +191,8 @@ namespace ProjectX.AnalysisType
             return b;
         }
 
-        public Dictionary<string,string> GetDictionary(string idProv, string buffer,out string outBuffer) {
+        public Dictionary<string, string> GetDictionary(string idProv, string buffer, out string outBuffer)
+        {
             Dictionary<string, string> keyValues = new Dictionary<string, string>();
             outBuffer = buffer;
 
@@ -205,8 +203,6 @@ namespace ProjectX.AnalysisType
                 var config = ProviderRegularsList.Where(x => x.IdProvier == idProv).First().GetListByPriority(item);
 
                 config.Sort((x, y) => y.RegularString.Length.CompareTo(x.RegularString.Length));
-
-
 
                 PrimaryRegular primary = null;
 
@@ -219,7 +215,7 @@ namespace ProjectX.AnalysisType
                     }
                 }
 
-                if (primary == null) { continue;}
+                if (primary == null) { continue; }
                 string str = Regex.Match(outBuffer, primary.RegularString, RegexOptions.IgnoreCase).Value;
                 outBuffer = outBuffer.Replace(str, "");
 
@@ -227,29 +223,31 @@ namespace ProjectX.AnalysisType
                 {
                     string val;
 
+
+
+
                     if (itemParam.IsConstant)
                     {
                         val = itemParam.Value;
                     }
                     else
                     {
+                        if (!Regex.IsMatch(str, itemParam.RegularString, RegexOptions.IgnoreCase))
+                        {
+                            continue;
+                        }
                         val = Regex.Matches(str, itemParam.RegularString, RegexOptions.IgnoreCase)[itemParam.RegularIndex].Value;
                     }
 
                     if (keyValues.ContainsKey(itemParam.NameParam))
                     {
-
-                            keyValues[itemParam.NameParam] = val;
-                        
+                        keyValues[itemParam.NameParam] = val;
                     }
-                    else {
+                    else
+                    {
                         keyValues.Add(itemParam.NameParam, val);
                     }
-                     
                 }
-
-
-
             }
 
             outBuffer = thisProviderRegular.Replace(outBuffer);
@@ -260,13 +258,11 @@ namespace ProjectX.AnalysisType
 
     public class ProviderRegular
     {
-
         private GenId Gen { get; set; }
         public string IdProvier { get; private set; }
 
         private List<PrimaryRegular> PrimaryRegulars { get; set; }
         private List<string> PassString { get; set; }
-
 
         public ProviderRegular(XmlNode x)
         {
@@ -285,7 +281,8 @@ namespace ProjectX.AnalysisType
                 PrimaryRegulars.Add(new PrimaryRegular(xNode));
             }
 
-            foreach (XmlNode xNode in x.SelectSingleNode("passStrings").ChildNodes) {
+            foreach (XmlNode xNode in x.SelectSingleNode("passStrings").ChildNodes)
+            {
                 PassString.Add(xNode.InnerText);
             }
         }
@@ -320,16 +317,15 @@ namespace ProjectX.AnalysisType
                 e = xmlDocument.CreateElement("passString");
                 e.InnerText = item;
                 passStringsElem.AppendChild(e);
-
             }
 
             return element;
         }
 
-        public void AddPassString(string s) {
+        public void AddPassString(string s)
+        {
             PassString.Add(s);
         }
-
 
         public string Add(string reg, int priority)
         {
@@ -343,7 +339,8 @@ namespace ProjectX.AnalysisType
             int i = PrimaryRegulars.FindIndex(x => x.Id == idReg);
             PrimaryRegular PR;
 
-            if (i == -1) {
+            if (i == -1)
+            {
                 throw new Exception();
             }
 
@@ -351,17 +348,6 @@ namespace ProjectX.AnalysisType
             string id = PR.Add(reg, index, name);
 
             return id;
-
-        }
-
-        public List<PrimaryRegular> GetListByPriority(int v)
-        {
-            return PrimaryRegulars.Where(x => x.Priority == v).ToList();
-        }
-
-        public int[] GetPrioritys()
-        {
-            return PrimaryRegulars.Select(x => x.Priority).Distinct().ToArray();
         }
 
         public string Add(string idReg, string value, string name)
@@ -375,16 +361,28 @@ namespace ProjectX.AnalysisType
             }
 
             PR = PrimaryRegulars[i];
-            string id = PR.Add(value,name);
+            string id = PR.Add(value, name);
 
             return id;
         }
 
-        public string Replace(string str) {
+        public List<PrimaryRegular> GetListByPriority(int v)
+        {
+            return PrimaryRegulars.Where(x => x.Priority == v).ToList();
+        }
+
+        public int[] GetPrioritys()
+        {
+            return PrimaryRegulars.Select(x => x.Priority).Distinct().ToArray();
+        }
+
+
+        public string Replace(string str)
+        {
             string outStr = str;
             foreach (var item in PassString)
             {
-                string sov_item = Regex.Match(outStr,Regex.Escape(item), RegexOptions.IgnoreCase).Value;
+                string sov_item = Regex.Match(outStr, Regex.Escape(item), RegexOptions.IgnoreCase).Value;
                 if (sov_item != "")
                 {
                     outStr = outStr.Replace(sov_item, "");
@@ -394,21 +392,18 @@ namespace ProjectX.AnalysisType
         }
     }
 
-     public class PrimaryRegular : IEnumerable {
+    public class PrimaryRegular : IEnumerable
+    {
+        private GenId Gen { get; set; }
+        public string Id { get; private set; }
 
-        private GenId Gen { get; set;}
-        public string Id { get; private set;}
+        public string RegularString { get; set; }
+        public int Priority { get; set; }
 
-        public string RegularString { get; set;}
-        public int Priority { get; set;}
-
-        private List<RegularParam> RegularParams { get; set;}
-
-
+        private List<RegularParam> RegularParams { get; set; }
 
         public PrimaryRegular(XmlNode x)
         {
-
             XmlNode xmlSet = x.SelectSingleNode("settings");
             Gen = new GenId(char.Parse(xmlSet.ChildNodes.Item(0).InnerText),
                 int.Parse(xmlSet.ChildNodes.Item(1).InnerText),
@@ -426,8 +421,6 @@ namespace ProjectX.AnalysisType
             {
                 RegularParams.Add(new RegularParam(xNode));
             }
-
-
         }
 
         public PrimaryRegular(string id, string reg, int priority)
@@ -461,7 +454,7 @@ namespace ProjectX.AnalysisType
         public string Add(string reg, int index, string name)
         {
             string id = Gen.NexVal();
-            RegularParams.Add(new RegularParam(id, reg,index, name));
+            RegularParams.Add(new RegularParam(id, reg, index, name));
             return id;
         }
 
@@ -478,11 +471,10 @@ namespace ProjectX.AnalysisType
         }
     }
 
-     public class RegularParam {
-
-
+    public class RegularParam
+    {
         public string Id { get; set; }
-        public string RegularString { get; set;}
+        public string RegularString { get; set; }
         public int RegularIndex { get; set; }
         public string NameParam { get; set; }
         public string Value { get; set; }
@@ -491,8 +483,6 @@ namespace ProjectX.AnalysisType
         public RegularParam(XmlNode x)
         {
             Id = x.Attributes.GetNamedItem("id").Value;
-
-
 
             RegularString = x.SelectSingleNode("reg").InnerText;
             RegularIndex = int.Parse(x.SelectSingleNode("regIndex").InnerText);

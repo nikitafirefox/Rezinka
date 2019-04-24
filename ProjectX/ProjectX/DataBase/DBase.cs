@@ -1,5 +1,4 @@
-﻿
-using DocumentFormat.OpenXml;
+﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using ProjectX.Dict;
@@ -11,7 +10,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace ProjectX.DataBase
@@ -51,16 +49,15 @@ namespace ProjectX.DataBase
                 xmlOut.Close();
                 fs.Close();
                 Save();
-
             }
-            else {
+            else
+            {
                 InitBase();
             }
-
         }
 
-        private void InitBase() {
-
+        private void InitBase()
+        {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(pathXML);
             XmlElement xroot = xmlDocument.DocumentElement;
@@ -77,7 +74,6 @@ namespace ProjectX.DataBase
             {
                 DBRows.Add(new DBRow(x));
             }
-
         }
 
         public void AddRows(ParsingRow[] parsingRows)
@@ -98,12 +94,10 @@ namespace ProjectX.DataBase
 
         public void Save()
         {
-
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(pathXML);
             XmlElement xroot = xmlDocument.DocumentElement;
             xroot.RemoveAll();
-
 
             xroot.AppendChild(GenId.GetXmlNode(xmlDocument));
             XmlNode xmlSet = xroot.SelectSingleNode("settings");
@@ -118,7 +112,6 @@ namespace ProjectX.DataBase
                 rowsElement.AppendChild(item.GetXmlNode(xmlDocument));
             }
             xmlDocument.Save(pathXML);
-
         }
 
         private void AddRow(string idProduct, string nameProduct, string idPosition, double priceProv, double markup,
@@ -129,7 +122,6 @@ namespace ProjectX.DataBase
 
         private void CellSave(SharedStringTablePart shareStringPart, Row row, Cell cell, string value, string cellReference, int index)
         {
-
             shareStringPart.SharedStringTable.AppendChild(
                          new SharedStringItem(new DocumentFormat.OpenXml.Spreadsheet.Text(value)));
             cell = new Cell() { CellReference = cellReference };
@@ -145,7 +137,6 @@ namespace ProjectX.DataBase
 
         private void CreateExcel(string filepath)
         {
-
             SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.
                 Create(filepath, SpreadsheetDocumentType.Workbook);
 
@@ -155,7 +146,6 @@ namespace ProjectX.DataBase
             WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
             SheetData sheetData;
             worksheetPart.Worksheet = new Worksheet(sheetData = new SheetData());
-
 
             Sheets sheets = spreadsheetDocument.WorkbookPart.Workbook.
                 AppendChild(new Sheets());
@@ -171,11 +161,11 @@ namespace ProjectX.DataBase
 
             workbookpart.Workbook.Save();
 
-
             spreadsheetDocument.Close();
         }
 
-        public void SaveDataExcel(string filepath, string[] idProviders, ExcelDefaultOutParametrics defaultOutParametrics,ExcelProviderOutParametrics providerOutParametrics, ExcelProductOutParametrics productOutParametrics) {
+        public void SaveDataExcel(string filepath, string[] idProviders, ExcelDefaultOutParametrics defaultOutParametrics, ExcelProviderOutParametrics providerOutParametrics, ExcelProductOutParametrics productOutParametrics)
+        {
             CreateExcel(filepath);
 
             ExcelCellList cellList = new ExcelCellList();
@@ -184,7 +174,6 @@ namespace ProjectX.DataBase
 
             using (SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(filepath, true))
             {
-
                 SharedStringTablePart shareStringPart;
                 if (spreadSheet.WorkbookPart.GetPartsOfType<SharedStringTablePart>().Count() > 0)
                 {
@@ -202,7 +191,6 @@ namespace ProjectX.DataBase
 
                 int shareIndex = 0;
 
-
                 WorkbookPart workbookPart = spreadSheet.WorkbookPart;
                 WorksheetPart worksheet;
                 IEnumerable<Sheet> sheets = workbookPart.Workbook.GetFirstChild<Sheets>().Elements<Sheet>().Where(s => s.Name == "Data");
@@ -217,7 +205,7 @@ namespace ProjectX.DataBase
 
                 Row row = new Row() { RowIndex = 1 };
 
-                if(defaultOutParametrics.IsIdRows) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_IdRows, cellList.NextVal()+"1", shareIndex++);
+                if (defaultOutParametrics.IsIdRows) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_IdRows, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsIdProduct) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_IdProduct, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsNameProduct) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_NameProduct, cellList.NextVal() + "1", shareIndex++);
 
@@ -268,7 +256,8 @@ namespace ProjectX.DataBase
 
                     row = new Row() { RowIndex = index };
 
-                    if (providerOutParametrics.IsProviderName || providerOutParametrics.IsProviderPriority || providerOutParametrics.IsStockName || providerOutParametrics.IsStockTime) {
+                    if (providerOutParametrics.IsProviderName || providerOutParametrics.IsProviderPriority || providerOutParametrics.IsStockName || providerOutParametrics.IsStockTime)
+                    {
                         valuePairsProvider = providerOutParametrics.ProvidersSrc.GetValuesById(item.IdPosition.Split('-').First(), item.IdPosition.Split('-').Last());
                     }
                     if (productOutParametrics.IsBrandName || productOutParametrics.IsBrandCountry || productOutParametrics.IsBrandDescription || productOutParametrics.IsBrandRunFlatName ||
@@ -277,14 +266,11 @@ namespace ProjectX.DataBase
                         productOutParametrics.IsMarkingWidth || productOutParametrics.IsMarkingHeight || productOutParametrics.IsMarkingDiameter || productOutParametrics.IsMarkingLoadIndex ||
                         productOutParametrics.IsMarkingSpeedIndex || productOutParametrics.IsMarkingCountry || productOutParametrics.IsMarkingTemperatureIndex ||
                         productOutParametrics.IsMarkingTractionIndex || productOutParametrics.IsMarkingTreadwearIndex || productOutParametrics.IsMarkingExtraLoad ||
-                        productOutParametrics.IsMarkingFlangeProtection || productOutParametrics.IsMarkingRunFlat) {
-
-
+                        productOutParametrics.IsMarkingFlangeProtection || productOutParametrics.IsMarkingRunFlat)
+                    {
                         string[] arrStr = item.IdProduct.Split('-');
-                        valuePairsDictionary = productOutParametrics.DictionarySrc.GetValuesById(arrStr[0], arrStr[1],arrStr[2]);
-
+                        valuePairsDictionary = productOutParametrics.DictionarySrc.GetValuesById(arrStr[0], arrStr[1], arrStr[2]);
                     }
-
 
                     if (defaultOutParametrics.IsIdRows) CellSave(shareStringPart, row, cell, item.IdRow, cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsIdProduct) CellSave(shareStringPart, row, cell, item.IdProduct, cellList.NextVal() + index, shareIndex++);
@@ -324,29 +310,27 @@ namespace ProjectX.DataBase
                     if (defaultOutParametrics.IsTotalPrice) CellSave(shareStringPart, row, cell, item.TotalPrice.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, item.Count.ToString(), cellList.NextVal() + index, shareIndex++);
 
-
-
                     sheetData.Append(row);
 
                     index++;
                 }
 
-
                 shareStringPart.SharedStringTable.Save();
                 worksheet.Worksheet.Save();
             }
-
         }
 
-        public void SaveDataExcel(string filepath, string[] idProviders) {
-            SaveDataExcel(filepath, idProviders, new ExcelDefaultOutParametrics(),new ExcelProviderOutParametrics(), new ExcelProductOutParametrics());
+        public void SaveDataExcel(string filepath, string[] idProviders)
+        {
+            SaveDataExcel(filepath, idProviders, new ExcelDefaultOutParametrics(), new ExcelProviderOutParametrics(), new ExcelProductOutParametrics());
         }
 
-        public void SaveDataExcel(string filepath, string[] idProviders, ExcelDefaultOutParametrics defaultOutParametrics) {
+        public void SaveDataExcel(string filepath, string[] idProviders, ExcelDefaultOutParametrics defaultOutParametrics)
+        {
             SaveDataExcel(filepath, idProviders, defaultOutParametrics, new ExcelProviderOutParametrics(), new ExcelProductOutParametrics());
         }
 
-        public void SaveDataExcel(string filepath, string[] idProviders,  ExcelProviderOutParametrics providerOutParametrics)
+        public void SaveDataExcel(string filepath, string[] idProviders, ExcelProviderOutParametrics providerOutParametrics)
         {
             SaveDataExcel(filepath, idProviders, new ExcelDefaultOutParametrics(), providerOutParametrics, new ExcelProductOutParametrics());
         }
@@ -373,16 +357,10 @@ namespace ProjectX.DataBase
 
         public void SaveDataOnlyProviderExcell(string filepath, string[] idProviders, ExcelDefaultOutParametrics defaultOutParametrics, ExcelProviderOutParametrics providerOutParametrics, ExcelProductOutParametrics productOutParametrics)
         {
-
-
-
-
-
             List<DBSortedMarking> res = new List<DBSortedMarking>();
             foreach (var item in DBRows.Where(x => idProviders.Contains(x.IdPosition.Split('-').First())).OrderBy(x => x.IdProduct))
             {
                 var itemRes = res.Find(x => x.IdProduct == item.IdProduct && x.IdPosition == item.IdPosition.Split('-').First());
-
 
                 if (itemRes != null)
                 {
@@ -393,7 +371,8 @@ namespace ProjectX.DataBase
                         item.PriceProv = item.PriceProv;
                     }
                 }
-                else {
+                else
+                {
                     res.Add(new DBSortedMarking()
                     {
                         IdProduct = item.IdProduct,
@@ -405,19 +384,12 @@ namespace ProjectX.DataBase
                         Count = item.Count
                     });
                 }
-
             }
-
-
 
             CreateExcel(filepath);
 
-
-
-
             using (SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(filepath, true))
             {
-
                 SharedStringTablePart shareStringPart;
                 if (spreadSheet.WorkbookPart.GetPartsOfType<SharedStringTablePart>().Count() > 0)
                 {
@@ -435,8 +407,6 @@ namespace ProjectX.DataBase
 
                 int shareIndex = 0;
 
-
-
                 WorkbookPart workbookPart = spreadSheet.WorkbookPart;
                 WorksheetPart worksheet;
                 IEnumerable<Sheet> sheets = workbookPart.Workbook.GetFirstChild<Sheets>().Elements<Sheet>().Where(s => s.Name == "Data");
@@ -449,13 +419,10 @@ namespace ProjectX.DataBase
 
                 ExcelCellList cellList = new ExcelCellList();
 
-
-
                 Cell cell = null;
 
                 Row row = new Row() { RowIndex = 1 };
 
-                
                 if (defaultOutParametrics.IsIdProduct) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_IdProduct, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsNameProduct) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_NameProduct, cellList.NextVal() + "1", shareIndex++);
 
@@ -486,14 +453,11 @@ namespace ProjectX.DataBase
                 if (defaultOutParametrics.IsIdPosition) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_IdPosition, cellList.NextVal() + "1", shareIndex++);
                 if (providerOutParametrics.IsProviderName) CellSave(shareStringPart, row, cell, providerOutParametrics.Name_ProviderName, cellList.NextVal() + "1", shareIndex++);
                 if (providerOutParametrics.IsProviderPriority) CellSave(shareStringPart, row, cell, providerOutParametrics.Name_ProviderPriority, cellList.NextVal() + "1", shareIndex++);
-              
+
                 if (defaultOutParametrics.IsProviderPrice) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_ProviderPrice, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsMarkup) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Markup, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsTotalPrice) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_TotalPrice, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Count, cellList.NextVal() + "1", shareIndex++);
-
-
-
 
                 sheetData.Append(row);
 
@@ -504,11 +468,9 @@ namespace ProjectX.DataBase
                 uint index = 2;
                 foreach (var item in res)
                 {
-
                     cellList.Restart();
 
                     row = new Row() { RowIndex = index };
-
 
                     if (providerOutParametrics.IsProviderName || providerOutParametrics.IsProviderPriority)
                     {
@@ -522,15 +484,10 @@ namespace ProjectX.DataBase
                         productOutParametrics.IsMarkingTractionIndex || productOutParametrics.IsMarkingTreadwearIndex || productOutParametrics.IsMarkingExtraLoad ||
                         productOutParametrics.IsMarkingFlangeProtection || productOutParametrics.IsMarkingRunFlat)
                     {
-
-
                         string[] arrStr = item.IdProduct.Split('-');
                         valuePairsDictionary = productOutParametrics.DictionarySrc.GetValuesById(arrStr[0], arrStr[1], arrStr[2]);
-
                     }
 
-
-                    
                     if (defaultOutParametrics.IsIdProduct) CellSave(shareStringPart, row, cell, item.IdProduct, cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsNameProduct) CellSave(shareStringPart, row, cell, item.NameProduct, cellList.NextVal() + index, shareIndex++);
 
@@ -561,7 +518,7 @@ namespace ProjectX.DataBase
                     if (defaultOutParametrics.IsIdPosition) CellSave(shareStringPart, row, cell, item.IdPosition, cellList.NextVal() + index, shareIndex++);
                     if (providerOutParametrics.IsProviderName) CellSave(shareStringPart, row, cell, (string)valuePairsProvider["Provider_Name"], cellList.NextVal() + index, shareIndex++);
                     if (providerOutParametrics.IsProviderPriority) CellSave(shareStringPart, row, cell, ((int)valuePairsProvider["Provider_Priority"]).ToString(), cellList.NextVal() + index, shareIndex++);
-                    
+
                     if (defaultOutParametrics.IsProviderPrice) CellSave(shareStringPart, row, cell, item.PriceProv.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsMarkup) CellSave(shareStringPart, row, cell, item.Markup.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsTotalPrice) CellSave(shareStringPart, row, cell, item.TotalPrice.ToString(), cellList.NextVal() + index, shareIndex++);
@@ -572,12 +529,9 @@ namespace ProjectX.DataBase
                     index++;
                 }
 
-
                 shareStringPart.SharedStringTable.Save();
                 worksheet.Worksheet.Save();
             }
-
-
         }
 
         public void SaveDataOnlyProviderExcell(string filepath, string[] idProviders)
@@ -612,14 +566,12 @@ namespace ProjectX.DataBase
 
         public void SaveDataOnlyProviderExcell(string filepath, string[] idProviders, ExcelProviderOutParametrics providerOutParametrics, ExcelProductOutParametrics productOutParametrics)
         {
-            SaveDataOnlyProviderExcell(filepath, idProviders, new ExcelDefaultOutParametrics() {Name_IdPosition ="Id поставщик" }, providerOutParametrics, productOutParametrics);
+            SaveDataOnlyProviderExcell(filepath, idProviders, new ExcelDefaultOutParametrics() { Name_IdPosition = "Id поставщик" }, providerOutParametrics, productOutParametrics);
         }
-
-
     }
 
-    public class DBRow {
-
+    public class DBRow
+    {
         public DBRow(XmlNode x)
         {
             IdRow = x.Attributes.GetNamedItem("id").Value;
@@ -630,11 +582,11 @@ namespace ProjectX.DataBase
             Markup = double.Parse(x.SelectSingleNode("markup").InnerText);
             TotalPrice = double.Parse(x.SelectSingleNode("totalPrice").InnerText);
             Count = int.Parse(x.SelectSingleNode("count").InnerText);
-
         }
 
         public DBRow(string idRow, string idProduct, string nameProduct, string idPosition, double priceProv, double markup,
-             int count) {
+             int count)
+        {
             IdRow = idRow;
             IdProduct = idProduct;
             NameProduct = nameProduct;
@@ -644,9 +596,6 @@ namespace ProjectX.DataBase
             TotalPrice = Math.Round((priceProv * (1 + markup / 100)) / 10, MidpointRounding.AwayFromZero) * 10;
             Count = count;
         }
-
-
-
 
         public string IdRow { get; private set; }
         public string IdProduct { get; private set; }
@@ -695,7 +644,6 @@ namespace ProjectX.DataBase
         }
     }
 
-
     public class DBSortedMarking
     {
         public string IdProduct { get; set; }
@@ -705,20 +653,18 @@ namespace ProjectX.DataBase
         public double PriceProv { get; set; }
         public double TotalPrice { get; set; }
         public int Count { get; set; }
-
     }
 
-    public class ExcelDefaultOutParametrics{
-
-        
-        public bool IsIdRows { get; set;}
+    public class ExcelDefaultOutParametrics
+    {
+        public bool IsIdRows { get; set; }
         public bool IsIdProduct { get; set; }
-        public bool IsNameProduct { get; set;}
+        public bool IsNameProduct { get; set; }
         public bool IsIdPosition { get; set; }
         public bool IsProviderPrice { get; set; }
-        public bool IsMarkup { get; set;}
-        public bool IsTotalPrice { get; set;}
-        public bool IsCount { get; set;}
+        public bool IsMarkup { get; set; }
+        public bool IsTotalPrice { get; set; }
+        public bool IsCount { get; set; }
 
         public string Name_IdRows { get; set; }
         public string Name_IdProduct { get; set; }
@@ -726,11 +672,11 @@ namespace ProjectX.DataBase
         public string Name_IdPosition { get; set; }
         public string Name_ProviderPrice { get; set; }
         public string Name_Markup { get; set; }
-        public string Name_TotalPrice { get; set;}
+        public string Name_TotalPrice { get; set; }
         public string Name_Count { get; set; }
 
-        public ExcelDefaultOutParametrics() {
-            
+        public ExcelDefaultOutParametrics()
+        {
             IsIdRows = false;
             IsIdProduct = true;
             IsNameProduct = true;
@@ -743,10 +689,9 @@ namespace ProjectX.DataBase
             SetNames();
         }
 
-        public ExcelDefaultOutParametrics(bool isIdRows, bool isIdProduct,bool isNameProduct,bool isIdPosition, bool isProviderPrice,
-            bool isMarkup,bool isTotalPrice,bool isCount)
+        public ExcelDefaultOutParametrics(bool isIdRows, bool isIdProduct, bool isNameProduct, bool isIdPosition, bool isProviderPrice,
+            bool isMarkup, bool isTotalPrice, bool isCount)
         {
-            
             IsIdRows = isIdRows;
             IsIdProduct = isIdProduct;
             IsNameProduct = isNameProduct;
@@ -759,13 +704,15 @@ namespace ProjectX.DataBase
             SetNames();
         }
 
-        private void SetNames() {
+        private void SetNames()
+        {
             SetNames("Id строки", "Id товара", "Наименование товара", "Id поставщик-склад", "Цена поставщика", "Наценка",
                 "Итоговая цена", "Остаток");
         }
 
-        public void SetNames(string name_IdRows,string name_IdProduct,string name_NameProduct,string name_IdPosition, string name_ProviderPrice, string name_Markup,
-            string name_TotalPrice, string name_Count) {
+        public void SetNames(string name_IdRows, string name_IdProduct, string name_NameProduct, string name_IdPosition, string name_ProviderPrice, string name_Markup,
+            string name_TotalPrice, string name_Count)
+        {
             Name_IdRows = name_IdRows;
             Name_IdProduct = name_IdProduct;
             Name_NameProduct = name_NameProduct;
@@ -775,11 +722,10 @@ namespace ProjectX.DataBase
             Name_TotalPrice = name_TotalPrice;
             Name_Count = name_Count;
         }
-
     }
 
-    public class ExcelProviderOutParametrics {
-
+    public class ExcelProviderOutParametrics
+    {
         public Providers ProvidersSrc { get; private set; }
         public bool IsProviderName { get; set; }
         public bool IsProviderPriority { get; set; }
@@ -791,7 +737,8 @@ namespace ProjectX.DataBase
         public string Name_StockName { get; set; }
         public string Name_StockTime { get; set; }
 
-        public ExcelProviderOutParametrics() {
+        public ExcelProviderOutParametrics()
+        {
             ProvidersSrc = null;
             IsProviderName = false;
             IsProviderPriority = false;
@@ -799,10 +746,9 @@ namespace ProjectX.DataBase
             IsStockTime = false;
 
             SetNames();
-
         }
 
-        public ExcelProviderOutParametrics(Providers providersSrc,bool isProviderName,bool isProviderPriority,bool isStockName, bool isStockTime)
+        public ExcelProviderOutParametrics(Providers providersSrc, bool isProviderName, bool isProviderPriority, bool isStockName, bool isStockTime)
         {
             ProvidersSrc = providersSrc;
             IsProviderName = isProviderName;
@@ -813,25 +759,22 @@ namespace ProjectX.DataBase
             SetNames();
         }
 
-        private void SetNames() {
-
+        private void SetNames()
+        {
             SetNames("Название поставщика", "Приоритет поставщика", "Название склада", "Срок доставки");
-
         }
 
-        public void SetNames(string name_ProviderName, string name_ProviderPriority, string name_StockName, string name_StockTime) {
-
+        public void SetNames(string name_ProviderName, string name_ProviderPriority, string name_StockName, string name_StockTime)
+        {
             Name_ProviderName = name_ProviderName;
             Name_ProviderPriority = name_ProviderPriority;
             Name_StockName = name_StockName;
             Name_StockTime = name_StockTime;
-
         }
-
     }
 
-    public class ExcelProductOutParametrics {
-
+    public class ExcelProductOutParametrics
+    {
         public Dictionary DictionarySrc { get; set; }
 
         public bool IsBrandName { get; set; }
@@ -882,7 +825,8 @@ namespace ProjectX.DataBase
         public string Name_MarkingRunFlat { get; set; }
         public string Name_MarkingFlangeProtection { get; set; }
 
-        public ExcelProductOutParametrics() {
+        public ExcelProductOutParametrics()
+        {
             DictionarySrc = null;
             IsBrandName = false;
             IsBrandCountry = false;
@@ -909,13 +853,12 @@ namespace ProjectX.DataBase
             IsMarkingFlangeProtection = false;
 
             SetNames();
-
         }
 
-        public ExcelProductOutParametrics(Dictionary dictionarySrc,bool isBrandName,bool isBrandCountry, bool isBrandDescription, bool isBrandRunFlatName, bool isModelType, bool isModelName,
-            bool isModelSeason, bool isModelDescription,bool isModelCommercial,bool isModelWhileLetters, bool isModelMudSnow, bool isMarkingWidth, bool isMarkingHeight,
-            bool isMarkingDiameter,bool isMarkingSpeedIndex,bool isMarkingLoadIndex,bool isMarkingCountry, bool isMarkingTractionIndex, bool isMarkingTemperatureIndex,
-            bool isMarkingTreadwearIndex,bool isMarkingExtraLoad,bool isMarkingRunFlat,bool isMarkingFlangeProtection)
+        public ExcelProductOutParametrics(Dictionary dictionarySrc, bool isBrandName, bool isBrandCountry, bool isBrandDescription, bool isBrandRunFlatName, bool isModelType, bool isModelName,
+            bool isModelSeason, bool isModelDescription, bool isModelCommercial, bool isModelWhileLetters, bool isModelMudSnow, bool isMarkingWidth, bool isMarkingHeight,
+            bool isMarkingDiameter, bool isMarkingSpeedIndex, bool isMarkingLoadIndex, bool isMarkingCountry, bool isMarkingTractionIndex, bool isMarkingTemperatureIndex,
+            bool isMarkingTreadwearIndex, bool isMarkingExtraLoad, bool isMarkingRunFlat, bool isMarkingFlangeProtection)
         {
             DictionarySrc = dictionarySrc;
             IsBrandName = isBrandName;
@@ -945,18 +888,19 @@ namespace ProjectX.DataBase
             SetNames();
         }
 
-        private void SetNames() {
-
+        private void SetNames()
+        {
             SetNames("Название производителя", "Страна производителя", "Описание производителя", "Название технологии RunFlat",
                 "Тип модели", "Название модели", "Сезонность", "Описание модели", "Commercial", "БУКВЫ", "M+S", "Ширина", "Высота",
                 "Диаметр", "Индекс скорости", "Индекс нагрузки", "Страна производства", "TractionIndex", "TemperatureIndex", "TreadwearIndex",
                 "ExtraLoad", "Технология RunFlat", "FlangeProtection");
         }
 
-        public void SetNames(string name_BrandName, string name_BrandCountry,string name_BrandDescription, string name_BrandRunFlatName, string name_ModelType,string name_ModelName,
-            string name_ModelSeason, string name_ModelDescription,string name_ModelCommercial, string name_ModelWhileLetters, string name_ModelMudSnow, string name_MarkingWidth,
+        public void SetNames(string name_BrandName, string name_BrandCountry, string name_BrandDescription, string name_BrandRunFlatName, string name_ModelType, string name_ModelName,
+            string name_ModelSeason, string name_ModelDescription, string name_ModelCommercial, string name_ModelWhileLetters, string name_ModelMudSnow, string name_MarkingWidth,
             string name_MarkingHeight, string name_MarkingDiameter, string name_MarkingSpeedIndex, string name_MarkingLoadIndex, string name_MarkingCountry, string name_MarkingTractionIndex,
-            string name_MarkingTemperatureIndex,string name_MarkingTreadwearIndex, string name_MarkingExtraLoad, string name_MarkingRunFlat,string name_MarkingFlangeProtection) {
+            string name_MarkingTemperatureIndex, string name_MarkingTreadwearIndex, string name_MarkingExtraLoad, string name_MarkingRunFlat, string name_MarkingFlangeProtection)
+        {
             Name_BrandName = name_BrandName;
             Name_BrandCountry = name_BrandCountry;
             Name_BrandDescription = name_BrandDescription;
@@ -965,8 +909,8 @@ namespace ProjectX.DataBase
             Name_ModelName = name_ModelName;
             Name_ModelSeason = name_ModelSeason;
             Name_ModelDescription = name_ModelDescription;
-            Name_ModelCommercial = name_ModelCommercial; 
-            Name_ModelWhileLetters = name_ModelWhileLetters; 
+            Name_ModelCommercial = name_ModelCommercial;
+            Name_ModelWhileLetters = name_ModelWhileLetters;
             Name_ModelMudSnow = name_ModelMudSnow;
             Name_MarkingWidth = name_MarkingWidth;
             Name_MarkingHeight = name_MarkingHeight;

@@ -1,19 +1,17 @@
-﻿using ProjectX.ExcelParsing;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace ProjectX.Dict
 {
-   public class Brand
+    public class Brand
     {
         public string Id { get; private set; }
         public string Name { get; set; }
         public string Country { get; set; }
         public string Description { get; set; }
-        
+
         public string RunFlatName { get; set; }
 
         private GenId IdGen { get; set; }
@@ -28,7 +26,6 @@ namespace ProjectX.Dict
             Models = new List<Model>();
 
             Id = x.Attributes.GetNamedItem("id").Value;
-            
 
             XmlNode xmlSet = x.SelectSingleNode("settings");
             IdGen = new GenId(char.Parse(xmlSet.ChildNodes.Item(0).InnerText),
@@ -45,18 +42,19 @@ namespace ProjectX.Dict
                 Images.Add(xNode.Attributes.GetNamedItem("src").Value);
             }
 
-            foreach (XmlNode xNode in x.SelectSingleNode("variations").ChildNodes) {
+            foreach (XmlNode xNode in x.SelectSingleNode("variations").ChildNodes)
+            {
                 Variations.Add(xNode.InnerText);
             }
 
-
-            foreach (XmlNode xNode in x.SelectSingleNode("models").ChildNodes) {
+            foreach (XmlNode xNode in x.SelectSingleNode("models").ChildNodes)
+            {
                 Models.Add(new Model(xNode));
             }
         }
 
-        public Brand(string id, string name, string country, string description, string runFlatName) {
-
+        public Brand(string id, string name, string country, string description, string runFlatName)
+        {
             Images = new HashSet<string>();
             IdGen = new GenId('A', -1, 1);
             Variations = new HashSet<string>();
@@ -69,15 +67,15 @@ namespace ProjectX.Dict
             RunFlatName = runFlatName;
         }
 
-        public override string ToString() {
-            return "ID: " + Id + '\n' 
-                + "Name: " + Name + '\n' 
-                + "Country: " + Country + '\n' 
-                + "RunFlatName: " + RunFlatName + '\n' 
+        public override string ToString()
+        {
+            return "ID: " + Id + '\n'
+                + "Name: " + Name + '\n'
+                + "Country: " + Country + '\n'
+                + "RunFlatName: " + RunFlatName + '\n'
                 + "Description: " + Description + '\n'
                 + "Image: \n\t" + String.Join("\n\t", Images) + '\n'
-                + "Variations: \n\t" + String.Join("\n\t",Variations);
-                
+                + "Variations: \n\t" + String.Join("\n\t", Variations);
         }
 
         public XmlElement GetXmlNode(XmlDocument document)
@@ -110,7 +108,6 @@ namespace ProjectX.Dict
                 e = document.CreateElement("variation");
                 e.InnerText = item;
                 variationsElement.AppendChild(e);
-
             }
 
             XmlElement imagesElement;
@@ -121,7 +118,6 @@ namespace ProjectX.Dict
                 e = document.CreateElement("image");
                 e.SetAttribute("src", item);
                 imagesElement.AppendChild(e);
-
             }
 
             XmlElement modelsElement;
@@ -135,31 +131,37 @@ namespace ProjectX.Dict
         }
 
         public string Add(string type, string name, string season, string description, bool commercial,
-            string whileLetters, bool mudSnow) {
+            string whileLetters, bool mudSnow)
+        {
             string id = IdGen.NexVal();
-            Models.Add(new Model(id,type,name,season,description,commercial,whileLetters,mudSnow));
+            Models.Add(new Model(id, type, name, season, description, commercial, whileLetters, mudSnow));
             return id;
         }
 
         public string Add(string idModel, string width, string height, string diameter, string speedIndex,
             string loadIndex, string country, string tractionIndex, string temperatureIndex, string treadwearIndex,
-            bool extraLoad, bool runFlat, string flangeProtection) {
+            bool extraLoad, bool runFlat, string flangeProtection)
+        {
             string id;
-            try {
-                id = Models.Find(x => x.Id == idModel).Add(width, height, diameter, speedIndex, loadIndex, 
+            try
+            {
+                id = Models.Find(x => x.Id == idModel).Add(width, height, diameter, speedIndex, loadIndex,
                 country, tractionIndex, temperatureIndex, treadwearIndex, extraLoad, runFlat, flangeProtection);
             }
-            catch (ArgumentNullException) {
+            catch (ArgumentNullException)
+            {
                 throw new ArgumentNullException();
             }
             return id;
         }
 
-        public void AddStringValue(string value) {
+        public void AddStringValue(string value)
+        {
             Variations.Add(value);
         }
 
-        public void AddStringValue(string idModel, string value){
+        public void AddStringValue(string idModel, string value)
+        {
             try
             {
                 Models.Find(x => x.Id == idModel).AddStringValue(value);
@@ -174,7 +176,7 @@ namespace ProjectX.Dict
         {
             try
             {
-                Models.Find(x => x.Id == idModel).AddStringValue(idMarking,value);
+                Models.Find(x => x.Id == idModel).AddStringValue(idMarking, value);
             }
             catch (ArgumentNullException)
             {
@@ -182,9 +184,8 @@ namespace ProjectX.Dict
             }
         }
 
-        public List<Model> AnalysisModel(string parsingBufer,out List<string> variationStrings)
+        public List<Model> AnalysisModel(string parsingBufer, out List<string> variationStrings)
         {
-
             Models.Sort((x1, x2) => x1.Name.ToLower().CompareTo(x2.Name.ToLower()));
             List<Model> Resault = new List<Model>();
             variationStrings = new List<string>();
@@ -194,14 +195,13 @@ namespace ProjectX.Dict
                 if (item.IsMatched(parsingBufer, out variation))
                 {
                     bool isAdding = true;
-                   List<string> resModels = new List<string>();
+                    List<string> resModels = new List<string>();
                     foreach (var var2 in variationStrings)
                     {
-
                         string minStr = variation.Length > var2.Length ? var2 : variation;
                         string maxStr = variation.Length >= var2.Length ? variation : var2;
 
-                        if (Regex.IsMatch(maxStr,Regex.Escape(minStr), RegexOptions.IgnoreCase))
+                        if (Regex.IsMatch(maxStr, Regex.Escape(minStr), RegexOptions.IgnoreCase))
                         {
                             isAdding = false;
                             if (var2.Length == minStr.Length)
@@ -226,10 +226,8 @@ namespace ProjectX.Dict
             return Resault;
         }
 
-
-
-
-        public void Set(string name, string country, string description, string runFlatName) {
+        public void Set(string name, string country, string description, string runFlatName)
+        {
             Name = name;
             Country = country;
             Description = description;
@@ -237,7 +235,8 @@ namespace ProjectX.Dict
         }
 
         public void Set(string idModel, string name, string type, string season, string description, bool commercial,
-            string whileLetters, bool mudSnow) {
+            string whileLetters, bool mudSnow)
+        {
             try
             {
                 Models.Find(x => x.Id == idModel).Set(name, type, season, description, commercial, whileLetters,
@@ -276,9 +275,7 @@ namespace ProjectX.Dict
 
         public void AddImage(string image)
         {
-
             Images.Add(image);
-
         }
 
         public void DeleteStringValue(string value)
@@ -293,7 +290,7 @@ namespace ProjectX.Dict
 
         public void DeleteStringValue(string idModel, string idMarking, string value)
         {
-            Models.Find(x => x.Id == idModel).DeleteStringValue(idMarking,value);
+            Models.Find(x => x.Id == idModel).DeleteStringValue(idMarking, value);
         }
 
         public void AddImage(string idModel, string image)
@@ -308,7 +305,8 @@ namespace ProjectX.Dict
             }
         }
 
-        public void DeleteImage(string image) {
+        public void DeleteImage(string image)
+        {
             Images.Remove(image);
         }
 
@@ -322,7 +320,8 @@ namespace ProjectX.Dict
             bool b = false;
             foreach (var item in Variations)
             {
-                if (Regex.IsMatch(buffer, Regex.Escape(item.Trim(' ')), RegexOptions.IgnoreCase)) {
+                if (Regex.IsMatch(buffer, Regex.Escape(item.Trim(' ')), RegexOptions.IgnoreCase))
+                {
                     b = true;
                     break;
                 }
@@ -356,11 +355,10 @@ namespace ProjectX.Dict
                 resault.Add("Model_Name", model.Name);
                 resault.Add("Model_Season", model.Season);
                 resault.Add("Model_Description", model.Description);
-                resault.Add("Model_Commercial", model.Commercial.ToString().Replace("True","Да").Replace("False", "Нет"));
+                resault.Add("Model_Commercial", model.Commercial.ToString().Replace("True", "Да").Replace("False", "Нет"));
                 resault.Add("Model_Type", model.Type);
                 resault.Add("Model_MudSnow", model.MudSnow.ToString().Replace("True", "Да").Replace("False", "Нет"));
                 resault.Add("Model_WhileLetters", model.WhileLetters);
-
             }
             catch (Exception e)
             {

@@ -4,23 +4,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace ProjectX.Information
 {
-
-    public class Providers {
+    public class Providers
+    {
         private GenId GenId { get; set; }
         private readonly string pathXML;
 
-        private List<Provider> ProvidersList { get; set;}
+        private List<Provider> ProvidersList { get; set; }
 
-        public Providers() {
+        public Providers()
+        {
             ProvidersList = new List<Provider>();
             pathXML = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\Providers.xml");
-
-
 
             if (!File.Exists(pathXML))
             {
@@ -40,19 +38,15 @@ namespace ProjectX.Information
                 xmlOut.Close();
                 fs.Close();
                 Save();
-
-
             }
             else
             {
                 InitProviders();
             }
-
-
         }
 
-        private void InitProviders() {
-
+        private void InitProviders()
+        {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(pathXML);
             XmlElement xroot = xmlDocument.DocumentElement;
@@ -67,12 +61,10 @@ namespace ProjectX.Information
             {
                 ProvidersList.Add(new Provider(x));
             }
-
         }
 
         public Dictionary<string, object> GetValuesById(string idProv, string idStock)
         {
-
             Provider provider;
             Dictionary<string, object> result;
             try
@@ -80,47 +72,53 @@ namespace ProjectX.Information
                 provider = ProvidersList.Find(x => x.Id == idProv);
                 result = provider.GetValuesById(idStock);
             }
-            catch(Exception e) {
+            catch (Exception e)
+            {
                 throw e;
             }
             result.Add("Provider_Name", provider.Name);
             result.Add("Provider_Priority", provider.Priority);
             return result;
-
         }
 
-        public string[] GetProvidersId() {
+        public string[] GetProvidersId()
+        {
             return ProvidersList.Select(x => x.Id).ToArray();
         }
 
-        public string AddProvider(string name, int priority) {
+        public string AddProvider(string name, int priority)
+        {
             string id = GenId.NexVal();
             ProvidersList.Add(new Provider(id, name, priority));
             return id;
         }
 
-        public string AddStock(string idProv, string name, string time) {
+        public string AddStock(string idProv, string name, string time)
+        {
             try
             {
-               string id = ProvidersList.Find(x => x.Id == idProv).AddStock(name, time);
+                string id = ProvidersList.Find(x => x.Id == idProv).AddStock(name, time);
                 return id;
             }
-            catch(Exception e) {
+            catch (Exception e)
+            {
                 throw e;
             }
         }
 
-        public string[] GetStocksId(string idProv) {
+        public string[] GetStocksId(string idProv)
+        {
             string[] res = null;
             try
             {
                 res = ProvidersList.Find(x => x.Id == idProv).GetStocksId();
             }
-            catch {}
+            catch { }
             return res;
         }
 
-        public void Save() {
+        public void Save()
+        {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(pathXML);
             XmlElement xroot = xmlDocument.DocumentElement;
@@ -155,19 +153,19 @@ namespace ProjectX.Information
 
     public class Provider
     {
-
-        private GenId GenId { set; get; } 
+        private GenId GenId { set; get; }
         public string Id { get; private set; }
         public string Name { get; set; }
         public int Priority { get; set; }
 
         private List<Stock> Stocks { get; set; }
 
-        public Provider(string id,string name, int priority ) {
+        public Provider(string id, string name, int priority)
+        {
             Id = id;
             Name = name;
             Priority = priority;
-            GenId = new GenId('A',-1,1);
+            GenId = new GenId('A', -1, 1);
             Stocks = new List<Stock>();
         }
 
@@ -188,23 +186,24 @@ namespace ProjectX.Information
             {
                 Stocks.Add(new Stock(xNode));
             }
-
         }
 
-        public string AddStock(string name, string time) {
-
+        public string AddStock(string name, string time)
+        {
             string id = GenId.NexVal();
-            Stocks.Add(new Stock(id,name, time));
+            Stocks.Add(new Stock(id, name, time));
             return id;
         }
 
-        public Stock GetStock(string id) {
+        public Stock GetStock(string id)
+        {
             Stock stock = null;
             stock = Stocks.Find(x => x.Id == id);
             return stock;
         }
 
-        public string[] GetStocksId() {
+        public string[] GetStocksId()
+        {
             return Stocks.Select(x => x.Id).ToArray();
         }
 
@@ -232,15 +231,16 @@ namespace ProjectX.Information
             return element;
         }
 
-        public Dictionary<string, object> GetValuesById(string idStock) {
+        public Dictionary<string, object> GetValuesById(string idStock)
+        {
             Stock stock;
-            Dictionary<string, object> result= new Dictionary<string, object>();
+            Dictionary<string, object> result = new Dictionary<string, object>();
             try
             {
                 stock = Stocks.Find(x => x.Id == idStock);
-
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw e;
             }
             result.Add("Stock_Name", stock.Name);
@@ -249,12 +249,14 @@ namespace ProjectX.Information
         }
     }
 
-    public class Stock {
+    public class Stock
+    {
         public string Name { get; set; }
         public string Id { get; private set; }
         public string Time { get; set; }
 
-        public Stock(string id, string name, string time) {
+        public Stock(string id, string name, string time)
+        {
             Name = name;
             Id = id;
             Time = time;
@@ -262,11 +264,9 @@ namespace ProjectX.Information
 
         public Stock(XmlNode xNode)
         {
-
             Id = xNode.Attributes.GetNamedItem("id").Value;
             Name = xNode.SelectSingleNode("name").InnerText;
             Time = xNode.SelectSingleNode("time").InnerText;
-
         }
 
         public XmlNode GetXmlNode(XmlDocument xmlDocument)

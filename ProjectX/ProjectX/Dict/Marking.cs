@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Xml;
-using ProjectX;
 
 namespace ProjectX.Dict
 {
     public class Marking
     {
-
         public string Id { get; private set; }
-        public string Width { get;private set; }
+        public string Width { get; private set; }
         public string Height { get; private set; }
         public string Diameter { get; private set; }
         public string SpeedIndex { get; set; }
@@ -48,15 +45,12 @@ namespace ProjectX.Dict
             {
                 Accomadations.Add(xNode.InnerText);
             }
-
-
-
         }
 
         public Marking(string id, string width, string height, string diameter, string speedIndex,
             string loadIndex, string country, string tractionIndex, string temperatureIndex, string treadwearIndex,
-            bool extraLoad, bool runFlat, string flangeProtection){
-
+            bool extraLoad, bool runFlat, string flangeProtection)
+        {
             Accomadations = new HashSet<string>();
 
             Id = id;
@@ -77,21 +71,21 @@ namespace ProjectX.Dict
         public override string ToString()
         {
             return "ID: " + Id + '\n'
-                + "Marking: " + Width+"\\"+ Height+"R"+ Diameter + '\n'
+                + "Marking: " + Width + "\\" + Height + "R" + Diameter + '\n'
                 + "SpeedIndex: " + SpeedIndex + '\n'
                 + "LoadIndex: " + LoadIndex + '\n'
                 + "Country: " + Country + '\n'
                 + "TractionIndex: " + TractionIndex + '\n'
-                + "TemperatureIndex: " + TemperatureIndex + '\n' 
+                + "TemperatureIndex: " + TemperatureIndex + '\n'
                 + "TreadwearIndex: " + TreadwearIndex + '\n'
                 + "ExtraLoad: " + ExtraLoad + '\n'
                 + "RunFlat: " + RunFlat + '\n'
                 + "FlangeProtection: " + FlangeProtection + '\n'
                 + "Variations: \n\t" + String.Join("\n\t", Accomadations);
-
         }
 
-        public XmlElement GetXmlNode(XmlDocument document) {
+        public XmlElement GetXmlNode(XmlDocument document)
+        {
             XmlElement element = document.CreateElement("marking");
             element.SetAttribute("id", Id);
 
@@ -154,8 +148,8 @@ namespace ProjectX.Dict
 
         public void Set(string speedIndex,
             string loadIndex, string country, string tractionIndex, string temperatureIndex, string treadwearIndex,
-            bool extraLoad, bool runFlat, string flangeProtection) {
-
+            bool extraLoad, bool runFlat, string flangeProtection)
+        {
             SpeedIndex = speedIndex;
             LoadIndex = loadIndex;
             Country = country;
@@ -171,7 +165,5 @@ namespace ProjectX.Dict
         {
             Accomadations.Remove(value);
         }
-
-
     }
 }

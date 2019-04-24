@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
+﻿using System.IO;
 
 namespace ProjectX.Loger
 {
@@ -11,56 +6,61 @@ namespace ProjectX.Loger
     {
         private readonly string pathLog;
 
-
-        public SystemLoger(string path) {
+        public SystemLoger(string path)
+        {
             pathLog = path;
             try
             {
                 if (new FileInfo(path).Length > 42E+6)
                     throw new IOException();
-
             }
-            catch (IOException) {
+            catch (IOException)
+            {
                 File.Create(path).Close();
             }
 
             WriteLog("Сессия открыта");
         }
 
-        public void WriteLog(string message) {
-            lock (this) {
+        public void WriteLog(string message)
+        {
+            lock (this)
+            {
                 StreamWriter streamWriter;
                 while (true)
                 {
                     try
                     {
-
                         streamWriter = new StreamWriter(pathLog, true);
                         break;
                     }
-                    catch {
+                    catch
+                    {
                         continue;
                     }
                 }
-               
+
                 streamWriter.WriteLine(message);
                 streamWriter.Close();
             }
         }
 
-        public void WriteLog(object o) {
+        public void WriteLog(object o)
+        {
             WriteLog(o.ToString());
         }
 
-        public void ClearLog() {
-            lock (this) {
+        public void ClearLog()
+        {
+            lock (this)
+            {
                 File.Create(pathLog);
             }
         }
 
-        ~SystemLoger() {
+        ~SystemLoger()
+        {
             WriteLog("Сессия закрыта");
-            
         }
     }
 }
