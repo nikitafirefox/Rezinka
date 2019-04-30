@@ -14,6 +14,8 @@ namespace ProjectX.ExcelParsing
 
         public double Price { get; private set; }
 
+
+
         private List<ParsingCount> ParsingCounts { get; set; }
 
         public Resault Resault { get; set; }

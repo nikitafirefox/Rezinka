@@ -19,12 +19,12 @@ namespace ProjectX.Dict
         public bool ExtraLoad { get; set; }
         public bool RunFlat { get; set; }
         public string FlangeProtection { get; set; }
-
-        private HashSet<string> Accomadations { get; set; }
+        public string Accomadation { get; set; }
+        public bool Spikes { get; set; }
 
         public Marking(XmlNode x)
         {
-            Accomadations = new HashSet<string>();
+            
 
             Id = x.Attributes.GetNamedItem("id").Value;
             Width = x.SelectSingleNode("width").InnerText;
@@ -40,18 +40,16 @@ namespace ProjectX.Dict
 
             ExtraLoad = bool.Parse(x.SelectSingleNode("extraLoad").Attributes.GetNamedItem("value").Value);
             RunFlat = bool.Parse(x.SelectSingleNode("runFlat").Attributes.GetNamedItem("value").Value);
+            Spikes = bool.Parse(x.SelectSingleNode("spikes").Attributes.GetNamedItem("value").Value);
+            Accomadation = x.SelectSingleNode("accomadation").InnerText;
 
-            foreach (XmlNode xNode in x.SelectSingleNode("accomadations").ChildNodes)
-            {
-                Accomadations.Add(xNode.InnerText);
-            }
+
         }
 
         public Marking(string id, string width, string height, string diameter, string speedIndex,
             string loadIndex, string country, string tractionIndex, string temperatureIndex, string treadwearIndex,
-            bool extraLoad, bool runFlat, string flangeProtection)
+            bool extraLoad, bool runFlat, string flangeProtection,string accomadation,bool spikes)
         {
-            Accomadations = new HashSet<string>();
 
             Id = id;
             Width = width;
@@ -66,6 +64,9 @@ namespace ProjectX.Dict
             ExtraLoad = extraLoad;
             RunFlat = runFlat;
             FlangeProtection = flangeProtection;
+            Accomadation = accomadation;
+            Spikes = spikes;
+
         }
 
         public override string ToString()
@@ -81,7 +82,8 @@ namespace ProjectX.Dict
                 + "ExtraLoad: " + ExtraLoad + '\n'
                 + "RunFlat: " + RunFlat + '\n'
                 + "FlangeProtection: " + FlangeProtection + '\n'
-                + "Variations: \n\t" + String.Join("\n\t", Accomadations);
+                + "Accomadation: " + Accomadation + '\n'
+                +"Spikes: " + Spikes;
         }
 
         public XmlElement GetXmlNode(XmlDocument document)
@@ -125,30 +127,30 @@ namespace ProjectX.Dict
             e = document.CreateElement("extraLoad");
             e.SetAttribute("value", ExtraLoad.ToString());
             element.AppendChild(e);
+
             e = document.CreateElement("runFlat");
             e.SetAttribute("value", RunFlat.ToString());
             element.AppendChild(e);
 
-            XmlElement accomadationsElement;
-            element.AppendChild(accomadationsElement = document.CreateElement("accomadations"));
-            foreach (string item in Accomadations)
-            {
-                e = document.CreateElement("accomadation");
-                e.InnerText = item;
-                accomadationsElement.AppendChild(e);
-            }
+            e = document.CreateElement("spikes");
+            e.SetAttribute("value", Spikes.ToString());
+            element.AppendChild(e);
+
+            e = document.CreateElement("accomadation");
+            e.InnerText = Accomadation;
+            element.AppendChild(e);
+
+
+
 
             return element;
         }
 
-        public void AddStringValue(string value)
-        {
-            Accomadations.Add(value);
-        }
+
 
         public void Set(string speedIndex,
             string loadIndex, string country, string tractionIndex, string temperatureIndex, string treadwearIndex,
-            bool extraLoad, bool runFlat, string flangeProtection)
+            bool extraLoad, bool runFlat, string flangeProtection,string accomadation, bool spikes)
         {
             SpeedIndex = speedIndex;
             LoadIndex = loadIndex;
@@ -159,11 +161,10 @@ namespace ProjectX.Dict
             ExtraLoad = extraLoad;
             RunFlat = runFlat;
             FlangeProtection = flangeProtection;
+            Accomadation = accomadation;
+            Spikes = spikes;
         }
 
-        public void DeleteStringValue(string value)
-        {
-            Accomadations.Remove(value);
-        }
+
     }
 }

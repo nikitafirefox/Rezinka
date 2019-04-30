@@ -16,7 +16,7 @@ namespace ProjectX
         {
             Test1();
 
-            Test2();
+           // Test2();
         }
 
         private static void Test1()
@@ -121,6 +121,7 @@ namespace ProjectX
             List<EParsingParam> eParsingParams = new List<EParsingParam>();
             EParsingParam parsingParam1 = new EParsingParam(fileName1, "A0");
             parsingParam1.AddStringVal("более 20", 20);
+            parsingParam1.AddStringVal("более 40", 40);
             ESheet eSheet = new ESheet(null, "D");
             string[] bufIndex1 = { "B" };
             eSheet.AddBufIndex(bufIndex1);
@@ -161,8 +162,10 @@ namespace ProjectX
             eSheet.AddBufIndex(bufIndex2);
             eSheet.AddCountIndex("A5", "S");
             parsingParam1.Add(eSheet);
+            
             eParsingParams.Add(parsingParam1);
             */
+            
 
             sw.Stop();
             Console.WriteLine("Подготовили параметры парсинга " + sw.ElapsedMilliseconds + " мс");
@@ -198,7 +201,7 @@ namespace ProjectX
             Console.WriteLine("Инициализация словаря XML " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            var res = dictionary.Analysis(ref parsings);
+            var res = dictionary.Analysis(ref parsings,true);
             ParsingRow[] rows = res.Where(x => x.Resault is GResault).ToArray();
             ParsingRow[] bRows = res.Where(x => x.Resault is BResault).ToArray();
             ParsingRow[] NRows = res.Where(x => x.Resault is NResault).ToArray();
@@ -226,7 +229,24 @@ namespace ProjectX
             Console.WriteLine("Инициализация базы XML " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data.xlsx", new string[] { "A0", "A1" }, new ExcelProductOutParametrics() { DictionarySrc = dictionary, IsModelCommercial = true});
+            dBase.SaveDataOnlyProviderExcell(@"C:\Users\ACER\Desktop\Прайсы\Data.xlsx", new string[] { "A0" }, new ExcelDefaultOutParametrics() {
+                IsIdPosition = false,
+                IsNameProduct = false
+            },
+                new ExcelProductOutParametrics() { DictionarySrc = dictionary,
+                    IsMarkingHeight = true,
+                    IsMarkingDiameter = true,
+                    IsMarkingWidth = true,
+                    IsMarkingSpeedIndex = true,
+                    IsMarkingExtraLoad = true,
+                    IsMarkingLoadIndex = true,
+                    IsMarkingAccomadation = true,
+                    IsMarkingRunFlat = true,
+                    IsBrandName = true,
+                    IsModelName = true,
+                    IsMarkingSpikes = true
+
+                });
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
@@ -367,8 +387,8 @@ namespace ProjectX
 
             sw.Restart();
             dBase.SaveDataExcel(@"C:\Users\ACER\Desktop\Прайсы\Data6.xlsx", new string[] { "A0", "A1" }, new ExcelDefaultOutParametrics(false, false, false
-                , false, false, false, true, true), new ExcelProviderOutParametrics(providers, true, false, false, true), new ExcelProductOutParametrics(dictionary, true, false,
-                false, false, false, true, false, false, true, false, false, true, true, true, true, true, false, false, false, false, false, true, false));
+                , false, false, false, true, true,true), new ExcelProviderOutParametrics(providers, true, false, false, true), new ExcelProductOutParametrics(dictionary, true, false,
+                false, false, false, true, false, false, true, false, false, true, true, true, true, true, false, false, false, false, false, true, false,true,true));
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data6.xlsx' " + sw.ElapsedMilliseconds + " мс");
 

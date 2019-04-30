@@ -151,6 +151,10 @@ namespace ProjectX.AnalysisType
             PR.AddPassString(passString);
         }
 
+        public ProviderRegular GetProviderRegularById(string id) {
+            return ProviderRegularsList.Where(x => x.IdProvier == id).First();
+        }
+
         public bool IsContainMarking(string idProv, string buffer)
         {
             var config = ProviderRegularsList.Where(x => x.IdProvier == idProv).First().GetListByPriority(0);
@@ -183,7 +187,7 @@ namespace ProjectX.AnalysisType
             {
                 if (Regex.IsMatch(buffer, item.RegularString, RegexOptions.IgnoreCase))
                 {
-                    b = Regex.Matches(buffer, item.RegularString, RegexOptions.IgnoreCase).Count;
+                    b = Regex.Matches(buffer,item.RegularString, RegexOptions.IgnoreCase).Count;
                     break;
                 }
             }
@@ -216,38 +220,12 @@ namespace ProjectX.AnalysisType
                 }
 
                 if (primary == null) { continue; }
+
                 string str = Regex.Match(outBuffer, primary.RegularString, RegexOptions.IgnoreCase).Value;
                 outBuffer = outBuffer.Replace(str, "");
 
-                foreach (RegularParam itemParam in primary)
-                {
-                    string val;
+                keyValues = primary.GetDictionaryGroup(str, keyValues);
 
-
-
-
-                    if (itemParam.IsConstant)
-                    {
-                        val = itemParam.Value;
-                    }
-                    else
-                    {
-                        if (!Regex.IsMatch(str, itemParam.RegularString, RegexOptions.IgnoreCase))
-                        {
-                            continue;
-                        }
-                        val = Regex.Matches(str, itemParam.RegularString, RegexOptions.IgnoreCase)[itemParam.RegularIndex].Value;
-                    }
-
-                    if (keyValues.ContainsKey(itemParam.NameParam))
-                    {
-                        keyValues[itemParam.NameParam] = val;
-                    }
-                    else
-                    {
-                        keyValues.Add(itemParam.NameParam, val);
-                    }
-                }
             }
 
             outBuffer = thisProviderRegular.Replace(outBuffer);
@@ -371,6 +349,10 @@ namespace ProjectX.AnalysisType
             return PrimaryRegulars.Where(x => x.Priority == v).ToList();
         }
 
+        public PrimaryRegular GetPrimaryRegularById(string id) {
+            return PrimaryRegulars.Where(x => x.Id == id).First();
+        }
+
         public int[] GetPrioritys()
         {
             return PrimaryRegulars.Select(x => x.Priority).Distinct().ToArray();
@@ -385,27 +367,102 @@ namespace ProjectX.AnalysisType
                 string sov_item = Regex.Match(outStr, Regex.Escape(item), RegexOptions.IgnoreCase).Value;
                 if (sov_item != "")
                 {
-                    outStr = outStr.Replace(sov_item, "");
+                    outStr = (" " + outStr + " ").Replace(" " + sov_item + " ", "").Trim();
                 }
             }
             return outStr;
         }
     }
 
-    public class PrimaryRegular : IEnumerable
+    public abstract class AbstractRegular : IEnumerable
     {
-        private GenId Gen { get; set; }
-        public string Id { get; private set; }
+
+        protected GenId GenForRegularParams { get; set; }
+
+        public string Id { get; protected set; }
 
         public string RegularString { get; set; }
-        public int Priority { get; set; }
 
-        private List<RegularParam> RegularParams { get; set; }
+        protected List<RegularParam> RegularParams { get; set; }
+
+        public string Add(string reg, int index, string name)
+        {
+            string id = GenForRegularParams.NexVal();
+            RegularParams.Add(new RegularParam(id, reg, index, name));
+            return id;
+        }
+
+        public string Add(string value, string name)
+        {
+            string id = GenForRegularParams.NexVal();
+            RegularParams.Add(new RegularParam(id, value, name));
+            return id;
+        }
+
+        public RegularParam GetRegularParamById(string id) {
+            return RegularParams.Where(x => x.Id == id).First();
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)RegularParams).GetEnumerator();
+        }
+
+        public Dictionary<string, string> GetDictionary(string str, Dictionary<string, string> dictionary) {
+
+            Dictionary<string, string> keyValues = dictionary;
+
+            foreach (RegularParam itemParam in RegularParams)
+            {
+                string val;
+
+
+
+
+                if (itemParam.IsConstant)
+                {
+                    val = itemParam.Value;
+                }
+                else
+                {
+                    if (!Regex.IsMatch(str, itemParam.RegularString , RegexOptions.IgnoreCase))
+                    {
+                        continue;
+                    }
+                    val = Regex.Matches(str, itemParam.RegularString , RegexOptions.IgnoreCase)[itemParam.RegularIndex].Value;
+                }
+
+                if (keyValues.ContainsKey(itemParam.NameParam))
+                {
+                    keyValues[itemParam.NameParam] = val;
+                }
+                else
+                {
+                    keyValues.Add(itemParam.NameParam, val);
+                }
+            }
+
+            return keyValues;
+        }
+
+        public abstract XmlNode GetXmlNode(XmlDocument xmlDocument);
+
+    }
+
+    public class PrimaryRegular: GroupRegular
+    {
+        
+        public int Priority { get; set; }
 
         public PrimaryRegular(XmlNode x)
         {
-            XmlNode xmlSet = x.SelectSingleNode("settings");
-            Gen = new GenId(char.Parse(xmlSet.ChildNodes.Item(0).InnerText),
+            XmlNode xmlSet = x.SelectSingleNode("settingForRegular");
+            GenForRegularParams = new GenId(char.Parse(xmlSet.ChildNodes.Item(0).InnerText),
+                int.Parse(xmlSet.ChildNodes.Item(1).InnerText),
+                int.Parse(xmlSet.ChildNodes.Item(2).InnerText));
+
+            xmlSet = x.SelectSingleNode("settingsForGroup");
+            GenIdForGroupRegulars = new GenId(char.Parse(xmlSet.ChildNodes.Item(0).InnerText),
                 int.Parse(xmlSet.ChildNodes.Item(1).InnerText),
                 int.Parse(xmlSet.ChildNodes.Item(2).InnerText));
 
@@ -416,10 +473,16 @@ namespace ProjectX.AnalysisType
             RegularString = x.Attributes.GetNamedItem("str").Value;
 
             RegularParams = new List<RegularParam>();
+            GroupRegulars = new List<GroupRegular>();
 
             foreach (XmlNode xNode in x.SelectSingleNode("regularParams").ChildNodes)
             {
                 RegularParams.Add(new RegularParam(xNode));
+            }
+
+            foreach (XmlNode xNode in x.SelectSingleNode("regularGroups").ChildNodes)
+            {
+                GroupRegulars.Add(new GroupRegular(xNode));
             }
         }
 
@@ -428,18 +491,22 @@ namespace ProjectX.AnalysisType
             Id = id;
             RegularString = reg;
             Priority = priority;
-            Gen = new GenId('A', -1, 1);
+            GenForRegularParams = new GenId('A', -1, 1);
             RegularParams = new List<RegularParam>();
+            GenIdForGroupRegulars = new GenId('A', -1, 1);
+            GroupRegulars = new List<GroupRegular>();
         }
 
-        public XmlNode GetXmlNode(XmlDocument xmlDocument)
+        public override XmlNode GetXmlNode(XmlDocument xmlDocument)
         {
             XmlElement element = xmlDocument.CreateElement("regular");
             element.SetAttribute("id", Id);
             element.SetAttribute("priority", Priority.ToString());
             element.SetAttribute("str", RegularString);
 
-            element.AppendChild(Gen.GetXmlNode(xmlDocument));
+            element.AppendChild(GenForRegularParams.GetXmlNode(xmlDocument, "settingForRegular"));
+            element.AppendChild(GenIdForGroupRegulars.GetXmlNode(xmlDocument, "settingsForGroup"));
+
 
             XmlElement regularParamsElement;
             element.AppendChild(regularParamsElement = xmlDocument.CreateElement("regularParams"));
@@ -448,27 +515,118 @@ namespace ProjectX.AnalysisType
                 regularParamsElement.AppendChild(item.GetXmlNode(xmlDocument));
             }
 
+            XmlElement regularGroupsElement;
+            element.AppendChild(regularGroupsElement = xmlDocument.CreateElement("regularGroups"));
+            foreach (var item in GroupRegulars)
+            {
+                regularGroupsElement.AppendChild(item.GetXmlNode(xmlDocument));
+            }
+
             return element;
         }
 
-        public string Add(string reg, int index, string name)
+    }
+
+    public class GroupRegular: AbstractRegular {
+
+        protected GenId GenIdForGroupRegulars { get; set;}
+
+        protected List<GroupRegular> GroupRegulars { get; set;}
+
+        protected GroupRegular() { }
+
+        public GroupRegular(string id, string reg)
         {
-            string id = Gen.NexVal();
-            RegularParams.Add(new RegularParam(id, reg, index, name));
+            Id = id;
+            RegularString = reg;
+            GenForRegularParams = new GenId('A', -1, 1);
+            RegularParams = new List<RegularParam>();
+            GenIdForGroupRegulars = new GenId('A', -1, 1);
+            GroupRegulars = new List<GroupRegular>();
+        }
+
+        public GroupRegular(XmlNode x)
+        {
+            XmlNode xmlSet = x.SelectSingleNode("settingForRegular");
+            GenForRegularParams = new GenId(char.Parse(xmlSet.ChildNodes.Item(0).InnerText),
+                int.Parse(xmlSet.ChildNodes.Item(1).InnerText),
+                int.Parse(xmlSet.ChildNodes.Item(2).InnerText));
+
+            xmlSet = x.SelectSingleNode("settingsForGroup");
+            GenIdForGroupRegulars = new GenId(char.Parse(xmlSet.ChildNodes.Item(0).InnerText),
+                int.Parse(xmlSet.ChildNodes.Item(1).InnerText),
+                int.Parse(xmlSet.ChildNodes.Item(2).InnerText));
+
+            Id = x.Attributes.GetNamedItem("id").Value;
+
+            RegularString = x.Attributes.GetNamedItem("str").Value;
+
+            RegularParams = new List<RegularParam>();
+            GroupRegulars = new List<GroupRegular>();
+
+            foreach (XmlNode xNode in x.SelectSingleNode("regularParams").ChildNodes)
+            {
+                RegularParams.Add(new RegularParam(xNode));
+            }
+
+            foreach (XmlNode xNode in x.SelectSingleNode("regularGroups").ChildNodes)
+            {
+                GroupRegulars.Add(new GroupRegular(xNode));
+            }
+
+        }
+
+        public string AddGroupRegular(string reg) {
+            string id = GenIdForGroupRegulars.NexVal();
+            GroupRegulars.Add(new GroupRegular(id, reg));
             return id;
         }
 
-        public IEnumerator GetEnumerator()
-        {
-            return ((IEnumerable)RegularParams).GetEnumerator();
+        public GroupRegular GetGroupRegularById(string id) {
+            return GroupRegulars.Where(x => x.Id == id).First();
         }
 
-        internal string Add(string value, string name)
+        public override XmlNode GetXmlNode(XmlDocument xmlDocument)
         {
-            string id = Gen.NexVal();
-            RegularParams.Add(new RegularParam(id, value, name));
-            return id;
+            XmlElement element = xmlDocument.CreateElement("regular");
+            element.SetAttribute("id", Id);
+            element.SetAttribute("str", RegularString);
+
+            element.AppendChild(GenForRegularParams.GetXmlNode(xmlDocument,"settingForRegular"));
+            element.AppendChild(GenIdForGroupRegulars.GetXmlNode(xmlDocument,"settingsForGroup"));
+
+
+            XmlElement regularParamsElement;
+            element.AppendChild(regularParamsElement = xmlDocument.CreateElement("regularParams"));
+            foreach (var item in RegularParams)
+            {
+                regularParamsElement.AppendChild(item.GetXmlNode(xmlDocument));
+            }
+
+            XmlElement regularGroupsElement;
+            element.AppendChild(regularGroupsElement = xmlDocument.CreateElement("regularGroups"));
+            foreach (var item in GroupRegulars) {
+                regularGroupsElement.AppendChild(item.GetXmlNode(xmlDocument));
+            }
+
+            return element;
         }
+
+        public Dictionary<string, string> GetDictionaryGroup(string str, Dictionary<string, string> dictionary)
+        {
+            Dictionary<string, string> keyValues = GetDictionary(str,dictionary);
+
+            
+
+            foreach (var item in GroupRegulars) {
+                string str2 = Regex.Match(str, item.RegularString, RegexOptions.IgnoreCase).Value;
+                keyValues = item.GetDictionaryGroup(str2,dictionary);
+            }
+
+            return dictionary;
+
+        }
+
     }
 
     public class RegularParam
@@ -539,4 +697,6 @@ namespace ProjectX.AnalysisType
             return element;
         }
     }
+
+
 }

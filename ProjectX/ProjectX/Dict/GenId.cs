@@ -4,7 +4,7 @@ using System.Xml;
 
 namespace ProjectX.Dict
 {
-    internal class GenId
+    public class GenId
     {
         private int NumPlace { get; set; }
         private int NumIndex { get; set; }
@@ -65,5 +65,21 @@ namespace ProjectX.Dict
             element.AppendChild(e);
             return element;
         }
+
+        public XmlElement GetXmlNode(XmlDocument document,string nameNode)
+        {
+            XmlElement element = document.CreateElement(nameNode);
+            XmlElement e = document.CreateElement("charIndex");
+            e.InnerText = CharIndex.ToString();
+            element.AppendChild(e);
+            e = document.CreateElement("numIndex");
+            e.InnerText = NumIndex.ToString();
+            element.AppendChild(e);
+            e = document.CreateElement("numPlace");
+            e.InnerText = NumPlace.ToString();
+            element.AppendChild(e);
+            return element;
+        }
+
     }
 }

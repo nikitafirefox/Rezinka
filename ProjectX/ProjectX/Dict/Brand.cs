@@ -140,13 +140,13 @@ namespace ProjectX.Dict
 
         public string Add(string idModel, string width, string height, string diameter, string speedIndex,
             string loadIndex, string country, string tractionIndex, string temperatureIndex, string treadwearIndex,
-            bool extraLoad, bool runFlat, string flangeProtection)
+            bool extraLoad, bool runFlat, string flangeProtection, string accomadation, bool spikes)
         {
             string id;
             try
             {
                 id = Models.Find(x => x.Id == idModel).Add(width, height, diameter, speedIndex, loadIndex,
-                country, tractionIndex, temperatureIndex, treadwearIndex, extraLoad, runFlat, flangeProtection);
+                country, tractionIndex, temperatureIndex, treadwearIndex, extraLoad, runFlat, flangeProtection, accomadation,spikes);
             }
             catch (ArgumentNullException)
             {
@@ -172,17 +172,6 @@ namespace ProjectX.Dict
             }
         }
 
-        public void AddStringValue(string idModel, string idMarking, string value)
-        {
-            try
-            {
-                Models.Find(x => x.Id == idModel).AddStringValue(idMarking, value);
-            }
-            catch (ArgumentNullException)
-            {
-                throw new ArgumentNullException();
-            }
-        }
 
         public List<Model> AnalysisModel(string parsingBufer, out List<string> variationStrings)
         {
@@ -250,12 +239,12 @@ namespace ProjectX.Dict
 
         public void Set(string idModel, string idMarking, string speedIndex,
             string loadIndex, string country, string tractionIndex, string temperatureIndex, string treadwearIndex,
-            bool extraLoad, bool runFlat, string flangeProtection)
+            bool extraLoad, bool runFlat, string flangeProtection, string accomadation,bool spikes)
         {
             try
             {
                 Models.Find(x => x.Id == idModel).Set(idMarking, speedIndex, loadIndex, country, tractionIndex, temperatureIndex,
-                    treadwearIndex, extraLoad, runFlat, flangeProtection);
+                    treadwearIndex, extraLoad, runFlat, flangeProtection,accomadation,spikes);
             }
             catch (ArgumentNullException)
             {
@@ -288,10 +277,7 @@ namespace ProjectX.Dict
             Models.Find(x => x.Id == idModel).DeleteStringValue(value);
         }
 
-        public void DeleteStringValue(string idModel, string idMarking, string value)
-        {
-            Models.Find(x => x.Id == idModel).DeleteStringValue(idMarking, value);
-        }
+
 
         public void AddImage(string idModel, string image)
         {

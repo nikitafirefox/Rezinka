@@ -13,11 +13,14 @@ namespace ProjectX.ExcelParsing
 
         public string Name { get; private set; }
 
-        public GResault(string id, string name, string mes)
+        public string Addition { get; set; }
+
+        public GResault(string id, string name,string addition, string mes)
         {
             Id = id;
             Name = name;
             Message = mes;
+            Addition = addition;
         }
     }
 

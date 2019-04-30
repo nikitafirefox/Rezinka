@@ -87,7 +87,7 @@ namespace ProjectX.DataBase
                 GResault gResault = (GResault)item.Resault;
                 foreach (ParsingCount item1 in item)
                 {
-                    AddRow(gResault.Id, gResault.Name, item.IdProvider + '-' + item1.Id, item.Price, DefaultMarkup, item1.Count);
+                    AddRow(gResault.Id, gResault.Name, item.IdProvider + '-' + item1.Id, item.Price, DefaultMarkup, item1.Count, gResault.Addition);
                 }
             }
         }
@@ -115,9 +115,9 @@ namespace ProjectX.DataBase
         }
 
         private void AddRow(string idProduct, string nameProduct, string idPosition, double priceProv, double markup,
-            int count)
+            int count,string addition)
         {
-            DBRows.Add(new DBRow(GenId.NexVal(), idProduct, nameProduct, idPosition, priceProv, markup, count));
+            DBRows.Add(new DBRow(GenId.NexVal(), idProduct, nameProduct, idPosition, priceProv, markup, count,addition));
         }
 
         private void CellSave(SharedStringTablePart shareStringPart, Row row, Cell cell, string value, string cellReference, int index)
@@ -209,6 +209,7 @@ namespace ProjectX.DataBase
                 if (defaultOutParametrics.IsIdProduct) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_IdProduct, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsNameProduct) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_NameProduct, cellList.NextVal() + "1", shareIndex++);
 
+
                 if (productOutParametrics.IsBrandName) CellSave(shareStringPart, row, cell, productOutParametrics.Name_BrandName, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsBrandCountry) CellSave(shareStringPart, row, cell, productOutParametrics.Name_BrandCountry, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsBrandDescription) CellSave(shareStringPart, row, cell, productOutParametrics.Name_BrandDescription, cellList.NextVal() + "1", shareIndex++);
@@ -225,6 +226,7 @@ namespace ProjectX.DataBase
                 if (productOutParametrics.IsMarkingDiameter) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingDiameter, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingLoadIndex) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingLoadIndex, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingSpeedIndex) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingSpeedIndex, cellList.NextVal() + "1", shareIndex++);
+                if (productOutParametrics.IsMarkingSpikes) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingSpikes, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingCountry) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingCountry, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingTemperatureIndex) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingTemperatureIndex, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingTractionIndex) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingTractionIndex, cellList.NextVal() + "1", shareIndex++);
@@ -232,6 +234,9 @@ namespace ProjectX.DataBase
                 if (productOutParametrics.IsMarkingExtraLoad) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingExtraLoad, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingFlangeProtection) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingFlangeProtection, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingRunFlat) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingRunFlat, cellList.NextVal() + "1", shareIndex++);
+                if (productOutParametrics.IsMarkingAccomadation) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingAccomadation, cellList.NextVal() + "1", shareIndex++);
+                
+
 
                 if (defaultOutParametrics.IsIdPosition) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_IdPosition, cellList.NextVal() + "1", shareIndex++);
                 if (providerOutParametrics.IsProviderName) CellSave(shareStringPart, row, cell, providerOutParametrics.Name_ProviderName, cellList.NextVal() + "1", shareIndex++);
@@ -242,6 +247,7 @@ namespace ProjectX.DataBase
                 if (defaultOutParametrics.IsMarkup) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Markup, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsTotalPrice) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_TotalPrice, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Count, cellList.NextVal() + "1", shareIndex++);
+                if (defaultOutParametrics.IsAddition) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Addition, cellList.NextVal() + "1", shareIndex++);
 
                 sheetData.Append(row);
 
@@ -266,11 +272,12 @@ namespace ProjectX.DataBase
                         productOutParametrics.IsMarkingWidth || productOutParametrics.IsMarkingHeight || productOutParametrics.IsMarkingDiameter || productOutParametrics.IsMarkingLoadIndex ||
                         productOutParametrics.IsMarkingSpeedIndex || productOutParametrics.IsMarkingCountry || productOutParametrics.IsMarkingTemperatureIndex ||
                         productOutParametrics.IsMarkingTractionIndex || productOutParametrics.IsMarkingTreadwearIndex || productOutParametrics.IsMarkingExtraLoad ||
-                        productOutParametrics.IsMarkingFlangeProtection || productOutParametrics.IsMarkingRunFlat)
+                        productOutParametrics.IsMarkingFlangeProtection || productOutParametrics.IsMarkingRunFlat||productOutParametrics.IsMarkingAccomadation|| productOutParametrics.IsMarkingSpikes)
                     {
                         string[] arrStr = item.IdProduct.Split('-');
                         valuePairsDictionary = productOutParametrics.DictionarySrc.GetValuesById(arrStr[0], arrStr[1], arrStr[2]);
                     }
+
 
                     if (defaultOutParametrics.IsIdRows) CellSave(shareStringPart, row, cell, item.IdRow, cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsIdProduct) CellSave(shareStringPart, row, cell, item.IdProduct, cellList.NextVal() + index, shareIndex++);
@@ -292,6 +299,7 @@ namespace ProjectX.DataBase
                     if (productOutParametrics.IsMarkingDiameter) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_Diameter"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingLoadIndex) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_LoadIndex"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingSpeedIndex) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_SpeedIndex"], cellList.NextVal() + index, shareIndex++);
+                    if (productOutParametrics.IsMarkingSpikes) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_Spikes"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingCountry) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_Country"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingTemperatureIndex) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_TemperatureIndex"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingTractionIndex) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_TractionIndex"], cellList.NextVal() + index, shareIndex++);
@@ -299,6 +307,8 @@ namespace ProjectX.DataBase
                     if (productOutParametrics.IsMarkingExtraLoad) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_ExtraLoad"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingFlangeProtection) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_FlangeProtection"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingRunFlat) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_RunFlat"], cellList.NextVal() + index, shareIndex++);
+                    if (productOutParametrics.IsMarkingAccomadation) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_Accomadation"], cellList.NextVal() + index, shareIndex++);
+                    
 
                     if (defaultOutParametrics.IsIdPosition) CellSave(shareStringPart, row, cell, item.IdPosition, cellList.NextVal() + index, shareIndex++);
                     if (providerOutParametrics.IsProviderName) CellSave(shareStringPart, row, cell, (string)valuePairsProvider["Provider_Name"], cellList.NextVal() + index, shareIndex++);
@@ -309,6 +319,7 @@ namespace ProjectX.DataBase
                     if (defaultOutParametrics.IsMarkup) CellSave(shareStringPart, row, cell, item.Markup.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsTotalPrice) CellSave(shareStringPart, row, cell, item.TotalPrice.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, item.Count.ToString(), cellList.NextVal() + index, shareIndex++);
+                    if (defaultOutParametrics.IsAddition) CellSave(shareStringPart, row, cell, item.Addition, cellList.NextVal() + index, shareIndex++);
 
                     sheetData.Append(row);
 
@@ -355,12 +366,16 @@ namespace ProjectX.DataBase
             SaveDataExcel(filepath, idProviders, new ExcelDefaultOutParametrics(), providerOutParametrics, productOutParametrics);
         }
 
+
+
+
+
         public void SaveDataOnlyProviderExcell(string filepath, string[] idProviders, ExcelDefaultOutParametrics defaultOutParametrics, ExcelProviderOutParametrics providerOutParametrics, ExcelProductOutParametrics productOutParametrics)
         {
             List<DBSortedMarking> res = new List<DBSortedMarking>();
             foreach (var item in DBRows.Where(x => idProviders.Contains(x.IdPosition.Split('-').First())).OrderBy(x => x.IdProduct))
             {
-                var itemRes = res.Find(x => x.IdProduct == item.IdProduct && x.IdPosition == item.IdPosition.Split('-').First());
+                var itemRes = res.Find(x => x.IdProduct == item.IdProduct && x.IdPosition == item.IdPosition.Split('-').First() && x.Addition == item.Addition);
 
                 if (itemRes != null)
                 {
@@ -368,7 +383,7 @@ namespace ProjectX.DataBase
                     if (itemRes.TotalPrice < item.TotalPrice)
                     {
                         itemRes.TotalPrice = item.TotalPrice;
-                        item.PriceProv = item.PriceProv;
+                        itemRes.PriceProv = item.PriceProv;
                     }
                 }
                 else
@@ -381,7 +396,9 @@ namespace ProjectX.DataBase
                         Markup = item.Markup,
                         PriceProv = item.PriceProv,
                         TotalPrice = item.TotalPrice,
-                        Count = item.Count
+                        Count = item.Count,
+                        Addition = item.Addition
+                        
                     });
                 }
             }
@@ -442,6 +459,7 @@ namespace ProjectX.DataBase
                 if (productOutParametrics.IsMarkingDiameter) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingDiameter, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingLoadIndex) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingLoadIndex, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingSpeedIndex) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingSpeedIndex, cellList.NextVal() + "1", shareIndex++);
+                if (productOutParametrics.IsMarkingSpikes) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingSpikes, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingCountry) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingCountry, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingTemperatureIndex) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingTemperatureIndex, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingTractionIndex) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingTractionIndex, cellList.NextVal() + "1", shareIndex++);
@@ -449,6 +467,8 @@ namespace ProjectX.DataBase
                 if (productOutParametrics.IsMarkingExtraLoad) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingExtraLoad, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingFlangeProtection) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingFlangeProtection, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsMarkingRunFlat) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingRunFlat, cellList.NextVal() + "1", shareIndex++);
+                if (productOutParametrics.IsMarkingAccomadation) CellSave(shareStringPart, row, cell, productOutParametrics.Name_MarkingAccomadation, cellList.NextVal() + "1", shareIndex++);
+                
 
                 if (defaultOutParametrics.IsIdPosition) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_IdPosition, cellList.NextVal() + "1", shareIndex++);
                 if (providerOutParametrics.IsProviderName) CellSave(shareStringPart, row, cell, providerOutParametrics.Name_ProviderName, cellList.NextVal() + "1", shareIndex++);
@@ -458,6 +478,7 @@ namespace ProjectX.DataBase
                 if (defaultOutParametrics.IsMarkup) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Markup, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsTotalPrice) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_TotalPrice, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Count, cellList.NextVal() + "1", shareIndex++);
+                if (defaultOutParametrics.IsAddition) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Addition, cellList.NextVal() + "1", shareIndex++);
 
                 sheetData.Append(row);
 
@@ -482,7 +503,7 @@ namespace ProjectX.DataBase
                         productOutParametrics.IsMarkingWidth || productOutParametrics.IsMarkingHeight || productOutParametrics.IsMarkingDiameter || productOutParametrics.IsMarkingLoadIndex ||
                         productOutParametrics.IsMarkingSpeedIndex || productOutParametrics.IsMarkingCountry || productOutParametrics.IsMarkingTemperatureIndex ||
                         productOutParametrics.IsMarkingTractionIndex || productOutParametrics.IsMarkingTreadwearIndex || productOutParametrics.IsMarkingExtraLoad ||
-                        productOutParametrics.IsMarkingFlangeProtection || productOutParametrics.IsMarkingRunFlat)
+                        productOutParametrics.IsMarkingFlangeProtection || productOutParametrics.IsMarkingRunFlat||productOutParametrics.IsMarkingAccomadation|| productOutParametrics.IsMarkingSpikes)
                     {
                         string[] arrStr = item.IdProduct.Split('-');
                         valuePairsDictionary = productOutParametrics.DictionarySrc.GetValuesById(arrStr[0], arrStr[1], arrStr[2]);
@@ -507,6 +528,7 @@ namespace ProjectX.DataBase
                     if (productOutParametrics.IsMarkingDiameter) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_Diameter"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingLoadIndex) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_LoadIndex"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingSpeedIndex) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_SpeedIndex"], cellList.NextVal() + index, shareIndex++);
+                    if (productOutParametrics.IsMarkingSpikes) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_Spikes"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingCountry) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_Country"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingTemperatureIndex) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_TemperatureIndex"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingTractionIndex) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_TractionIndex"], cellList.NextVal() + index, shareIndex++);
@@ -514,6 +536,8 @@ namespace ProjectX.DataBase
                     if (productOutParametrics.IsMarkingExtraLoad) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_ExtraLoad"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingFlangeProtection) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_FlangeProtection"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsMarkingRunFlat) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_RunFlat"], cellList.NextVal() + index, shareIndex++);
+                    if (productOutParametrics.IsMarkingAccomadation) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Marking_Accomadation"], cellList.NextVal() + index, shareIndex++);
+                    
 
                     if (defaultOutParametrics.IsIdPosition) CellSave(shareStringPart, row, cell, item.IdPosition, cellList.NextVal() + index, shareIndex++);
                     if (providerOutParametrics.IsProviderName) CellSave(shareStringPart, row, cell, (string)valuePairsProvider["Provider_Name"], cellList.NextVal() + index, shareIndex++);
@@ -523,6 +547,7 @@ namespace ProjectX.DataBase
                     if (defaultOutParametrics.IsMarkup) CellSave(shareStringPart, row, cell, item.Markup.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsTotalPrice) CellSave(shareStringPart, row, cell, item.TotalPrice.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, item.Count.ToString(), cellList.NextVal() + index, shareIndex++);
+                    if (defaultOutParametrics.IsAddition) CellSave(shareStringPart, row, cell, item.Addition, cellList.NextVal() + index, shareIndex++);
 
                     sheetData.Append(row);
 
@@ -572,6 +597,17 @@ namespace ProjectX.DataBase
 
     public class DBRow
     {
+        public string IdRow { get; private set; }
+        public string IdProduct { get; private set; }
+        public string NameProduct { get; set; }
+        public string IdPosition { get; private set; }
+
+        public double PriceProv { get; set; }
+        public double Markup { get; set; }
+        public double TotalPrice { get; private set; }
+        public int Count { get; set; }
+        public string Addition;
+
         public DBRow(XmlNode x)
         {
             IdRow = x.Attributes.GetNamedItem("id").Value;
@@ -582,10 +618,11 @@ namespace ProjectX.DataBase
             Markup = double.Parse(x.SelectSingleNode("markup").InnerText);
             TotalPrice = double.Parse(x.SelectSingleNode("totalPrice").InnerText);
             Count = int.Parse(x.SelectSingleNode("count").InnerText);
+            Addition = x.SelectSingleNode("addition").InnerText;
         }
 
         public DBRow(string idRow, string idProduct, string nameProduct, string idPosition, double priceProv, double markup,
-             int count)
+             int count,string addition)
         {
             IdRow = idRow;
             IdProduct = idProduct;
@@ -595,17 +632,9 @@ namespace ProjectX.DataBase
             Markup = markup;
             TotalPrice = Math.Round((priceProv * (1 + markup / 100)) / 10, MidpointRounding.AwayFromZero) * 10;
             Count = count;
+            Addition = addition;
         }
 
-        public string IdRow { get; private set; }
-        public string IdProduct { get; private set; }
-        public string NameProduct { get; set; }
-        public string IdPosition { get; private set; }
-
-        public double PriceProv { get; set; }
-        public double Markup { get; set; }
-        public double TotalPrice { get; private set; }
-        public int Count { get; set; }
 
         internal XmlNode GetXmlNode(XmlDocument xmlDocument)
         {
@@ -640,6 +669,10 @@ namespace ProjectX.DataBase
             e.InnerText = Count.ToString();
             element.AppendChild(e);
 
+            e = xmlDocument.CreateElement("addition");
+            e.InnerText = Addition.ToString();
+            element.AppendChild(e);
+
             return element;
         }
     }
@@ -653,6 +686,7 @@ namespace ProjectX.DataBase
         public double PriceProv { get; set; }
         public double TotalPrice { get; set; }
         public int Count { get; set; }
+        public string Addition { get; set; }
     }
 
     public class ExcelDefaultOutParametrics
@@ -665,6 +699,7 @@ namespace ProjectX.DataBase
         public bool IsMarkup { get; set; }
         public bool IsTotalPrice { get; set; }
         public bool IsCount { get; set; }
+        public bool IsAddition { get; set; }
 
         public string Name_IdRows { get; set; }
         public string Name_IdProduct { get; set; }
@@ -674,6 +709,7 @@ namespace ProjectX.DataBase
         public string Name_Markup { get; set; }
         public string Name_TotalPrice { get; set; }
         public string Name_Count { get; set; }
+        public string Name_Addition { get; set; }
 
         public ExcelDefaultOutParametrics()
         {
@@ -685,12 +721,13 @@ namespace ProjectX.DataBase
             IsMarkup = true;
             IsTotalPrice = true;
             IsCount = true;
+            IsAddition = true;
 
             SetNames();
         }
 
         public ExcelDefaultOutParametrics(bool isIdRows, bool isIdProduct, bool isNameProduct, bool isIdPosition, bool isProviderPrice,
-            bool isMarkup, bool isTotalPrice, bool isCount)
+            bool isMarkup, bool isTotalPrice, bool isCount, bool isAddition)
         {
             IsIdRows = isIdRows;
             IsIdProduct = isIdProduct;
@@ -700,6 +737,7 @@ namespace ProjectX.DataBase
             IsMarkup = isMarkup;
             IsTotalPrice = isTotalPrice;
             IsCount = isCount;
+            IsAddition = isAddition;
 
             SetNames();
         }
@@ -707,11 +745,11 @@ namespace ProjectX.DataBase
         private void SetNames()
         {
             SetNames("Id строки", "Id товара", "Наименование товара", "Id поставщик-склад", "Цена поставщика", "Наценка",
-                "Итоговая цена", "Остаток");
+                "Итоговая цена", "Остаток","Примечание");
         }
 
         public void SetNames(string name_IdRows, string name_IdProduct, string name_NameProduct, string name_IdPosition, string name_ProviderPrice, string name_Markup,
-            string name_TotalPrice, string name_Count)
+            string name_TotalPrice, string name_Count,string name_Addition)
         {
             Name_IdRows = name_IdRows;
             Name_IdProduct = name_IdProduct;
@@ -721,6 +759,7 @@ namespace ProjectX.DataBase
             Name_Markup = name_Markup;
             Name_TotalPrice = name_TotalPrice;
             Name_Count = name_Count;
+            Name_Addition = name_Addition;
         }
     }
 
@@ -800,6 +839,9 @@ namespace ProjectX.DataBase
         public bool IsMarkingExtraLoad { get; set; }
         public bool IsMarkingRunFlat { get; set; }
         public bool IsMarkingFlangeProtection { get; set; }
+        public bool IsMarkingAccomadation { get; set; }
+        public bool IsMarkingSpikes { get; set; }
+
 
         public string Name_BrandName { get; set; }
         public string Name_BrandCountry { get; set; }
@@ -824,6 +866,8 @@ namespace ProjectX.DataBase
         public string Name_MarkingExtraLoad { get; set; }
         public string Name_MarkingRunFlat { get; set; }
         public string Name_MarkingFlangeProtection { get; set; }
+        public string Name_MarkingAccomadation { get; set; }
+        public string Name_MarkingSpikes { get; set; }
 
         public ExcelProductOutParametrics()
         {
@@ -851,6 +895,8 @@ namespace ProjectX.DataBase
             IsMarkingExtraLoad = false;
             IsMarkingRunFlat = false;
             IsMarkingFlangeProtection = false;
+            IsMarkingSpikes = false;
+            IsMarkingAccomadation = false;
 
             SetNames();
         }
@@ -858,7 +904,7 @@ namespace ProjectX.DataBase
         public ExcelProductOutParametrics(Dictionary dictionarySrc, bool isBrandName, bool isBrandCountry, bool isBrandDescription, bool isBrandRunFlatName, bool isModelType, bool isModelName,
             bool isModelSeason, bool isModelDescription, bool isModelCommercial, bool isModelWhileLetters, bool isModelMudSnow, bool isMarkingWidth, bool isMarkingHeight,
             bool isMarkingDiameter, bool isMarkingSpeedIndex, bool isMarkingLoadIndex, bool isMarkingCountry, bool isMarkingTractionIndex, bool isMarkingTemperatureIndex,
-            bool isMarkingTreadwearIndex, bool isMarkingExtraLoad, bool isMarkingRunFlat, bool isMarkingFlangeProtection)
+            bool isMarkingTreadwearIndex, bool isMarkingExtraLoad, bool isMarkingRunFlat, bool isMarkingFlangeProtection, bool isMarkingAccomadation, bool isMarkingSpikes)
         {
             DictionarySrc = dictionarySrc;
             IsBrandName = isBrandName;
@@ -884,6 +930,8 @@ namespace ProjectX.DataBase
             IsMarkingExtraLoad = isMarkingExtraLoad;
             IsMarkingRunFlat = isMarkingRunFlat;
             IsMarkingFlangeProtection = isMarkingFlangeProtection;
+            IsMarkingAccomadation = isMarkingAccomadation;
+            IsMarkingSpikes = isMarkingSpikes;
 
             SetNames();
         }
@@ -893,13 +941,14 @@ namespace ProjectX.DataBase
             SetNames("Название производителя", "Страна производителя", "Описание производителя", "Название технологии RunFlat",
                 "Тип модели", "Название модели", "Сезонность", "Описание модели", "Commercial", "БУКВЫ", "M+S", "Ширина", "Высота",
                 "Диаметр", "Индекс скорости", "Индекс нагрузки", "Страна производства", "TractionIndex", "TemperatureIndex", "TreadwearIndex",
-                "ExtraLoad", "Технология RunFlat", "FlangeProtection");
+                "ExtraLoad", "Технология RunFlat", "FlangeProtection","Аккомадация","Шиповка");
         }
 
         public void SetNames(string name_BrandName, string name_BrandCountry, string name_BrandDescription, string name_BrandRunFlatName, string name_ModelType, string name_ModelName,
             string name_ModelSeason, string name_ModelDescription, string name_ModelCommercial, string name_ModelWhileLetters, string name_ModelMudSnow, string name_MarkingWidth,
             string name_MarkingHeight, string name_MarkingDiameter, string name_MarkingSpeedIndex, string name_MarkingLoadIndex, string name_MarkingCountry, string name_MarkingTractionIndex,
-            string name_MarkingTemperatureIndex, string name_MarkingTreadwearIndex, string name_MarkingExtraLoad, string name_MarkingRunFlat, string name_MarkingFlangeProtection)
+            string name_MarkingTemperatureIndex, string name_MarkingTreadwearIndex, string name_MarkingExtraLoad, string name_MarkingRunFlat, string name_MarkingFlangeProtection,
+            string name_MarkingAccomadation, string name_MarkingSpikes)
         {
             Name_BrandName = name_BrandName;
             Name_BrandCountry = name_BrandCountry;
@@ -924,6 +973,8 @@ namespace ProjectX.DataBase
             Name_MarkingExtraLoad = name_MarkingExtraLoad;
             Name_MarkingRunFlat = name_MarkingRunFlat;
             Name_MarkingFlangeProtection = name_MarkingFlangeProtection;
+            Name_MarkingAccomadation = name_MarkingAccomadation;
+            Name_MarkingSpikes = name_MarkingSpikes;
         }
     }
 }

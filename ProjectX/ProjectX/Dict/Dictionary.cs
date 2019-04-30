@@ -161,7 +161,7 @@ namespace ProjectX.Dict
 
         public string Add(string idBrand, string idModel, string width, string height, string diameter,
             string speedIndex, string loadIndex, string country, string tractionIndex, string temperatureIndex,
-            string treadwearIndex, bool extraLoad, bool runFlat, string flangeProtection)
+            string treadwearIndex, bool extraLoad, bool runFlat, string flangeProtection, string accomadation,bool spikes)
         {
             Stopwatch sw = new Stopwatch();
             string id;
@@ -172,7 +172,7 @@ namespace ProjectX.Dict
                 {
                     id = Brands.Find(x => x.Id == idBrand).Add(idModel, width, height, diameter, speedIndex,
                         loadIndex, country, tractionIndex, temperatureIndex, treadwearIndex, extraLoad,
-                        runFlat, flangeProtection);
+                        runFlat, flangeProtection,accomadation,spikes);
                 }
                 catch (ArgumentNullException)
                 {
@@ -226,26 +226,6 @@ namespace ProjectX.Dict
             WriteLog("Добавлена  вариация к " + idBrand + "-" + idModel + "(" + sw.ElapsedMilliseconds + "мс)");
         }
 
-        public void AddStringValue(string idBrand, string idModel, string idMarking, string value)
-        {
-            Stopwatch sw = new Stopwatch();
-            lock (this)
-            {
-                sw.Start();
-                try
-                {
-                    Brands.Find(x => x.Id == idBrand).AddStringValue(idModel, idMarking, value);
-                }
-                catch (ArgumentNullException)
-                {
-                    throw new Exception("Ошибка словаря(3)");
-                }
-                HaveChanged = true;
-                sw.Stop();
-            }
-            WriteLog("Добавлена  аккомадация к " + idBrand + "-" + idModel + "-" + idMarking +
-                "(" + sw.ElapsedMilliseconds + "мс)");
-        }
 
         public void AddImage(string idBrand, string image)
         {
@@ -332,7 +312,7 @@ namespace ProjectX.Dict
 
         public void Set(string idBrand, string idModel, string idMarking, string speedIndex,
             string loadIndex, string country, string tractionIndex, string temperatureIndex, string treadwearIndex,
-            bool extraLoad, bool runFlat, string flangeProtection)
+            bool extraLoad, bool runFlat, string flangeProtection, string accomadation,bool spikes)
         {
             Stopwatch sw = new Stopwatch();
             lock (this)
@@ -341,7 +321,7 @@ namespace ProjectX.Dict
                 try
                 {
                     Brands.Find(x => x.Id == idBrand).Set(idModel, idMarking, speedIndex, loadIndex, country, tractionIndex, temperatureIndex,
-                    treadwearIndex, extraLoad, runFlat, flangeProtection);
+                    treadwearIndex, extraLoad, runFlat, flangeProtection,accomadation, spikes);
                 }
                 catch (ArgumentNullException)
                 {
@@ -412,13 +392,7 @@ namespace ProjectX.Dict
             return resault;
         }
 
-        public void DeleteStringValue(string idBrand, string idModel, string idMarking, string value)
-        {
-            lock (this)
-            {
-                Brands.Find(x => x.Id == idBrand).DeleteStringValue(idModel, idMarking, value);
-            }
-        }
+
 
         public void DeleteImage(string idBrand, string image)
         {
@@ -509,345 +483,96 @@ namespace ProjectX.Dict
             ProviderRegulars providerRegulars = new ProviderRegulars();
             providerRegulars.Add("A0");
 
-            string idR = providerRegulars.Add("A0", "[0-9]{3}/[0-9]{2}R[0-9]{2}C?", 0);
-            providerRegulars.Add("A0", idR, "[0-9]{3}", 0, "width");
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 1, "height");
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A0", idR, "C", 0, "commercial");
- 
-            
-            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{2}\\.[0-9]{1}R[0-9]{2}C?", 0);
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A0", idR, "[0-9]{2}\\.[0-9]{1}", 0, "height");
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A0", idR, "C", 0, "commercial");
+            string idR = providerRegulars.Add("A0", "[0-9]{1,3}([.,][0-9]{1,3})?[\\*/][0-9]{1,3}([.,][0-9]{1,3})?R[0-9]{2}[CС]?", 0);
+
+            ProviderRegular PR = providerRegulars.GetProviderRegularById("A0");
+            PrimaryRegular PR2 = PR.GetPrimaryRegularById(idR);
+            PR2.Add("C", 0, "commercial");
+            PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 0, "width");
+            PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 1, "height");
+            string helpid = PR2.AddGroupRegular("R[0-9]{2}");
+            GroupRegular GR = PR2.GetGroupRegularById(helpid);
+            GR.Add("[0-9]{2}", 0, "diameter");
+
+            idR = providerRegulars.Add("A0", "[0-9]{1,3}([.,][0-9]{1,3})?R[0-9]{2}[CС]?", 0);
+            PR = providerRegulars.GetProviderRegularById("A0");
+            PR2 = PR.GetPrimaryRegularById(idR);
+            PR2.Add("C", 0, "commercial");
+            PR2.Add( "Полно профильные", "height");
+            PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 0, "width");
+            helpid = PR2.AddGroupRegular("R[0-9]{2}");
+            GR = PR2.GetGroupRegularById(helpid);
+            GR.Add("[0-9]{2}", 0, "diameter");
 
 
-            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{2}\\.[0-9]{2}R[0-9]{2}C?", 0);
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A0", idR, "[0-9]{2}\\.[0-9]{2}", 0, "height");
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 3, "diameter");
-            providerRegulars.Add("A0", idR, "C", 0, "commercial");
-            
-
-            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{1}\\.[0-9]{2}R[0-9]{2}C?", 0);
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A0", idR, "[0-9]{1}\\.[0-9]{2}", 0, "height");
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A0", idR, "C", 0, "commercial");
-
-
-            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{1}\\.[0-9]{1}R[0-9]{2}C?", 0);
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A0", idR, "[0-9]{1}\\.[0-9]{1}", 0, "height");
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 1, "diameter");
-            providerRegulars.Add("A0", idR, "C", 0, "commercial");
-
-
-            idR = providerRegulars.Add("A0", "[0-9]{2}\\*[0-9]{2}\\.[0-9]{1}R[0-9]{2}C?", 0);
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A0", idR, "[0-9]{2}\\.[0-9]{1}", 0, "height");
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A0", idR, "C", 0, "commercial");
-
-
-            idR = providerRegulars.Add("A0", "[0-9]{2}\\*[0-9]{2}\\.[0-9]{2}R[0-9]{2}C?", 0);
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A0", idR, "[0-9]{2}\\.[0-9]{2}", 0, "height");
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 3, "diameter");
-            providerRegulars.Add("A0", idR, "C", 0, "commercial");
-
-
-            idR = providerRegulars.Add("A0", "[0-9]{2}\\*[0-9]{1}\\.[0-9]{2}R[0-9]{2}C?", 0);
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A0", idR, "[0-9]{1}\\.[0-9]{2}", 0, "height");
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A0", idR, "C", 0, "commercial");
-
-
-            idR = providerRegulars.Add("A0", "[0-9]{2}\\*[0-9]{1}\\.[0-9]{1}R[0-9]{2}C?", 0);
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A0", idR, "[0-9]{1}\\.[0-9]{1}", 0, "height");
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 1, "diameter");
-            providerRegulars.Add("A0", idR, "C", 0, "commercial");
-
-            
-
-            idR = providerRegulars.Add("A0", "[0-9]{3}/[0-9]{3}[A-Z]{1}", 1);
-            providerRegulars.Add("A0", idR, "[0-9]{3}/[0-9]{3}", 0, "speedIndex");
-            providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
-
-            idR = providerRegulars.Add("A0", "[0-9]{3}/[0-9]{2}[A-Z]{1}", 1);
-            providerRegulars.Add("A0", idR, "[0-9]{3}/[0-9]{2}", 0, "speedIndex");
-            providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
-
-            idR = providerRegulars.Add("A0", "[0-9]{2}/[0-9]{2}[A-Z]{1}", 1);
-            providerRegulars.Add("A0", idR, "[0-9]{2}/[0-9]{2}", 0, "speedIndex");
-            providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
-
-            idR = providerRegulars.Add("A0", "[0-9]{3}[A-Z]{1}", 1);
-            providerRegulars.Add("A0", idR, "[0-9]{3}", 0, "speedIndex");
-            providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
-
-            idR = providerRegulars.Add("A0", "[0-9]{2}[A-Z]{1}", 1);
-            providerRegulars.Add("A0", idR, "[0-9]{2}", 0, "speedIndex");
-            providerRegulars.Add("A0", idR, "[A-Z]{1}", 0, "loadIndex");
+            idR = providerRegulars.Add("A0","[0-9]{2,3}(/[0-9]{2,3})?[A-Z]{1,2}",1);
+            providerRegulars.Add("A0", idR, "[0-9]{2,3}(/[0-9]{2,3})?", 0, "loadIndex");
+            providerRegulars.Add("A0", idR, "[A-Z]{1,2}", 0, "speedIndex");
 
             idR = providerRegulars.Add("A0", "XL", 2);
             providerRegulars.Add("A0", idR, "XL", 0, "extraLoad");
 
             idR = providerRegulars.Add("A0", "Шип", 3);
-            providerRegulars.Add("A0", idR, "Зимняя шипованная", "season");
+            providerRegulars.Add("A0", idR, "Да", "spikes");
 
-            idR = providerRegulars.Add("A0", "LT", 4);
-            providerRegulars.Add("A0", idR, "Yes", "commercial");
+            
+            idR = providerRegulars.Add("A0", "\\*\\*\\*", 4);
+            providerRegulars.Add("A0", idR, "Более 3-х лет", "additional");
+            
+            idR = providerRegulars.Add("A0", "\\*", 5);
+            providerRegulars.Add("A0", idR, "BMW", "accomadation");
+
+            
+            idR = providerRegulars.Add("A0", "✩", 5);
+            providerRegulars.Add("A0", idR, "BMW", "accomadation");
+
+            
+            idR = providerRegulars.Add("A0", "ROF RUN FLAT", 6);
+            providerRegulars.Add("A0", idR, "Yes", "runFlat");
+
+            idR = providerRegulars.Add("A0", "RUN FLAT", 6);
+            providerRegulars.Add("A0", idR, "Yes", "runFlat");
+            
+            
+
+
+
 
             providerRegulars.Add("A1");
-            idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}R[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
 
-            idR = providerRegulars.Add("A1", "LT[0-9]{3}/[0-9]{2}R[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
+            idR = providerRegulars.Add("A1", "(LT)?[0-9]{1,3}([.,][0-9]{1,3})?[/x][0-9]{1,3}([.,][0-9]{1,3})?Z?R[0-9]{2}[CС]?", 0);
 
-            idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}R[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
+            PR = providerRegulars.GetProviderRegularById("A1");
+            PR2 = PR.GetPrimaryRegularById(idR);
+            PR2.Add("C", 0, "commercial");
+            PR2.Add("LT", 0, "commercial");
+            PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 0, "width");
+            PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 1, "height");
+            helpid = PR2.AddGroupRegular("R[0-9]{2}");
+            GR = PR2.GetGroupRegularById(helpid);
+            GR.Add("[0-9]{2}", 0, "diameter");
 
-            idR = providerRegulars.Add("A1", "LT[0-9]{3}/[0-9]{2}R[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
+            idR = providerRegulars.Add("A1", "(LT)?[0-9]{1,3}([.,][0-9]{1,3})?(Z)?R[0-9]{2}[CС]?", 0);
+            PR = providerRegulars.GetProviderRegularById("A1");
+            PR2 = PR.GetPrimaryRegularById(idR);
+            PR2.Add("C", 0, "commercial");
+            PR2.Add("LT", 0, "commercial");
+            PR2.Add("Полно профильные", "height");
+            PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 0, "width");
+            helpid = PR2.AddGroupRegular("R[0-9]{2}");
+            GR = PR2.GetGroupRegularById(helpid);
+            GR.Add("[0-9]{2}", 0, "diameter");
 
-            idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}ZR[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
 
-            idR = providerRegulars.Add("A1", "LT[0-9]{3}/[0-9]{2}ZR[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-
-            idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}ZR[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{3}/[0-9]{2}ZR[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{2},[0-9]{2}R[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 3, "diameter");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{2},[0-9]{2}R[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 3, "diameter");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{2},[0-9]{2}R[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 3, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{2},[0-9]{2}R[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 3, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{2},[0-9]{2}ZR[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 3, "diameter");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{2},[0-9]{2}ZR[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 3, "diameter");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{2},[0-9]{2}ZR[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 3, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{2},[0-9]{2}ZR[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 3, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{2},[0-9]{1}R[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{2},[0-9]{1}R[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{2},[0-9]{1}R[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{2},[0-9]{1}R[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{2},[0-9]{1}ZR[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{2},[0-9]{1}ZR[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{2},[0-9]{1}ZR[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{2},[0-9]{1}ZR[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{2},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{1},[0-9]{2}R[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{1},[0-9]{2}R[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{1},[0-9]{2}R[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{1},[0-9]{2}R[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{1},[0-9]{2}ZR[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{1},[0-9]{2}ZR[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{1},[0-9]{2}ZR[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{1},[0-9]{2}ZR[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{2}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 2, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{1},[0-9]{1}R[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "diameter");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{1},[0-9]{1}R[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "diameter");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{1},[0-9]{1}R[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{1},[0-9]{1}R[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{1},[0-9]{1}ZR[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "diameter");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{1},[0-9]{1}ZR[0-9]{2}", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "diameter");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}x[0-9]{1},[0-9]{1}ZR[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "LT[0-9]{2}x[0-9]{1},[0-9]{1}ZR[0-9]{2}C", 0);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "width");
-            providerRegulars.Add("A1", idR, "[0-9]{1},[0-9]{1}", 0, "height");
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 1, "diameter");
-            providerRegulars.Add("A1", idR, "Yes", "commercial");
-
-            idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{3}[A-Z]{1}", 1);
-            providerRegulars.Add("A1", idR, "[0-9]{3}/[0-9]{3}", 0, "speedIndex");
-            providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
-
-            idR = providerRegulars.Add("A1", "[0-9]{3}/[0-9]{2}[A-Z]{1}", 1);
-            providerRegulars.Add("A1", idR, "[0-9]{3}/[0-9]{2}", 0, "speedIndex");
-            providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}/[0-9]{2}[A-Z]{1}", 1);
-            providerRegulars.Add("A1", idR, "[0-9]{2}/[0-9]{2}", 0, "speedIndex");
-            providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
-
-            idR = providerRegulars.Add("A1", "[0-9]{3}[A-Z]{1}", 1);
-            providerRegulars.Add("A1", idR, "[0-9]{3}", 0, "speedIndex");
-            providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
-
-            idR = providerRegulars.Add("A1", "[0-9]{2}[A-Z]{1}", 1);
-            providerRegulars.Add("A1", idR, "[0-9]{2}", 0, "speedIndex");
-            providerRegulars.Add("A1", idR, "[A-Z]{1}", 0, "loadIndex");
+            idR = providerRegulars.Add("A1", "[0-9]{2,3}(/[0-9]{2,3})?[A-Z]{1,2}", 1);
+            providerRegulars.Add("A1", idR, "[0-9]{2,3}(/[0-9]{2,3})?", 0, "loadIndex");
+            providerRegulars.Add("A1", idR, "[A-Z]{1,2}", 0, "speedIndex");
 
             idR = providerRegulars.Add("A1", "XL", 2);
             providerRegulars.Add("A1", idR, "XL", 0, "extraLoad");
 
             idR = providerRegulars.Add("A1", "Да", 3);
-            providerRegulars.Add("A1", idR, "Зимняя шипованная", "season");
+            providerRegulars.Add("A1", idR, "Да", "spikes");
 
             providerRegulars.AddPassString("A1", "TL");
 
@@ -855,17 +580,14 @@ namespace ProjectX.Dict
 
             foreach (var item in parsingRows)
             {
-                if (item.IdProvider=="A0") {
-                    int i = 0;
-                }
-
-                if (item.ExcelRowIndex == "741") {
-                    int i = 0;
+                if (item.ExcelRowIndex == "1392") {
+                    int iuiui = 0;
                 }
 
                 string parsBuf = item.ParsingBufer;
 
                 int countMarking = providerRegulars.CountMarking(item.IdProvider, item.ParsingBufer);
+                
                 if (countMarking == 1)
                 {
                     List<string> variationsStringsBrands = new List<string>();
@@ -886,7 +608,12 @@ namespace ProjectX.Dict
                     }
                     else if (brands.Count == 0 && !deepSearch)
                     {
+                        Dictionary<string, string> keyValuePairs = providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string str);
+                        string mes = "Не найден производитель";
+
+                        item.Resault = new NResault(mes, keyValuePairs, str.Trim());
                         continue;
+
                     }
 
                     foreach (Brand brand in brands)
@@ -919,7 +646,8 @@ namespace ProjectX.Dict
 
 
                             already_find_model = false;
-                            item.Resault = new BResault("Более 1 модели");
+                            Dictionary<string, string> keyValuePairs = providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string str);
+                            item.Resault = new NResault("Найдено более 1 модели", keyValuePairs, str.Trim());
                             break;
                         }
                     }
@@ -931,8 +659,19 @@ namespace ProjectX.Dict
                             Dictionary<string, string> keyValuePairs = providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string str);
                             string mes = "Не найдена модель";
                             if (brands.Count == 0 || brands.Count == Brands.Count) { mes = "Не найден производитель"; }
+                            else {
+                                variationsStringsBrands.Sort((x, y) => y.Length.CompareTo(x.Length));
+                                foreach (string variation in variationsStringsBrands)
+                                {
+                                    sov_variation = Regex.Match(parsBuf, Regex.Escape(variation), RegexOptions.IgnoreCase).Value;
+                                    if (sov_variation != "")
+                                    {
+                                        str = str.Replace(sov_variation, "");
+                                    }
+                                }
+                            }
 
-                            item.Resault = new NResault(mes, keyValuePairs, str);
+                            item.Resault = new NResault(mes, keyValuePairs, str.Trim());
                         }
                         continue;
                     }
@@ -965,7 +704,7 @@ namespace ProjectX.Dict
                     Dictionary<string, string> keyValues = providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string s);
                     if (s.Trim() != "")
                     {
-                        item.Resault = new NResault("При парсинги остались символы в исходной строке", keyValues, s);
+                        item.Resault = new NResault("При парсинги остались символы в исходной строке", keyValues, s.Trim());
                         continue;
                     }
 
@@ -988,12 +727,17 @@ namespace ProjectX.Dict
                     bool mudSnow = false;
                     string runFlatName = "";
                     string type = "";
+                    string accomadation = "";
+                    string additional = "";
+                    bool spikes = false;
 
                     try
                     {
                         width = keyValues["width"];
                         height = keyValues["height"];
                         diameter = keyValues["diameter"];
+                        indexSpeed = keyValues["speedIndex"];
+                        loadIndex = keyValues["loadIndex"];
                     }
                     catch
                     {
@@ -1002,8 +746,6 @@ namespace ProjectX.Dict
                     }
 
                     if (keyValues.ContainsKey("commercial")) { commercial = true; }
-                    if (keyValues.ContainsKey("speedIndex")) { indexSpeed = keyValues["speedIndex"]; }
-                    if (keyValues.ContainsKey("loadIndex")) { loadIndex = keyValues["loadIndex"]; }
                     if (keyValues.ContainsKey("extraLoad")) { extraLoad = true; }
                     if (keyValues.ContainsKey("season")) { season = keyValues["season"]; }
                     if (keyValues.ContainsKey("runFlat")) { runFlat = true; }
@@ -1016,19 +758,29 @@ namespace ProjectX.Dict
                     if (keyValues.ContainsKey("mudSnow")) { mudSnow = true; }
                     if (keyValues.ContainsKey("runFlatName")) { runFlatName = keyValues["runFlatName"]; }
                     if (keyValues.ContainsKey("type")) { type = keyValues["type"]; }
+                    if (keyValues.ContainsKey("accomadation")) { accomadation = keyValues["accomadation"]; }
+                    if (keyValues.ContainsKey("additional")) { additional = keyValues["additional"]; }
+                    if (keyValues.ContainsKey("spikes")) { spikes = true; }
 
-                    Marking marking = findedModel.SearchMarking(width, height, diameter, out bool isContainMarking);
+
+
+                    Marking marking = findedModel.SearchMarking(width, height, diameter,loadIndex, indexSpeed, accomadation,spikes, out bool isContainMarking);
                     if (isContainMarking)
                     {
                         id += "-" + marking.Id;
                         name += " " + marking.Width + "/" + marking.Height + "R" + marking.Diameter;
-                        item.Resault = new GResault(id, name, "Существующий");
+                        if (marking.Accomadation != "") { name += " акомадация" + marking.Accomadation; }
+                        item.Resault = new GResault(id, name,additional, "Существующий");
+
                     }
                     else
                     {
-                        id += "-" + findedModel.Add(width, height, diameter, indexSpeed, loadIndex, countryMarking, tractionIndex, temperatureIndex, treadwearIndex, extraLoad, runFlat, flangeProtection);
+                        id += "-" + findedModel.Add(width, height, diameter, indexSpeed, loadIndex, 
+                            countryMarking, tractionIndex, temperatureIndex, treadwearIndex, extraLoad, 
+                            runFlat, flangeProtection, accomadation,spikes);
                         name += " " + width + "/" + height + "R" + diameter;
-                        item.Resault = new GResault(id, name, "Новый");
+                        if (accomadation != "") { name += " акомадация " + accomadation; }
+                        item.Resault = new GResault(id, name,additional, "Новый");
                     }
                 }
                 else if (countMarking == 0)

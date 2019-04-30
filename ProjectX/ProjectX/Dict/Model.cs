@@ -152,11 +152,11 @@ namespace ProjectX.Dict
 
         public string Add(string width, string height, string diameter, string speedIndex,
             string loadIndex, string country, string tractionIndex, string temperatureIndex, string treadwearIndex,
-            bool extraLoad, bool runFlat, string flangeProtection)
+            bool extraLoad, bool runFlat, string flangeProtection, string accomadation, bool spikes)
         {
             string id = IdGen.NexVal();
             Markings.Add(new Marking(id, width, height, diameter, speedIndex, loadIndex, country, tractionIndex,
-                temperatureIndex, treadwearIndex, extraLoad, runFlat, flangeProtection));
+                temperatureIndex, treadwearIndex, extraLoad, runFlat, flangeProtection, accomadation, spikes));
             return id;
         }
 
@@ -165,24 +165,20 @@ namespace ProjectX.Dict
             Variations.Add(value);
         }
 
-        public void AddStringValue(string idMarking, string value)
-        {
-            try
-            {
-                Markings.Find(x => x.Id == idMarking).AddStringValue(value);
-            }
-            catch (ArgumentNullException)
-            {
-                throw new ArgumentNullException();
-            }
-        }
 
-        public List<Marking> AnalysisMarking(string width, string height, string diameter)
+
+        public List<Marking> AnalysisMarking(string width, string height, string diameter, string loadIndex, string speedIndex, string accomadation, bool spikes)
         {
             List<Marking> Resault = new List<Marking>();
             foreach (var item in Markings)
             {
-                if (width == item.Width && height == item.Height && diameter == item.Diameter)
+                if (width == item.Width
+                    && height == item.Height
+                    && diameter == item.Diameter
+                    && accomadation == item.Accomadation
+                    && loadIndex == item.LoadIndex
+                    && speedIndex == item.SpeedIndex
+                    && spikes == item.Spikes)
                 {
                     Resault.Add(item);
                 }
@@ -190,13 +186,19 @@ namespace ProjectX.Dict
             return Resault;
         }
 
-        public Marking SearchMarking(string width, string height, string diameter, out bool isContain)
+        public Marking SearchMarking(string width, string height, string diameter,string loadIndex, string speedIndex,string accomadation,bool spikes, out bool isContain)
         {
             isContain = false;
             Marking marking = null;
             foreach (var item in Markings)
             {
-                if (width == item.Width && height == item.Height && diameter == item.Diameter)
+                if (width == item.Width 
+                    && height == item.Height 
+                    && diameter == item.Diameter 
+                    && accomadation == item.Accomadation
+                    && loadIndex == item.LoadIndex
+                    && speedIndex == item.SpeedIndex
+                    && spikes == item.Spikes)
                 {
                     marking = item;
                     isContain = true;
@@ -264,12 +266,12 @@ namespace ProjectX.Dict
 
         public void Set(string idMarking, string speedIndex,
             string loadIndex, string country, string tractionIndex, string temperatureIndex, string treadwearIndex,
-            bool extraLoad, bool runFlat, string flangeProtection)
+            bool extraLoad, bool runFlat, string flangeProtection, string accomadation,bool spikes)
         {
             try
             {
                 Markings.Find(x => x.Id == idMarking).Set(speedIndex, loadIndex, country, tractionIndex, temperatureIndex,
-                    treadwearIndex, extraLoad, runFlat, flangeProtection);
+                    treadwearIndex, extraLoad, runFlat, flangeProtection,accomadation,spikes);
             }
             catch (ArgumentNullException)
             {
@@ -287,10 +289,6 @@ namespace ProjectX.Dict
             Variations.Remove(value);
         }
 
-        public void DeleteStringValue(string idMarking, string value)
-        {
-            Markings.Find(x => x.Id == idMarking).DeleteStringValue(value);
-        }
 
         public void AddImage(string image)
         {
@@ -320,6 +318,9 @@ namespace ProjectX.Dict
                 resault.Add("Marking_TemperatureIndex", marking.TemperatureIndex);
                 resault.Add("Marking_TractionIndex", marking.TractionIndex);
                 resault.Add("Marking_TreadwearIndex", marking.TreadwearIndex);
+                resault.Add("Marking_Accomadation", marking.Accomadation);
+                resault.Add("Marking_Spikes", marking.Spikes.ToString().Replace("True", "Да").Replace("False", "Нет"));
+
             }
             catch (Exception e)
             {
