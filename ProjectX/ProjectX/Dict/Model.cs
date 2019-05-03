@@ -166,27 +166,7 @@ namespace ProjectX.Dict
         }
 
 
-
-        public List<Marking> AnalysisMarking(string width, string height, string diameter, string loadIndex, string speedIndex, string accomadation, bool spikes)
-        {
-            List<Marking> Resault = new List<Marking>();
-            foreach (var item in Markings)
-            {
-                if (width == item.Width
-                    && height == item.Height
-                    && diameter == item.Diameter
-                    && accomadation == item.Accomadation
-                    && loadIndex == item.LoadIndex
-                    && speedIndex == item.SpeedIndex
-                    && spikes == item.Spikes)
-                {
-                    Resault.Add(item);
-                }
-            }
-            return Resault;
-        }
-
-        public Marking SearchMarking(string width, string height, string diameter,string loadIndex, string speedIndex,string accomadation,bool spikes, out bool isContain)
+        public Marking SearchMarking(string width, string height, string diameter,string loadIndex, string speedIndex,string accomadation,bool spikes,bool runFalt, out bool isContain)
         {
             isContain = false;
             Marking marking = null;
@@ -198,7 +178,8 @@ namespace ProjectX.Dict
                     && accomadation == item.Accomadation
                     && loadIndex == item.LoadIndex
                     && speedIndex == item.SpeedIndex
-                    && spikes == item.Spikes)
+                    && spikes == item.Spikes
+                    && runFalt == item.RunFlat)
                 {
                     marking = item;
                     isContain = true;
@@ -208,41 +189,15 @@ namespace ProjectX.Dict
             return marking;
         }
 
-        public Marking SearchMarking(string width, string height, string diameter)
-        {
-            Marking marking = null;
-            foreach (var item in Markings)
-            {
-                if (width == item.Width && height == item.Height && diameter == item.Diameter)
-                {
-                    marking = item;
-                    break;
-                }
-            }
-            return marking;
-        }
 
-        public bool IsMatched(string parsingBufer)
-        {
-            bool b = false;
-            foreach (var item in Variations)
-            {
-                if (Regex.IsMatch(parsingBufer, Regex.Escape(item.Trim(' ')), RegexOptions.IgnoreCase))
-                {
-                    b = true;
-                    break;
-                }
-            }
-            return b;
-        }
-
-        public bool IsMatched(string parsingBufer, out string variation)
+        public bool IsMatched(string parsingBufer, bool wordSearching, out string variation)
         {
             variation = "";
             bool b = false;
             foreach (var item in Variations)
             {
-                if (Regex.IsMatch(parsingBufer, Regex.Escape(item), RegexOptions.IgnoreCase))
+                string regexStr = wordSearching ? "\\b" + Regex.Escape(item) + "\\b" : Regex.Escape(item);
+                if (Regex.IsMatch(parsingBufer, regexStr, RegexOptions.IgnoreCase))
                 {
                     b = true;
                     variation = item;

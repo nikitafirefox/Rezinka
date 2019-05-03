@@ -431,14 +431,14 @@ namespace ProjectX.Dict
 
         public void Close() => AutoSaveThead.Interrupt();
 
-        public List<Brand> AnalysisBrand(string buffer, out List<string> variationsStrings)
+        public List<Brand> AnalysisBrand(string buffer, bool wordSearching, out List<string> variationsStrings)
         {
             List<Brand> Resault = new List<Brand>();
             variationsStrings = new List<string>();
             string variation = "";
             foreach (var item in Brands)
             {
-                if (item.IsMatch(buffer, out variation))
+                if (item.IsMatch(buffer, wordSearching, out variation))
                 {
                     bool isAdding = true;
                     List<string> resBrands = new List<string>();
@@ -473,10 +473,15 @@ namespace ProjectX.Dict
 
         public List<ParsingRow> Analysis(ref List<ParsingRow> parsingRows)
         {
-            return Analysis(ref parsingRows, false);
+            return Analysis(ref parsingRows, false,false);
         }
 
         public List<ParsingRow> Analysis(ref List<ParsingRow> parsingRows, bool deepSearch)
+        {
+            return Analysis(ref parsingRows, deepSearch, false);
+        }
+
+        public List<ParsingRow> Analysis(ref List<ParsingRow> parsingRows, bool deepSearch,bool wordSearching)
         {
             List<ParsingRow> Resault = new List<ParsingRow>();
 
@@ -518,7 +523,10 @@ namespace ProjectX.Dict
             
             idR = providerRegulars.Add("A0", "\\*\\*\\*", 4);
             providerRegulars.Add("A0", idR, "Более 3-х лет", "additional");
-            
+
+            idR = providerRegulars.Add("A0", "\\([0-9]{2,4}г?\\)", 4);
+            providerRegulars.Add("A0", idR, "\\([0-9]{2,4}г?\\)", 0, "additional");
+
             idR = providerRegulars.Add("A0", "\\*", 5);
             providerRegulars.Add("A0", idR, "BMW", "accomadation");
 
@@ -545,6 +553,7 @@ namespace ProjectX.Dict
             PR = providerRegulars.GetProviderRegularById("A1");
             PR2 = PR.GetPrimaryRegularById(idR);
             PR2.Add("C", 0, "commercial");
+            PR2.Add("ZR", 0, "flangeProtection");
             PR2.Add("LT", 0, "commercial");
             PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 0, "width");
             PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 1, "height");
@@ -556,6 +565,7 @@ namespace ProjectX.Dict
             PR = providerRegulars.GetProviderRegularById("A1");
             PR2 = PR.GetPrimaryRegularById(idR);
             PR2.Add("C", 0, "commercial");
+            PR2.Add("ZR", 0, "flangeProtection");
             PR2.Add("LT", 0, "commercial");
             PR2.Add("Полно профильные", "height");
             PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 0, "width");
@@ -571,18 +581,24 @@ namespace ProjectX.Dict
             idR = providerRegulars.Add("A1", "XL", 2);
             providerRegulars.Add("A1", idR, "XL", 0, "extraLoad");
 
-            idR = providerRegulars.Add("A1", "Да", 3);
-            providerRegulars.Add("A1", idR, "Да", "spikes");
+            idR = providerRegulars.Add("A1", "Шипов", 3);
+            providerRegulars.Add("A1", idR, "Шипов", "spikes");
+
+            idR = providerRegulars.Add("A1", "RUNFLAT", 4);
+            providerRegulars.Add("A1", idR, "RUNFLAT", 0, "runFlat");
+
+            idR = providerRegulars.Add("A1", "M\\+S", 5);
+            providerRegulars.Add("A1", idR, "M\\+S", 0, "mudSnow");
 
             providerRegulars.AddPassString("A1", "TL");
+            providerRegulars.AddPassString("A1", "(шип.)");
+
 
             providerRegulars.Save();
 
             foreach (var item in parsingRows)
             {
-                if (item.ExcelRowIndex == "1392") {
-                    int iuiui = 0;
-                }
+
 
                 string parsBuf = item.ParsingBufer;
 
@@ -593,7 +609,7 @@ namespace ProjectX.Dict
                     List<string> variationsStringsBrands = new List<string>();
                     List<string> variationsStringsModels = new List<string>();
                     string sov_variation;
-                    List<Brand> brands = AnalysisBrand(parsBuf, out variationsStringsBrands);
+                    List<Brand> brands = AnalysisBrand(parsBuf,wordSearching, out variationsStringsBrands);
 
                     string name = "Товар";
                     string id = "";
@@ -619,7 +635,7 @@ namespace ProjectX.Dict
                     foreach (Brand brand in brands)
                     {
                         List<string> variationsStrings = new List<string>();
-                        List<Model> models = brand.AnalysisModel(parsBuf, out variationsStrings);
+                        List<Model> models = brand.AnalysisModel(parsBuf,wordSearching, out variationsStrings);
 
                         if (models.Count == 1 && !(already_find_model))
                         {
@@ -631,9 +647,9 @@ namespace ProjectX.Dict
                         else if (models.Count != 0)
                         {
                             providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string newBuf);
-                            models = brand.AnalysisModel(newBuf, out variationsStrings);
+                            models = brand.AnalysisModel(newBuf,wordSearching, out variationsStrings);
 
-                            if (models.Count == 1)
+                            if (models.Count == 1 && !(already_find_model))
                             {
                                 already_find_model = true;
                                 findedModel = models.First();
@@ -761,10 +777,10 @@ namespace ProjectX.Dict
                     if (keyValues.ContainsKey("accomadation")) { accomadation = keyValues["accomadation"]; }
                     if (keyValues.ContainsKey("additional")) { additional = keyValues["additional"]; }
                     if (keyValues.ContainsKey("spikes")) { spikes = true; }
+                    if (keyValues.ContainsKey("flangeProtection")) { flangeProtection = keyValues["flangeProtection"]; }
 
 
-
-                    Marking marking = findedModel.SearchMarking(width, height, diameter,loadIndex, indexSpeed, accomadation,spikes, out bool isContainMarking);
+                    Marking marking = findedModel.SearchMarking(width, height, diameter,loadIndex, indexSpeed, accomadation,spikes,runFlat, out bool isContainMarking);
                     if (isContainMarking)
                     {
                         id += "-" + marking.Id;

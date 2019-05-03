@@ -173,7 +173,7 @@ namespace ProjectX.Dict
         }
 
 
-        public List<Model> AnalysisModel(string parsingBufer, out List<string> variationStrings)
+        public List<Model> AnalysisModel(string parsingBufer,bool wordSearching, out List<string> variationStrings)
         {
             Models.Sort((x1, x2) => x1.Name.ToLower().CompareTo(x2.Name.ToLower()));
             List<Model> Resault = new List<Model>();
@@ -181,7 +181,7 @@ namespace ProjectX.Dict
             string variation;
             foreach (var item in Models)
             {
-                if (item.IsMatched(parsingBufer, out variation))
+                if (item.IsMatched(parsingBufer,wordSearching, out variation))
                 {
                     bool isAdding = true;
                     List<string> resModels = new List<string>();
@@ -301,27 +301,14 @@ namespace ProjectX.Dict
             Models.Find(x => x.Id == idModel).DeleteImage(image);
         }
 
-        public bool IsMatch(string buffer)
-        {
-            bool b = false;
-            foreach (var item in Variations)
-            {
-                if (Regex.IsMatch(buffer, Regex.Escape(item.Trim(' ')), RegexOptions.IgnoreCase))
-                {
-                    b = true;
-                    break;
-                }
-            }
-            return b;
-        }
-
-        public bool IsMatch(string buffer, out string variationString)
+        public bool IsMatch(string buffer, bool wordSearching, out string variationString)
         {
             bool b = false;
             variationString = "";
             foreach (var item in Variations)
             {
-                if (Regex.IsMatch(buffer, Regex.Escape(item.Trim(' ')), RegexOptions.IgnoreCase))
+                string regeexStr = wordSearching ? "\\b" + Regex.Escape(item.Trim(' ')) + "\\b" : Regex.Escape(item.Trim(' '));
+                if (Regex.IsMatch(buffer,regeexStr, RegexOptions.IgnoreCase))
                 {
                     b = true;
                     variationString = item;

@@ -68,22 +68,22 @@ namespace ProjectX
             Console.WriteLine("Добавили поставщика " + id + " " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            string ids = providers.AddStock(id, "Основная группа", "1-2 дня");
+            string ids = providers.AddStock(id, "Основная группа", "1дн.");
             sw.Stop();
             Console.WriteLine("Добавили склад " + id + "-" + ids + " " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            ids = providers.AddStock(id, "Ставрополь", "1-2 дня");
+            ids = providers.AddStock(id, "Ставрополь", "1дн.");
             sw.Stop();
             Console.WriteLine("Добавили склад " + id + "-" + ids + " " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            ids = providers.AddStock(id, "Склады 2 дня", "3-4 дня");
+            ids = providers.AddStock(id, "Склады 2 дня", "3дн.");
             sw.Stop();
             Console.WriteLine("Добавили склад " + id + "-" + ids + " " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            ids = providers.AddStock(id, "Склады 7 дней", "8-9 дней");
+            ids = providers.AddStock(id, "Склады 7 дней", "1нед.1дн.");
             sw.Stop();
             Console.WriteLine("Добавили склад " + id + "-" + ids + " " + sw.ElapsedMilliseconds + " мс");
 
@@ -93,19 +93,19 @@ namespace ProjectX
             Console.WriteLine("Добавили поставщика " + id + " " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            ids = providers.AddStock(id, "Краснодар", "1-3 дня");
+            ids = providers.AddStock(id, "Краснодар", "1дн.");
             sw.Stop();
             Console.WriteLine("Добавили склад " + id + "-" + ids + " " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            ids = providers.AddStock(id, "Москва", "7-9 дней");
+            ids = providers.AddStock(id, "Москва", "1нед.");
             sw.Stop();
             Console.WriteLine("Добавили склад " + id + "-" + ids + " " + sw.ElapsedMilliseconds + " мс");
 
-            ids = providers.AddStock(id, "Домодедово", "7-9 дней");
-            ids = providers.AddStock(id, "Москва склад 2", "7-9 дней");
-            ids = providers.AddStock(id, "Москва склад 3", "7-9 дней");
-            ids = providers.AddStock(id, "Москва склад 4", "7-9 дней");
+            ids = providers.AddStock(id, "Домодедово", "1нед.");
+            ids = providers.AddStock(id, "Москва склад 2", "1нед.");
+            ids = providers.AddStock(id, "Москва склад 3", "1нед.");
+            ids = providers.AddStock(id, "Москва склад 4", "1нед.");
 
             sw.Restart();
             providers.Save();
@@ -119,11 +119,13 @@ namespace ProjectX
 
             sw.Restart();
             List<EParsingParam> eParsingParams = new List<EParsingParam>();
+            string[] bufIndex1 = { "B" };
+            
             EParsingParam parsingParam1 = new EParsingParam(fileName1, "A0");
             parsingParam1.AddStringVal("более 20", 20);
             parsingParam1.AddStringVal("более 40", 40);
             ESheet eSheet = new ESheet(null, "D");
-            string[] bufIndex1 = { "B" };
+            
             eSheet.AddBufIndex(bufIndex1);
             eSheet.AddCountIndex("A0", "E");
             eSheet.AddCountIndex("A1", "F");
@@ -132,39 +134,83 @@ namespace ProjectX
             parsingParam1.Add(eSheet);
 
             eParsingParams.Add(parsingParam1);
+            
 
-            /*
+
             parsingParam1 = new EParsingParam(fileName2, id);
             parsingParam1.AddStringVal("более 20", 20);
             parsingParam1.AddStringVal("более 40", 40);
-            string[] bufIndex2 = { "B", "D" };
+
+            string[] bufIndex2 = { "B", "D","J","K","L","M"};
+            EReplacementCell repCell1 = new EReplacementCell("J");
+            repCell1.Add("Да", "Шипов");
+            EReplacementCell repCell2 = new EReplacementCell("K");
+            repCell2.Add("Да", "XL");
+            EReplacementCell repCell3 = new EReplacementCell("M");
+            repCell3.Add("Да", "RUNFLAT");
+            EReplacementCell repCell4 = new EReplacementCell("L");
+            repCell4.Add("M+S 3PMSF", "M+S");
+            repCell4.Add("#", "");
+            EReplacementCell repCell5 = new EReplacementCell("D");
+            repCell5.Add("Nordman", "Nokian");
+
             eSheet = new ESheet("1 Шины (Краснодар Индустриальны", "U");
             eSheet.AddBufIndex(bufIndex2);
+            eSheet.AddReplacementCell(repCell1);
+            eSheet.AddReplacementCell(repCell2);
+            eSheet.AddReplacementCell(repCell3);
+            eSheet.AddReplacementCell(repCell4);
+            eSheet.AddReplacementCell(repCell5);
             eSheet.AddCountIndex("A0", "S");
             parsingParam1.Add(eSheet);
             eSheet = new ESheet("3 Шины (Москва)", "U");
             eSheet.AddBufIndex(bufIndex2);
+            eSheet.AddReplacementCell(repCell1);
+            eSheet.AddReplacementCell(repCell2);
+            eSheet.AddReplacementCell(repCell3);
+            eSheet.AddReplacementCell(repCell4);
+            eSheet.AddReplacementCell(repCell5);
             eSheet.AddCountIndex("A1", "S");
             parsingParam1.Add(eSheet);
             eSheet = new ESheet("4 Шины (Домодедово)", "U");
             eSheet.AddBufIndex(bufIndex2);
+            eSheet.AddReplacementCell(repCell1);
+            eSheet.AddReplacementCell(repCell2);
+            eSheet.AddReplacementCell(repCell3);
+            eSheet.AddReplacementCell(repCell4);
+            eSheet.AddReplacementCell(repCell5);
             eSheet.AddCountIndex("A2", "S");
             parsingParam1.Add(eSheet);
             eSheet = new ESheet("5 Шины (Склад 2)", "U");
             eSheet.AddBufIndex(bufIndex2);
+            eSheet.AddReplacementCell(repCell1);
+            eSheet.AddReplacementCell(repCell2);
+            eSheet.AddReplacementCell(repCell3);
+            eSheet.AddReplacementCell(repCell4);
+            eSheet.AddReplacementCell(repCell5);
             eSheet.AddCountIndex("A3", "S");
             parsingParam1.Add(eSheet);
             eSheet = new ESheet("6 Шины (Склад 3)", "U");
             eSheet.AddBufIndex(bufIndex2);
+            eSheet.AddReplacementCell(repCell1);
+            eSheet.AddReplacementCell(repCell2);
+            eSheet.AddReplacementCell(repCell3);
+            eSheet.AddReplacementCell(repCell4);
+            eSheet.AddReplacementCell(repCell5);
             eSheet.AddCountIndex("A4", "S");
             parsingParam1.Add(eSheet);
             eSheet = new ESheet("7 Шины (Склад 4)", "U");
             eSheet.AddBufIndex(bufIndex2);
+            eSheet.AddReplacementCell(repCell1);
+            eSheet.AddReplacementCell(repCell2);
+            eSheet.AddReplacementCell(repCell3);
+            eSheet.AddReplacementCell(repCell4);
+            eSheet.AddReplacementCell(repCell5);
             eSheet.AddCountIndex("A5", "S");
             parsingParam1.Add(eSheet);
             
             eParsingParams.Add(parsingParam1);
-            */
+
             
 
             sw.Stop();
@@ -229,10 +275,12 @@ namespace ProjectX
             Console.WriteLine("Инициализация базы XML " + sw.ElapsedMilliseconds + " мс");
 
             sw.Restart();
-            dBase.SaveDataOnlyProviderExcell(@"C:\Users\ACER\Desktop\Прайсы\Data.xlsx", new string[] { "A0" }, new ExcelDefaultOutParametrics() {
-                IsIdPosition = false,
+            dBase.SaveDataOnlyUniqueProviderExcell(@"C:\Users\ACER\Desktop\Прайсы\Data.xlsx", new string[] { "A1","A0" }, new ExcelDefaultOutParametrics() {
                 IsNameProduct = false
-            },
+
+            },new ExcelProviderOutParametrics() {ProvidersSrc = providers,
+                IsStockTime = true,
+                IsStockName = true } ,
                 new ExcelProductOutParametrics() { DictionarySrc = dictionary,
                     IsMarkingHeight = true,
                     IsMarkingDiameter = true,

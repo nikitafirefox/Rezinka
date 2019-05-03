@@ -133,7 +133,7 @@ namespace ProjectX.Information
             xmlDocument.Save(pathXML);
         }
 
-        internal Dictionary<string, object> GetValuesById(string idProv)
+        public Dictionary<string, object> GetValuesById(string idProv)
         {
             Provider provider;
             Dictionary<string, object> result = new Dictionary<string, object>();
@@ -148,6 +148,14 @@ namespace ProjectX.Information
             result.Add("Provider_Name", provider.Name);
             result.Add("Provider_Priority", provider.Priority);
             return result;
+        }
+
+        public int GetPriority(string id) {
+            return ProvidersList.Where(x => x.Id == id).First().Priority;
+        }
+
+        public TimeInterval GetTimeInterval(string idProv,string idStock) {
+            return ProvidersList.Where(x => x.Id == idProv).First().GetTimeInterval(idStock);
         }
     }
 
@@ -247,26 +255,30 @@ namespace ProjectX.Information
             result.Add("Stock_Time", stock.Time);
             return result;
         }
+
+        public TimeInterval GetTimeInterval(string id) {
+            return Stocks.Where(x => x.Id == id).First().Time;
+        }
     }
 
     public class Stock
     {
         public string Name { get; set; }
         public string Id { get; private set; }
-        public string Time { get; set; }
+        public TimeInterval Time { get; set; }
 
         public Stock(string id, string name, string time)
         {
             Name = name;
             Id = id;
-            Time = time;
+            Time = new TimeInterval(time);
         }
 
         public Stock(XmlNode xNode)
         {
             Id = xNode.Attributes.GetNamedItem("id").Value;
             Name = xNode.SelectSingleNode("name").InnerText;
-            Time = xNode.SelectSingleNode("time").InnerText;
+            Time = new TimeInterval(xNode.SelectSingleNode("time").InnerText);
         }
 
         public XmlNode GetXmlNode(XmlDocument xmlDocument)
@@ -279,7 +291,7 @@ namespace ProjectX.Information
             element.AppendChild(e);
 
             e = xmlDocument.CreateElement("time");
-            e.InnerText = Time;
+            e.InnerText = Time.ToString();
             element.AppendChild(e);
 
             return element;

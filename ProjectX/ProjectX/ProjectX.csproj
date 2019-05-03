@@ -79,6 +79,7 @@
     <Compile Include="ExcelParsing\EParsing.cs" />
     <Compile Include="AnalysisType\ParsingRow.cs" />
     <Compile Include="AnalysisType\Resault.cs" />
+    <Compile Include="Information\TimeInterval.cs" />
     <Compile Include="TypeExcel\ExcelCellList.cs" />
     <Compile Include="Information\Provider.cs" />
     <Compile Include="Loger\SystemLoger.cs" />

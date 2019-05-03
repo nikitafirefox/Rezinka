@@ -105,7 +105,23 @@ namespace ProjectX.ExcelParsing
 
                         foreach (string index in bufIndex)
                         {
-                            buf += GetCellValue(workbookPart, row, index) + " ";
+                            string promBuffer;
+
+
+                            Cell cell = row.Elements<Cell>().Where(c => string.Compare(c.CellReference.Value, index + row.RowIndex, true) == 0).FirstOrDefault();
+
+                            if (cell == null)
+                            {
+                                promBuffer = "";
+                            }
+                            else
+                            {
+                                promBuffer = param.Replace(GetCellValue(cell,workbookPart), index);
+                            }
+
+
+
+                            buf += promBuffer + " ";
                         }
 
                         ParsingRow parsingRow;
@@ -121,6 +137,7 @@ namespace ProjectX.ExcelParsing
                     }
                     catch
                     {
+
                         if (countExeption < 100)
                         {
                             countExeption++;
@@ -236,6 +253,7 @@ namespace ProjectX.ExcelParsing
         public string PriceIndex { get; set; }
         private List<string> BufIndex { get; set; }
         private List<ECount> CountIndexes { get; set; }
+        private List<EReplacementCell> EReplacementCells { get; set;}
 
         public ESheet(string sheetName, string priceIndex)
         {
@@ -243,13 +261,33 @@ namespace ProjectX.ExcelParsing
             CountIndexes = new List<ECount>();
             SheetName = sheetName;
             PriceIndex = priceIndex;
+            EReplacementCells = new List<EReplacementCell>();
         }
 
         public void AddBufIndex(string value) => BufIndex.Add(value);
 
         public void AddBufIndex(string[] values) => BufIndex.AddRange(values);
 
+        public void AddReplacementCell(EReplacementCell cell) => EReplacementCells.Add(cell);
+
         public string[] GetBufIndex() => BufIndex.ToArray();
+
+        public string Replace(string str,string cellIndex) {
+            if (EReplacementCells.Count > 0)
+            {
+                string outStr = str;
+                foreach (var item in EReplacementCells)
+                {
+                    if (item.CellIndex.Equals(cellIndex)) {
+                        outStr = item.Replace(str);
+                    }
+                }
+                return outStr;
+            }
+            else {
+                return str;
+            }
+        }
 
         public void AddCountIndex(string id, string value) => CountIndexes.Add(new ECount(id, value));
 
@@ -295,5 +333,46 @@ namespace ProjectX.ExcelParsing
             Id = id;
             Index = index;
         }
+    }
+
+    public class EReplacementCell {
+
+        public string CellIndex { get; set;}
+
+        private List<EReplacementString> EReplacementStrings { get; set; }
+
+        public EReplacementCell(string cellIndex) {
+            CellIndex = cellIndex;
+            EReplacementStrings = new List<EReplacementString>();
+        }
+
+        public void Add(string str, string repStr) {
+            EReplacementStrings.Add(new EReplacementString(str, repStr));
+        }
+
+
+        public string Replace(string str) {
+            string outStr = str;
+            foreach (var item in EReplacementStrings) {
+                outStr = item.Replace(str);
+            }
+            return outStr;
+        }
+
+    }
+
+    public class EReplacementString {
+        public string Str { get; set;}
+        public string ReplceStr { get; set;}
+
+        public EReplacementString(string str, string replaceStr) {
+            Str = str;
+            ReplceStr = replaceStr;
+        }
+
+        public string Replace(string str) {
+            return str.Equals(Str) ? ReplceStr : str;
+        }
+
     }
 }
