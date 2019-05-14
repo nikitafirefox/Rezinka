@@ -85,6 +85,10 @@
     <Compile Include="Loger\SystemLoger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypePattern\AvitoGenerator.cs" />
+    <Compile Include="TypePattern\Element.cs" />
+    <Compile Include="TypePattern\Filter.cs" />
+    <Compile Include="TypePattern\Pattern.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

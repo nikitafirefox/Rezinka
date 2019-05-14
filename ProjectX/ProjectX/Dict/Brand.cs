@@ -339,5 +339,38 @@ namespace ProjectX.Dict
             }
             return resault;
         }
+
+        public void GetWidths(List<string> res)
+        {
+            foreach (Model item in Models)
+            {
+                item.GetWidths(res);
+            }
+            
+        }
+
+        public void GetHeights(List<string> res)
+        {
+            foreach (Model item in Models)
+            {
+                item.GetHeights(res);
+            }
+        }
+
+        public void GetDiametrs(List<string> res)
+        {
+            foreach (Model item in Models)
+            {
+                item.GetDiametrs(res);
+            }
+        }
+
+        public void GetSeassons(List<string> res)
+        {
+            foreach (Model item in Models)
+            {
+                res.Add(item.Season);
+            }
+        }
     }
 }

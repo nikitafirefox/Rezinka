@@ -392,8 +392,6 @@ namespace ProjectX.Dict
             return resault;
         }
 
-
-
         public void DeleteImage(string idBrand, string image)
         {
             lock (this)
@@ -486,130 +484,40 @@ namespace ProjectX.Dict
             List<ParsingRow> Resault = new List<ParsingRow>();
 
             ProviderRegulars providerRegulars = new ProviderRegulars();
-            providerRegulars.Add("A0");
-
-            string idR = providerRegulars.Add("A0", "[0-9]{1,3}([.,][0-9]{1,3})?[\\*/][0-9]{1,3}([.,][0-9]{1,3})?R[0-9]{2}[CС]?", 0);
-
-            ProviderRegular PR = providerRegulars.GetProviderRegularById("A0");
-            PrimaryRegular PR2 = PR.GetPrimaryRegularById(idR);
-            PR2.Add("C", 0, "commercial");
-            PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 0, "width");
-            PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 1, "height");
-            string helpid = PR2.AddGroupRegular("R[0-9]{2}");
-            GroupRegular GR = PR2.GetGroupRegularById(helpid);
-            GR.Add("[0-9]{2}", 0, "diameter");
-
-            idR = providerRegulars.Add("A0", "[0-9]{1,3}([.,][0-9]{1,3})?R[0-9]{2}[CС]?", 0);
-            PR = providerRegulars.GetProviderRegularById("A0");
-            PR2 = PR.GetPrimaryRegularById(idR);
-            PR2.Add("C", 0, "commercial");
-            PR2.Add( "Полно профильные", "height");
-            PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 0, "width");
-            helpid = PR2.AddGroupRegular("R[0-9]{2}");
-            GR = PR2.GetGroupRegularById(helpid);
-            GR.Add("[0-9]{2}", 0, "diameter");
-
-
-            idR = providerRegulars.Add("A0","[0-9]{2,3}(/[0-9]{2,3})?[A-Z]{1,2}",1);
-            providerRegulars.Add("A0", idR, "[0-9]{2,3}(/[0-9]{2,3})?", 0, "loadIndex");
-            providerRegulars.Add("A0", idR, "[A-Z]{1,2}", 0, "speedIndex");
-
-            idR = providerRegulars.Add("A0", "XL", 2);
-            providerRegulars.Add("A0", idR, "XL", 0, "extraLoad");
-
-            idR = providerRegulars.Add("A0", "Шип", 3);
-            providerRegulars.Add("A0", idR, "Да", "spikes");
-
-            
-            idR = providerRegulars.Add("A0", "\\*\\*\\*", 4);
-            providerRegulars.Add("A0", idR, "Более 3-х лет", "additional");
-
-            idR = providerRegulars.Add("A0", "\\([0-9]{2,4}г?\\)", 4);
-            providerRegulars.Add("A0", idR, "\\([0-9]{2,4}г?\\)", 0, "additional");
-
-            idR = providerRegulars.Add("A0", "\\*", 5);
-            providerRegulars.Add("A0", idR, "BMW", "accomadation");
-
-            
-            idR = providerRegulars.Add("A0", "✩", 5);
-            providerRegulars.Add("A0", idR, "BMW", "accomadation");
-
-            
-            idR = providerRegulars.Add("A0", "ROF RUN FLAT", 6);
-            providerRegulars.Add("A0", idR, "Yes", "runFlat");
-
-            idR = providerRegulars.Add("A0", "RUN FLAT", 6);
-            providerRegulars.Add("A0", idR, "Yes", "runFlat");
-            
-            
-
-
-
-
-            providerRegulars.Add("A1");
-
-            idR = providerRegulars.Add("A1", "(LT)?[0-9]{1,3}([.,][0-9]{1,3})?[/x][0-9]{1,3}([.,][0-9]{1,3})?Z?R[0-9]{2}[CС]?", 0);
-
-            PR = providerRegulars.GetProviderRegularById("A1");
-            PR2 = PR.GetPrimaryRegularById(idR);
-            PR2.Add("C", 0, "commercial");
-            PR2.Add("ZR", 0, "flangeProtection");
-            PR2.Add("LT", 0, "commercial");
-            PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 0, "width");
-            PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 1, "height");
-            helpid = PR2.AddGroupRegular("R[0-9]{2}");
-            GR = PR2.GetGroupRegularById(helpid);
-            GR.Add("[0-9]{2}", 0, "diameter");
-
-            idR = providerRegulars.Add("A1", "(LT)?[0-9]{1,3}([.,][0-9]{1,3})?(Z)?R[0-9]{2}[CС]?", 0);
-            PR = providerRegulars.GetProviderRegularById("A1");
-            PR2 = PR.GetPrimaryRegularById(idR);
-            PR2.Add("C", 0, "commercial");
-            PR2.Add("ZR", 0, "flangeProtection");
-            PR2.Add("LT", 0, "commercial");
-            PR2.Add("Полно профильные", "height");
-            PR2.Add("[0-9]{1,3}([.,][0-9]{1,3})?", 0, "width");
-            helpid = PR2.AddGroupRegular("R[0-9]{2}");
-            GR = PR2.GetGroupRegularById(helpid);
-            GR.Add("[0-9]{2}", 0, "diameter");
-
-
-            idR = providerRegulars.Add("A1", "[0-9]{2,3}(/[0-9]{2,3})?[A-Z]{1,2}", 1);
-            providerRegulars.Add("A1", idR, "[0-9]{2,3}(/[0-9]{2,3})?", 0, "loadIndex");
-            providerRegulars.Add("A1", idR, "[A-Z]{1,2}", 0, "speedIndex");
-
-            idR = providerRegulars.Add("A1", "XL", 2);
-            providerRegulars.Add("A1", idR, "XL", 0, "extraLoad");
-
-            idR = providerRegulars.Add("A1", "Шипов", 3);
-            providerRegulars.Add("A1", idR, "Шипов", "spikes");
-
-            idR = providerRegulars.Add("A1", "RUNFLAT", 4);
-            providerRegulars.Add("A1", idR, "RUNFLAT", 0, "runFlat");
-
-            idR = providerRegulars.Add("A1", "M\\+S", 5);
-            providerRegulars.Add("A1", idR, "M\\+S", 0, "mudSnow");
-
-            providerRegulars.AddPassString("A1", "TL");
-            providerRegulars.AddPassString("A1", "(шип.)");
-
-
-            providerRegulars.Save();
 
             foreach (var item in parsingRows)
             {
 
-
+                List<string> lStr = new List<string>();
+                int countLog = 0;
+                
                 string parsBuf = item.ParsingBufer;
 
+                lStr.Add(++countLog + ") Определяем наличие маркировки ");
+
                 int countMarking = providerRegulars.CountMarking(item.IdProvider, item.ParsingBufer);
+
+                lStr.Add(++countLog + ") Маркировок найдено: " + countMarking);
                 
                 if (countMarking == 1)
                 {
+
+
                     List<string> variationsStringsBrands = new List<string>();
                     List<string> variationsStringsModels = new List<string>();
                     string sov_variation;
+
+                    lStr.Add(++countLog + ") Попытка парсинга производителя ");
+
                     List<Brand> brands = AnalysisBrand(parsBuf,wordSearching, out variationsStringsBrands);
+
+                    string logStr = ++countLog + ") Производителей найдено: " + brands.Count;
+
+                    for (int i = 0; i < brands.Count; i++) {
+                        logStr += "\nID: " + brands[i].Id + "  Название: " + brands[i].Name + " Определен как: " + variationsStringsBrands[i] + '\n';
+                    }
+
+                    lStr.Add(logStr);
 
                     string name = "Товар";
                     string id = "";
@@ -620,34 +528,82 @@ namespace ProjectX.Dict
                     Model findedModel = null;
                     if (brands.Count == 0 && deepSearch)
                     {
+                        lStr.Add(++countLog + ") Функиция углубленного поиска включена ");
                         brands = Brands;
+                        lStr.Add(++countLog + ") Производителей взято: " + brands.Count);
                     }
                     else if (brands.Count == 0 && !deepSearch)
                     {
+                        lStr.Add(++countLog + ") Функиция углубленного поиска  отключена");
+
                         Dictionary<string, string> keyValuePairs = providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string str);
                         string mes = "Не найден производитель";
 
-                        item.Resault = new NResault(mes, keyValuePairs, str.Trim());
+                        lStr.Add(++countLog + ") Требуются уточнения");
+                        item.Resault = new NResault(mes, keyValuePairs, str.Trim(),4);
+                        item.Resault.AddLog(lStr);
                         continue;
 
                     }
 
                     foreach (Brand brand in brands)
                     {
+                        lStr.Add(++countLog + ") Попытка парсинга модели у производителя " + brand.Name);
+
                         List<string> variationsStrings = new List<string>();
                         List<Model> models = brand.AnalysisModel(parsBuf,wordSearching, out variationsStrings);
 
+                        logStr = ++countLog + ") Найдено моделей: "+ models.Count;
+                        for (int i = 0; i < models.Count; i++)
+                        {
+                            logStr += "\nID: " + brand.Id + "-" + models[i].Id + "  Название: " + models[i].Name + " Определен как: " + variationsStrings[i];
+                        }
+                        lStr.Add(logStr);
+
                         if (models.Count == 1 && !(already_find_model))
                         {
+                              
+
                             findedModel = models.First();
                             findedBrand = brand;
                             already_find_model = true;
                             variationsStringsModels = variationsStrings;
+
+                            
                         }
                         else if (models.Count != 0)
                         {
-                            providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string newBuf);
+                            lStr.Add(++countLog + ") Вторая попытка парсинга модели");
+
+                            lStr.Add(++countLog + ") Попытка парсинга дополнительных значений");
+                            Dictionary<string,string> dictionary =providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string newBuf);
+                            
+                            logStr = ++countLog + ") Найдено значений: " + dictionary.Count;
+
+                            foreach (var val in dictionary) {
+                                logStr += "\n" + val.Key + " : " + val.Value;
+                            }
+                            
+                            lStr.Add(logStr);
+
+                            lStr.Add(++countLog + ") Строка после парсинга значений: " + newBuf);
+
+
+                            lStr.Add(++countLog + ") Попытка парсинга модели у производителя " + brand.Name);
+                            
+
                             models = brand.AnalysisModel(newBuf,wordSearching, out variationsStrings);
+                           
+
+                            
+                            logStr = ++countLog + ") Найдено моделей: " + models.Count;
+                            for (int i = 0; i < models.Count; i++)
+                            {
+                                logStr += "\nID: " + brand.Id + "-" + models[i].Id + "  Название: " + models[i].Name + " Определен как: " + variationsStrings[i];
+                            }
+                            lStr.Add(logStr);
+                            
+
 
                             if (models.Count == 1 && !(already_find_model))
                             {
@@ -662,8 +618,10 @@ namespace ProjectX.Dict
 
 
                             already_find_model = false;
-                            Dictionary<string, string> keyValuePairs = providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string str);
-                            item.Resault = new NResault("Найдено более 1 модели", keyValuePairs, str.Trim());
+
+                            lStr.Add(++countLog + ") Требуются уточнения");
+                            item.Resault = new NResault("Найдено " + models.Count +  " моделей", dictionary, newBuf.Trim(), 5);
+                            item.Resault.AddLog(lStr);
                             break;
                         }
                     }
@@ -672,57 +630,138 @@ namespace ProjectX.Dict
                     {
                         if (item.Resault == null)
                         {
-                            Dictionary<string, string> keyValuePairs = providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string str);
+                            
+
+
                             string mes = "Не найдена модель";
-                            if (brands.Count == 0 || brands.Count == Brands.Count) { mes = "Не найден производитель"; }
+
+                            lStr.Add(++countLog + ") Попытка парсинга дополнительных значений");
+
+                            Dictionary<string, string> keyValuePairs = providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string str);
+
+                            logStr = ++countLog + ") Найдено значений: " + keyValuePairs.Count;
+
+                            foreach (var val in keyValuePairs)
+                            {
+                                logStr += "\n" + val.Key + " : " + val.Value;
+                            }
+
+                            lStr.Add(logStr);
+
+                            lStr.Add(++countLog + ") Строка после парсинга значений: " + str);
+
+                            int inf = 3;
+                            if (brands.Count == 0 || brands.Count == Brands.Count) {
+                                mes = "Не найден производитель";
+                                inf = 4;
+                                lStr.Add(++countLog + ") Производитель не найден ");
+                            }
                             else {
+                                lStr.Add(++countLog + ") Модель не найдена ");
+
                                 variationsStringsBrands.Sort((x, y) => y.Length.CompareTo(x.Length));
+
+                                logStr = ++countLog + ") Удаление всех вхождений производителя";
+
                                 foreach (string variation in variationsStringsBrands)
                                 {
+                                    logStr += "\nИсходная строка: " + str;
+                                    logStr += " Найденная вариация: " + variation;
                                     sov_variation = Regex.Match(parsBuf, Regex.Escape(variation), RegexOptions.IgnoreCase).Value;
+                                    logStr += " Найденное вхождение: " + sov_variation;
                                     if (sov_variation != "")
                                     {
                                         str = str.Replace(sov_variation, "");
+                                        logStr += "(успешно) результат: " + str;
+                                        
                                     }
+                                    logStr += "(ошибка удаления)";
                                 }
+
+                                lStr.Add(logStr);
                             }
 
-                            item.Resault = new NResault(mes, keyValuePairs, str.Trim());
+
+
+
+
+                            lStr.Add(++countLog + ") Требуются уточнения");
+                            item.Resault = new NResault(mes, keyValuePairs, str.Trim(),inf);
+                            item.Resault.AddLog(lStr);
                         }
                         continue;
                     }
 
+                    logStr = ++countLog + ") Удаление всех вхождений производителя";
+
                     variationsStringsBrands.Sort((x, y) => y.Length.CompareTo(x.Length));
+
                     foreach (string variation in variationsStringsBrands)
                     {
+                        logStr += "\nИсходная строка: " + parsBuf;
+                        logStr += " Найденная вариация: " + variation;
                         sov_variation = Regex.Match(parsBuf, Regex.Escape(variation), RegexOptions.IgnoreCase).Value;
+                        logStr += " Найденное вхождение: " + sov_variation;
                         if (sov_variation != "")
                         {
                             parsBuf = parsBuf.Replace(sov_variation, "");
+                            logStr += "(успешно) результат: " + parsBuf;
                         }
+                        logStr += "(ошибка удаления)";
                     }
 
+                    lStr.Add(logStr);
+
+                    logStr = ++countLog + ") Удаление всех вхождений производителя";
+
                     variationsStringsModels.Sort((x, y) => y.Length.CompareTo(x.Length));
+
                     foreach (string variation in variationsStringsModels)
                     {
+                        logStr += "\nИсходная строка: " + parsBuf;
+                        logStr += " Найденная вариация: " + variation; 
                         sov_variation = Regex.Match(parsBuf, Regex.Escape(variation), RegexOptions.IgnoreCase).Value;
+                        logStr += " Найденное вхождение: " + sov_variation;
                         if (sov_variation != "")
                         {
                             parsBuf = parsBuf.Replace(sov_variation, "");
+                            logStr += "(успешно) результат: " + parsBuf;
                         }
+                        logStr += "(ошибка удаления)";
                     }
+
+                    lStr.Add(logStr);
 
                     id = findedBrand.Id;
                     name += " " + findedBrand.Name;
                     id += "-" + findedModel.Id;
                     name += " " + findedModel.Name;
 
+                    lStr.Add(++countLog + ") Попытка парсинга дополнительных значений");
+
                     Dictionary<string, string> keyValues = providerRegulars.GetDictionary(item.IdProvider, parsBuf, out string s);
+
+                    logStr = ++countLog + ") Найдено значений: " + keyValues.Count;
+
+                    foreach (var val in keyValues)
+                    {
+                        logStr += "\n" + val.Key + " : " + val.Value;
+                    }
+
+                    lStr.Add(logStr);
+
+
+                    lStr.Add(++countLog + ") Строка после парсинга значений: " + s);
+
                     if (s.Trim() != "")
                     {
-                        item.Resault = new NResault("При парсинги остались символы в исходной строке", keyValues, s.Trim());
+                        lStr.Add(++countLog + ") Требуются уточнения");
+                        item.Resault = new NResault("При парсинги остались символы в исходной строке", keyValues, s.Trim(),2);
+                        item.Resault.AddLog(lStr);
                         continue;
                     }
+
+
 
                     string width;
                     string height;
@@ -757,7 +796,14 @@ namespace ProjectX.Dict
                     }
                     catch
                     {
-                        item.Resault = new BResault(item.ExcelRowIndex + ") Отсутствие маркировки (error 0)");
+                        lStr.Add(++countLog + ") ошибка, не хватает значениия(ий): ширины, высоты, диаметра, " +
+                            "индекса скороти, индекса нагрузки");
+
+
+                        lStr.Add(++countLog + ") Завершено с ошибкой");
+                        item.Resault = new BResault(item.ExcelRowIndex + "Ошибка при полученнии маркировки", 6);
+                        item.Resault.AddLog(lStr);
+
                         continue;
                     }
 
@@ -780,13 +826,21 @@ namespace ProjectX.Dict
                     if (keyValues.ContainsKey("flangeProtection")) { flangeProtection = keyValues["flangeProtection"]; }
 
 
+                    lStr.Add(++countLog + ") Попытка парсинга маркировки");
+
                     Marking marking = findedModel.SearchMarking(width, height, diameter,loadIndex, indexSpeed, accomadation,spikes,runFlat, out bool isContainMarking);
                     if (isContainMarking)
                     {
                         id += "-" + marking.Id;
                         name += " " + marking.Width + "/" + marking.Height + "R" + marking.Diameter;
                         if (marking.Accomadation != "") { name += " акомадация" + marking.Accomadation; }
-                        item.Resault = new GResault(id, name,additional, "Существующий");
+
+                        lStr.Add(++countLog + ") Маркировка найдена\n Определена как: " + id + "\nЗаписана в базу как: " + name);
+
+                        lStr.Add(++countLog + ") Завершено успещно");
+
+                        item.Resault = new GResault(id, name,additional, "Существующий",1);
+                        item.Resault.AddLog(lStr);
 
                     }
                     else
@@ -796,20 +850,81 @@ namespace ProjectX.Dict
                             runFlat, flangeProtection, accomadation,spikes);
                         name += " " + width + "/" + height + "R" + diameter;
                         if (accomadation != "") { name += " акомадация " + accomadation; }
-                        item.Resault = new GResault(id, name,additional, "Новый");
+
+
+                        lStr.Add(++countLog + ") Маркировка добавлена\n Определена как: " + id + "\nЗаписана в базу как: " + name);
+
+                        lStr.Add(++countLog + ") Завершено успещно");
+
+                        item.Resault = new GResault(id, name,additional, "Новый", 0);
+
+                        item.Resault.AddLog(lStr);
                     }
                 }
                 else if (countMarking == 0)
                 {
-                    item.Resault = new BResault(item.ExcelRowIndex + ") Отсутствие маркировки (error 0)");
+                    lStr.Add(++countLog + ") Завершено с ошибкой");
+
+                    item.Resault = new BResault(" Отсутствие маркировки ", 7);
+                    item.Resault.AddLog(lStr);
                 }
                 else
                 {
-                    item.Resault = new BResault(item.ExcelRowIndex + ") Найдена несколько маркировок (error 3)");
+                    lStr.Add(++countLog + ") Завершено с ошибкой");
+
+                    item.Resault = new BResault(" Найдено " + countMarking + " маркировок ", 8);
+                    item.Resault.AddLog(lStr);
                 }
             }
 
             return parsingRows;
+        }
+
+        public List<string> GetBrandsId() {
+            return Brands.Select(x => x.Id).ToList();
+        }
+
+        public List<string> GetWidths() {
+            List<string> res = new List<string>();
+            foreach (Brand item in Brands)
+            {
+                item.GetWidths(res);
+            }
+            res.Sort();
+            return res.Distinct().ToList();
+        }
+
+        public List<string> GetHeights()
+        {
+            List<string> res = new List<string>();
+            foreach (Brand item in Brands)
+            {
+                item.GetHeights(res);
+            }
+            res.Sort();
+            return res.Distinct().ToList();
+        }
+
+        public List<string> GetDiametrs()
+        {
+            List<string> res = new List<string>();
+            foreach (Brand item in Brands)
+            {
+                item.GetDiametrs(res);
+            }
+            res.Sort();
+            return res.Distinct().ToList();
+        }
+
+        public List<string> GetSeassons()
+        {
+            List<string> res = new List<string>();
+            foreach (Brand item in Brands)
+            {
+                item.GetSeassons(res);
+            }
+            res.Sort();
+            return res.Distinct().ToList();
         }
 
         //********************************************************//

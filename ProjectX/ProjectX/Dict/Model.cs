@@ -283,5 +283,29 @@ namespace ProjectX.Dict
             }
             return resault;
         }
+
+        public void GetWidths(List<string> res)
+        {
+            foreach (Marking item in Markings)
+            {
+                res.Add(item.Width);
+            }
+        }
+
+        public void GetHeights(List<string> res)
+        {
+            foreach (Marking item in Markings)
+            {
+                res.Add(item.Height);
+            }
+        }
+
+        public void GetDiametrs(List<string> res)
+        {
+            foreach (Marking item in Markings)
+            {
+                res.Add(item.Diameter);
+            }
+        }
     }
 }

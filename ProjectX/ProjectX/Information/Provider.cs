@@ -157,6 +157,10 @@ namespace ProjectX.Information
         public TimeInterval GetTimeInterval(string idProv,string idStock) {
             return ProvidersList.Where(x => x.Id == idProv).First().GetTimeInterval(idStock);
         }
+
+        public List<string> GetId() {
+            return ProvidersList.Select(x => x.Id).ToList();
+        }
     }
 
     public class Provider

@@ -875,7 +875,7 @@ namespace ProjectX.DataBase
         public double Markup { get; set; }
         public double TotalPrice { get; private set; }
         public int Count { get; set; }
-        public string Addition;
+        public string Addition { get; set; }
 
         public DBRow(XmlNode x)
         {
