@@ -125,6 +125,13 @@ namespace ProjectX.TypePattern
 
                 };
 
+                element.Images = new List<string>();
+
+                foreach (string str in dictionary.GetImages(item.IdProduct.Split('-')[0],
+                    item.IdProduct.Split('-')[1])) {
+                    element.Images.Add(str);
+                }
+
                 res.Add(element);
             }
 

@@ -160,6 +160,11 @@ namespace ProjectX.Dict
             return id;
         }
 
+        public IEnumerable<string> GetImages()
+        {
+            return Images;
+        }
+
         public void AddStringValue(string value)
         {
             Variations.Add(value);

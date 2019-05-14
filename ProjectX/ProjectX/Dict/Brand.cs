@@ -155,6 +155,11 @@ namespace ProjectX.Dict
             return id;
         }
 
+        public IEnumerable<string> GetImages(string v2)
+        {
+            return Models.Find(x=> x.Id == v2).GetImages();
+        }
+
         public void AddStringValue(string value)
         {
             Variations.Add(value);

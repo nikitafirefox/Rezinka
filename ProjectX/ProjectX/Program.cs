@@ -441,6 +441,9 @@ namespace ProjectX
 
         private static void Test3() {
 
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data")))
             {
                 Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data"));
@@ -470,6 +473,13 @@ namespace ProjectX
 
             patterns.Save();
 
+            AvitoConfig config = new AvitoConfig();
+            config.Add("летние", false, "Летние");
+            config.Add("зимние", true, "Зимние шипованные");
+            config.Add("зимние", false, "Зимние нешипованные");
+            config.Add("всесезонные", false, "Всесезонные");
+            config.Save();
+
             patterns = new Patterns();
 
             foreach (Pattern item in patterns)
@@ -488,10 +498,10 @@ namespace ProjectX
             Filter filter = new Filter()
             {
                 ProvidersId = providers.GetId(),
-               //BrandsId = dictionary.GetBrandsId(),
-               BrandsId = { "B2" },
-               //Widths = dictionary.GetWidths(),
-               Widths = {"185"},
+               BrandsId = dictionary.GetBrandsId(),
+              // BrandsId = { "B2" },
+               Widths = dictionary.GetWidths(),
+               //Widths = {"185"},
                Heights = dictionary.GetHeights(),
                Diameters = dictionary.GetDiametrs(),
                Spikes = { "Да", "Нет" },
@@ -506,7 +516,7 @@ namespace ProjectX
 
             elements = Element.Distinct(elements);
 
-            List<AvitoAd> avitoAds = AvitoGenerator.Generate(elements, "A0", 100, new List<AvitoAd>());
+            List<AvitoAd> avitoAds = AvitoGenerator.Generate(elements, "A0", 40, new List<AvitoAd>());
 
             /*
             foreach (var item in avitoAds)
@@ -519,7 +529,9 @@ namespace ProjectX
 
             AvitoGenerator.ToXML(@"C:\Users\ACER\Desktop\TEST_AVITO.xml", avitoAds);
 
-            Console.WriteLine("OK");
+            stopwatch.Stop();
+
+            Console.WriteLine(stopwatch.ElapsedMilliseconds.ToString());
             Console.ReadLine();
         }
     }

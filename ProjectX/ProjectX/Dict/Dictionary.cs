@@ -159,6 +159,11 @@ namespace ProjectX.Dict
             return id;
         }
 
+        public IEnumerable<string> GetImages(string v1, string v2)
+        {
+            return Brands.Find(x => x.Id == v1).GetImages(v2);
+        }
+
         public string Add(string idBrand, string idModel, string width, string height, string diameter,
             string speedIndex, string loadIndex, string country, string tractionIndex, string temperatureIndex,
             string treadwearIndex, bool extraLoad, bool runFlat, string flangeProtection, string accomadation,bool spikes)

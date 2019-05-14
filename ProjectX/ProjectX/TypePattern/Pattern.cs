@@ -72,18 +72,22 @@ namespace ProjectX.TypePattern
             XmlElement xroot = xmlDocument.DocumentElement;
             xroot.RemoveAll();
             xroot.AppendChild(IdGen.GetXmlNode(xmlDocument));
-            XmlElement providersElement;
-            xroot.AppendChild(providersElement = xmlDocument.CreateElement("patterns"));
+            XmlElement patternsElement;
+            xroot.AppendChild(patternsElement = xmlDocument.CreateElement("patterns"));
             foreach (var item in ListPatterns)
             {
-                providersElement.AppendChild(item.GetXmlNode(xmlDocument));
+                patternsElement.AppendChild(item.GetXmlNode(xmlDocument));
             }
             xmlDocument.Save(pathXML);
 
         }
 
+        public void Add(string head, string body, string name) {
+            ListPatterns.Add(new Pattern(IdGen.NexVal(), head, body,name));
+        }
+
         public void Add(string head, string body) {
-            ListPatterns.Add(new Pattern(IdGen.NexVal(), head, body));
+            Add(head, body, "Новый шаблон");
         }
 
         public IEnumerator GetEnumerator()
@@ -100,14 +104,17 @@ namespace ProjectX.TypePattern
     {
         public string Id { get; private set; }
 
+        public string Name { get; set;}
+
         public string Head { get; set; }
 
         public string Body { get; set; }
 
-        public Pattern(string id, string head, string body) {
+        public Pattern(string id, string head, string body,string name) {
             Id = id;
             Head = head;
             Body = body;
+            Name = name;
         }
 
         public Pattern(XmlNode x)
@@ -116,6 +123,7 @@ namespace ProjectX.TypePattern
             Id = x.Attributes.GetNamedItem("id").Value;
             Head = x.SelectSingleNode("head").InnerText;
             Body = x.SelectSingleNode("body").InnerText;
+            Name = x.SelectSingleNode("name").InnerText;
 
         }
 
@@ -130,6 +138,10 @@ namespace ProjectX.TypePattern
            
             e = xmlDocument.CreateElement("body");
             e.AppendChild(xmlDocument.CreateCDataSection(Body));
+            element.AppendChild(e);
+
+            e = xmlDocument.CreateElement("name");
+            e.InnerText = Name;
             element.AppendChild(e);
 
             return element;
