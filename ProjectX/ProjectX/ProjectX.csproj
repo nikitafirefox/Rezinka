@@ -86,8 +86,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypePattern\AvitoGenerator.cs" />
+    <Compile Include="TypePattern\AvtoruGenarator.cs" />
     <Compile Include="TypePattern\Element.cs" />
     <Compile Include="TypePattern\Filter.cs" />
+    <Compile Include="TypePattern\GroupPattern.cs" />
     <Compile Include="TypePattern\Pattern.cs" />
   </ItemGroup>
   <ItemGroup>

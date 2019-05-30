@@ -456,6 +456,7 @@ namespace ProjectX
 
             Patterns patterns = new Patterns();
 
+            
             patterns.Add("<Up_Season> шины R<d>{[C]=='Да'(<C>)} <w>{[h]!='Полно профильные'( <h>)( )} <BName> <MName>",
                 "<strong><Up_Season> шины R<d>{[C]=='Да'(<C>)} <w>{[h]!='Полно профильные'( <h>)( )} <BName> <MName> <LI><SI> <XL></strong>" + Environment.NewLine
                 + "Новые <Low_Season>{[Spikes]=='Да'(шипованные)} <w>{[h]!='Полно профильные'(/<h>)( )} R <d>." + Environment.NewLine 
@@ -470,6 +471,11 @@ namespace ProjectX
                 + "Расшифровка индекса скорости " + Environment.NewLine 
                 + "<ul><li>T - 225-235 км/ч</li><li>U - 200-205 км/ч</li><li>H - 210-215 км/ч</li><li>V - 240-245 км/ч</li><li>W - 255-265 км/ч</li>" +
                 "<li>Y - 275-285 до 295 км/ч</li><li>Z - 305-315 км/ч до 325-335</li></ul>");
+            
+
+            //patterns.Add("Тест1", "Количество 3");
+            //patterns.Add("Тест2", "Количество 2");
+            //patterns.Add("Тест3", "Количество 1");
 
             patterns.Save();
 
@@ -516,7 +522,12 @@ namespace ProjectX
 
             elements = Element.Distinct(elements);
 
-            List<AvitoAd> avitoAds = AvitoGenerator.Generate(elements, "A0", 40, new List<AvitoAd>());
+            GroupPattern groupPattern = new GroupPattern();
+            groupPattern.Add("A0", 3);
+         //   groupPattern.Add("A1", 2);
+         //   groupPattern.Add("A2", 1);
+
+            List<AvitoAd> avitoAds = AvitoGenerator.Generate(elements, groupPattern, 10, new List<AvitoAd>());
 
             /*
             foreach (var item in avitoAds)

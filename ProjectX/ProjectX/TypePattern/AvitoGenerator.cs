@@ -12,11 +12,11 @@ namespace ProjectX.TypePattern
     public static class AvitoGenerator
     {
 
-        public static List<AvitoAd> Generate(List<Element> elements, string idP,
+        public static List<AvitoAd> Generate(List<Element> elements, GroupPattern groupPattern,
             int count, List<AvitoAd> avitoAds) {
 
             Patterns patterns = new Patterns();
-            Pattern pattern = patterns.GetPattern(idP);
+            Pattern pattern;
 
             count = elements.Count > count ? count : elements.Count;
             int curCount = 0;
@@ -24,15 +24,8 @@ namespace ProjectX.TypePattern
             foreach (var item in elements)
             {
 
-                //Временно
-                if (item.Season == "") {
-                    if (item.Spikes == "Да") {
-                        item.Season = "зимние";
-                    }
-                    else {
-                        item.Season = "летние";
-                    }
-                }
+                pattern = patterns.GetPattern(groupPattern.GetIdPatter());
+
 
                 var el = avitoAds.Find(x => x.IdProduct == item.IdProduct);
                 if (el == null)
@@ -144,9 +137,9 @@ namespace ProjectX.TypePattern
 
         public static string AddGetString(string str) {
             str = str.Replace("<Жирный>", "<strong>").Replace("<Ж>", "<strong>").Replace("</Жирный>", "</strong>").Replace("</Ж>", "</strong>").Replace("<strong>", "<strong>").Replace("</strong>", "</strong>")
-                .Replace("<Курсив>", "<em>").Replace("<К>", "<em>").Replace("</Курсив>", "</em>").Replace("</К>", "</em>").Replace("<K>", "<em>").Replace("</K>", "</em>").Replace("<em>", "<em>").Replace("</em>", "<em>")
+                .Replace("<Курсив>", "<em>").Replace("<К>", "<em>").Replace("</Курсив>", "</em>").Replace("</К>", "</em>").Replace("<K>", "<em>").Replace("</K>", "</em>").Replace("<em>", "<em>").Replace("</em>", "</em>")
                 .Replace("<Маркированный список>", "<ul>").Replace("<MC>", "<ul>").Replace("<ul>", "<ul>").Replace("</Маркированный список>", "</ul>").Replace("</MC>", "</ul>").Replace("</ul>", "</ul>")
-                .Replace("<Нумерованный список>", "<ol>").Replace("<НC>", "<ol>").Replace("<ol>", "<ol>").Replace("</Нумерованный список>", "<ol>").Replace("</НC>", "<ol>").Replace("</ol>", "<ol>")
+                .Replace("<Нумерованный список>", "<ol>").Replace("<НC>", "<ol>").Replace("<ol>", "<ol>").Replace("</Нумерованный список>", "</ol>").Replace("</НC>", "</ol>").Replace("</ol>", "</ol>")
                 .Replace("<Элемемнт списка>", "<li>").Replace("<ЭС>", "<li>").Replace("<li>", "<li>").Replace("</Элемемнт списка>", "</li>").Replace("</ЭС>", "</li>").Replace("</li>", "</li>")
             ;
 
