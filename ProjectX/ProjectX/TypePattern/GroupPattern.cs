@@ -27,6 +27,14 @@ namespace ProjectX.TypePattern
             PatternParams.Add(new PatternParam(id, count));
         }
 
+        public void Delete(string id) {
+
+            var item = PatternParams.Find(x => x.Id == id);
+
+            PatternParams.Remove(item);
+
+        }
+
         public string GetIdPatter() {
 
             if (CurrentCount == PatternParams[CurrentId].Count)

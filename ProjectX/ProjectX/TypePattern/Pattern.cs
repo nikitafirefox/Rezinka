@@ -46,6 +46,12 @@ namespace ProjectX.TypePattern
 
         }
 
+        public Pattern this[string id] {
+            get {
+                return ListPatterns.Find(x => x.Id == id);
+            }
+        }
+
         private void Init()
         {
             XmlDocument xmlDocument = new XmlDocument();
@@ -90,6 +96,17 @@ namespace ProjectX.TypePattern
             Add(head, body, "Новый шаблон");
         }
 
+        public string Add(Pattern pattern) {
+
+            string id = IdGen.NexVal();
+
+            pattern.Id = id;
+
+            ListPatterns.Add(pattern);
+
+            return id;
+        }
+
         public IEnumerator GetEnumerator()
         {
             return ((IEnumerable)ListPatterns).GetEnumerator();
@@ -102,7 +119,10 @@ namespace ProjectX.TypePattern
 
     public class Pattern
     {
-        public string Id { get; private set; }
+
+      
+
+        public string Id { get; set; }
 
         public string Name { get; set;}
 
@@ -124,6 +144,10 @@ namespace ProjectX.TypePattern
             Head = x.SelectSingleNode("head").InnerText;
             Body = x.SelectSingleNode("body").InnerText;
             Name = x.SelectSingleNode("name").InnerText;
+
+        }
+
+        public Pattern() {
 
         }
 

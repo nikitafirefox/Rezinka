@@ -29,6 +29,8 @@ namespace ProjectX.TypePattern
         public List<string> Heights = new List<string>();
         public List<string> Diameters = new List<string>();
         public List<string> Spikes = new List<string>();
+        public List<string> Acomadations = new List<string>();
+        public List<string> Additions = new List<string>();
 
         //
 
@@ -45,7 +47,8 @@ namespace ProjectX.TypePattern
                     && (ProvidersId.Contains(item.ProvaiderId)) && (BrandsId.Contains(item.BrandId)) 
                     && (Seassons.Contains(item.Season)) && (Widths.Contains(item.Width)) 
                     && (Heights.Contains(item.Height)) && (Diameters.Contains(item.Diameter)) 
-                    && (Spikes.Contains(item.Spikes))) {
+                    && (Spikes.Contains(item.Spikes)) && (!string.IsNullOrEmpty(item.Season))
+                    && (Acomadations.Contains(item.Accomadation)) && (Additions.Contains(item.Addition))) {
 
                     res.Add(item);
                 

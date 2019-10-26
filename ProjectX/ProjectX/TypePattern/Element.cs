@@ -17,6 +17,8 @@ namespace ProjectX.TypePattern
         public string IdRow;
 
         public string Price;
+        public string PriceForOne;
+        public string PriceForTwo;
         public string Count;
         public string Addition;
 
@@ -55,6 +57,8 @@ namespace ProjectX.TypePattern
         public string Date;
         public string Time;
 
+        public int TimeFromTo;
+
         public List<string> Images = new List<string>();
 
         public static List<Element> GetElements() {
@@ -79,11 +83,19 @@ namespace ProjectX.TypePattern
                     item.IdProduct.Split('-')[2]
                     );
 
+
+                Provider provider = providers[item.IdPosition.Split('-')[0]];
+                Stock stock = provider[item.IdPosition.Split('-')[1]];
+
+                int timeFromTo = stock.Time.Days + stock.Time.Month * 30 + stock.Time.Weeks * 7;
+
                 Element element = new Element()
                 {
                     Addition = item.Addition,
                     Count = item.Count.ToString(),
                     Price = item.TotalPrice.ToString(),
+                    PriceForOne = (Math.Round((item.PriceProv * (1.0 + 15.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0).ToString(),
+                    PriceForTwo = (Math.Round((item.PriceProv * (1.0 + 10.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0).ToString(),
                     BrandId = item.IdProduct.Split('-')[0],
                     ProvaiderId = item.IdPosition.Split('-')[0],
                     TimeTransit = valuePairsProv["Stock_Time"].ToString(),
@@ -119,7 +131,9 @@ namespace ProjectX.TypePattern
                     Time = time,
 
                     IdProduct = item.IdProduct,
-                    IdRow = item.IdRow
+                    IdRow = item.IdRow,
+
+                    TimeFromTo = timeFromTo
                 
                     
 
@@ -155,14 +169,20 @@ namespace ProjectX.TypePattern
                 }
                 else {
                     if (el.ProvaiderId == item.ProvaiderId) {
-                        if (double.Parse(el.Price) < double.Parse(item.Price))
+
+                        if (double.Parse(el.Price) <= double.Parse(item.Price))
                         {
                             el.Price = item.Price;
-                            el.Count = (int.Parse(item.Count) + int.Parse(el.Count)).ToString();
+                            el.PriceForTwo = item.PriceForTwo;
+                            el.PriceForOne = item.PriceForOne;
+
+                            el.Count = (int.Parse(el.Count) + int.Parse(item.Count)).ToString();
+                            
                         }
 
                         if (new TimeInterval(el.TimeTransit) > new TimeInterval(item.TimeTransit)) {
                             el.TimeTransit = item.TimeTransit;
+                            el.TimeFromTo = item.TimeFromTo;
                         }
                         
                     }
@@ -302,12 +322,20 @@ namespace ProjectX.TypePattern
                 case "idProvider":
                 case "id_Поставщика":
                     return ProvaiderId;
-                
 
 
+                case "Priority":
+                    return Priority.ToString();
 
 
-
+                case "PriceCount":
+                    if (int.Parse(Count) == 1) {
+                        return "one";
+                    }
+                    if (int.Parse(Count) < 4) {
+                        return "two";
+                    }
+                    return "four";
 
 
 

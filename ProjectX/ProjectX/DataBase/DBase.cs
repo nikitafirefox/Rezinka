@@ -21,10 +21,27 @@ namespace ProjectX.DataBase
             return DBRows.GetEnumerator();
         }
 
+        public int MaxCout { get; set; }
+
+        public int CurentCount { get; set; }
+
         private GenId GenId { get; set; }
         public double DefaultMarkup { get; set; }
         private readonly string pathXML;
-        private List<DBRow> DBRows { get; set; }
+        public List<DBRow> DBRows { get; private set; }
+
+        public List<string> GetAddition() {
+            List<string> res = new List<string>();
+
+            foreach (DBRow row in DBRows) {
+
+                res.Add(row.Addition);
+
+            }
+
+            return res.Distinct().ToList();
+        }
+
 
         public DBase()
         {
@@ -54,6 +71,8 @@ namespace ProjectX.DataBase
             {
                 InitBase();
             }
+
+            DBRows.Sort((x, y) => x.NameProduct.CompareTo(y.NameProduct));
         }
 
         private void InitBase()
@@ -248,6 +267,7 @@ namespace ProjectX.DataBase
                 if (defaultOutParametrics.IsTotalPrice) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_TotalPrice, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Count, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsAddition) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Addition, cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Картинки", cellList.NextVal() + "1", shareIndex++);
 
                 sheetData.Append(row);
 
@@ -255,9 +275,15 @@ namespace ProjectX.DataBase
 
                 Dictionary<string, object> valuePairsDictionary = null;
 
+                MaxCout = res.Count();
+                CurentCount = 0;
+
                 uint index = 2;
                 foreach (var item in res)
                 {
+
+                    CurentCount++;
+
                     cellList.Restart();
 
                     row = new Row() { RowIndex = index };
@@ -276,6 +302,15 @@ namespace ProjectX.DataBase
                     {
                         string[] arrStr = item.IdProduct.Split('-');
                         valuePairsDictionary = productOutParametrics.DictionarySrc.GetValuesById(arrStr[0], arrStr[1], arrStr[2]);
+                    }
+
+                    List<string> imgs = productOutParametrics.DictionarySrc.GetImages(item.IdProduct.Split('-')[0],
+                    item.IdProduct.Split('-')[1]).ToList();
+
+                    string im = "";
+
+                    foreach (string s in imgs) {
+                        im += s + "\n";
                     }
 
 
@@ -320,6 +355,8 @@ namespace ProjectX.DataBase
                     if (defaultOutParametrics.IsTotalPrice) CellSave(shareStringPart, row, cell, item.TotalPrice.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, item.Count.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsAddition) CellSave(shareStringPart, row, cell, item.Addition, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, im, cellList.NextVal() + index, shareIndex++);
+
 
                     sheetData.Append(row);
 
@@ -480,6 +517,7 @@ namespace ProjectX.DataBase
                 if (defaultOutParametrics.IsTotalPrice) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_TotalPrice, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Count, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsAddition) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Addition, cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Картинки", cellList.NextVal() + "1", shareIndex++);
 
                 sheetData.Append(row);
 
@@ -487,9 +525,14 @@ namespace ProjectX.DataBase
 
                 Dictionary<string, object> valuePairsDictionary = null;
 
+                MaxCout = res.Count();
+                CurentCount = 0;
+
                 uint index = 2;
                 foreach (var item in res)
                 {
+                    CurentCount++;
+
                     cellList.Restart();
 
                     row = new Row() { RowIndex = index };
@@ -509,6 +552,17 @@ namespace ProjectX.DataBase
                         string[] arrStr = item.IdProduct.Split('-');
                         valuePairsDictionary = productOutParametrics.DictionarySrc.GetValuesById(arrStr[0], arrStr[1], arrStr[2]);
                     }
+
+                        List<string> imgs = productOutParametrics.DictionarySrc.GetImages(item.IdProduct.Split('-')[0],
+                        item.IdProduct.Split('-')[1]).ToList();
+
+                    string im = "";
+
+                    foreach (string s in imgs)
+                    {
+                        im += s + "\n";
+                    }
+
 
                     if (defaultOutParametrics.IsIdProduct) CellSave(shareStringPart, row, cell, item.IdProduct, cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsNameProduct) CellSave(shareStringPart, row, cell, item.NameProduct, cellList.NextVal() + index, shareIndex++);
@@ -549,7 +603,7 @@ namespace ProjectX.DataBase
                     if (defaultOutParametrics.IsTotalPrice) CellSave(shareStringPart, row, cell, item.TotalPrice.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, item.Count.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsAddition) CellSave(shareStringPart, row, cell, item.Addition, cellList.NextVal() + index, shareIndex++);
-
+                    CellSave(shareStringPart, row, cell, im, cellList.NextVal() + index, shareIndex++);
                     sheetData.Append(row);
 
                     index++;
@@ -632,11 +686,12 @@ namespace ProjectX.DataBase
                                 itemRes.CountInMinStock = item.Count;
                                 itemRes.Time = time;
                             }
-                            else if (itemRes.Time == time) {
+                            else if (itemRes.Time == time)
+                            {
                                 itemRes.CountInMinStock += item.Count;
                             }
 
-                            
+
                         }
                         else
                         {
@@ -652,7 +707,7 @@ namespace ProjectX.DataBase
                                 Addition = item.Addition,
                                 Time = time,
                                 CountInMinStock = item.Count
-                                
+
 
                             });
 
@@ -743,6 +798,7 @@ namespace ProjectX.DataBase
                 if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, "остаток с мин. сроком доставки", cellList.NextVal() + "1", shareIndex++);
                 if (providerOutParametrics.IsStockTime) CellSave(shareStringPart, row, cell, providerOutParametrics.Name_StockTime, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsAddition) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Addition, cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Картинки", cellList.NextVal() + "1", shareIndex++);
 
                 sheetData.Append(row);
 
@@ -750,14 +806,19 @@ namespace ProjectX.DataBase
 
                 Dictionary<string, object> valuePairsDictionary = null;
 
+                MaxCout = res.Count();
+                CurentCount = 0;
+
                 uint index = 2;
                 foreach (var item in res)
                 {
                     cellList.Restart();
 
+                    CurentCount++;
+
                     row = new Row() { RowIndex = index };
 
-                    if (providerOutParametrics.IsProviderName || providerOutParametrics.IsProviderPriority|| providerOutParametrics.IsStockTime)
+                    if (providerOutParametrics.IsProviderName || providerOutParametrics.IsProviderPriority || providerOutParametrics.IsStockTime)
                     {
                         valuePairsProvider = providerOutParametrics.ProvidersSrc.GetValuesById(item.IdPosition);
                     }
@@ -772,6 +833,18 @@ namespace ProjectX.DataBase
                         string[] arrStr = item.IdProduct.Split('-');
                         valuePairsDictionary = productOutParametrics.DictionarySrc.GetValuesById(arrStr[0], arrStr[1], arrStr[2]);
                     }
+
+
+                    List<string> imgs = productOutParametrics.DictionarySrc.GetImages(item.IdProduct.Split('-')[0],
+                        item.IdProduct.Split('-')[1]).ToList();
+
+                    string im = "";
+
+                    foreach (string s in imgs)
+                    {
+                        im += s + "\n";
+                    }
+
 
                     if (defaultOutParametrics.IsIdProduct) CellSave(shareStringPart, row, cell, item.IdProduct, cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsNameProduct) CellSave(shareStringPart, row, cell, item.NameProduct, cellList.NextVal() + index, shareIndex++);
@@ -814,6 +887,7 @@ namespace ProjectX.DataBase
                     if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, item.CountInMinStock.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (providerOutParametrics.IsStockTime) CellSave(shareStringPart, row, cell, item.Time.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsAddition) CellSave(shareStringPart, row, cell, item.Addition, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, im, cellList.NextVal() + index, shareIndex++);
 
                     sheetData.Append(row);
 
@@ -861,8 +935,405 @@ namespace ProjectX.DataBase
             SaveDataOnlyUniqueProviderExcell(filepath, idProviders, new ExcelDefaultOutParametrics() { Name_IdPosition = "Id поставщик" }, providerOutParametrics, productOutParametrics);
         }
 
+
+        public void SaveCSVFile(string filepath, string[] idProviders)
+        {
+
+
+
+            List<DBSortedMarking> res = new List<DBSortedMarking>();
+
+            Providers providers = new Providers();
+            Dictionary dictionary = new Dictionary();
+            dictionary.Close();
+
+            List<string> prov = idProviders.ToList();
+            prov.Sort((x, y) => providers.GetPriority(x).CompareTo(providers.GetPriority(y)));
+
+            foreach (var provider in prov)
+            {
+                foreach (var item in DBRows.Where(x => x.IdPosition.Split('-').First() == provider).OrderBy(x => x.IdProduct))
+                {
+
+                    if (res.FindIndex(x => x.IdProduct == item.IdProduct && x.IdPosition != item.IdPosition.Split('-').First() && x.Addition == item.Addition) < 0)
+                    {
+                        TimeInterval time = providers.GetTimeInterval(item.IdPosition.Split('-').First(), item.IdPosition.Split('-').Last());
+
+                        var itemRes = res.Find(x => x.IdProduct == item.IdProduct && x.IdPosition == item.IdPosition.Split('-').First() && x.Addition == item.Addition);
+
+                        if (itemRes != null)
+                        {
+                            itemRes.Count += item.Count;
+                            if (itemRes.TotalPrice < item.TotalPrice)
+                            {
+                                itemRes.TotalPrice = item.TotalPrice;
+                                itemRes.PriceProv = item.PriceProv;
+                            }
+
+                            if (itemRes.Time > time)
+                            {
+                                itemRes.CountInMinStock = item.Count;
+                                itemRes.Time = time;
+                            }
+                            else if (itemRes.Time == time)
+                            {
+                                itemRes.CountInMinStock += item.Count;
+                            }
+
+
+                        }
+                        else
+                        {
+                            res.Add(new DBSortedMarking()
+                            {
+                                IdProduct = item.IdProduct,
+                                IdPosition = item.IdPosition.Split('-').First(),
+                                NameProduct = item.NameProduct,
+                                Markup = item.Markup,
+                                PriceProv = item.PriceProv,
+                                TotalPrice = item.TotalPrice,
+                                Count = item.Count,
+                                Addition = item.Addition,
+                                Time = time,
+                                CountInMinStock = item.Count
+
+
+                            });
+
+                        }
+                    }
+
+                }
+
+
+            }
+
+
+        
+
+
+
+
+            FileStream fs = new FileStream(filepath, FileMode.Create);
+            XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.Unicode)
+            {
+                Formatting = Formatting.Indented
+            };
+            xmlOut.WriteStartDocument();
+            xmlOut.WriteStartElement("data");
+            xmlOut.WriteEndElement();
+            xmlOut.WriteEndDocument();
+            xmlOut.Close();
+            fs.Close();
+
+            XmlDocument xmlDocument = new XmlDocument();
+            xmlDocument.Load(filepath);
+
+
+            XmlElement xroot = xmlDocument.DocumentElement;
+
+
+
+            foreach (var item in res)
+            {
+
+
+
+                Brand brand = dictionary[item.IdProduct.Split('-')[0]];
+                Model model = brand[item.IdProduct.Split('-')[1]];
+                Marking marking = model[item.IdProduct.Split('-')[2]];
+
+
+                XmlElement element = xmlDocument.CreateElement("post");
+
+                XmlElement e = xmlDocument.CreateElement("sku");
+                e.InnerText = item.IdProduct;
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("url");
+                e.InnerText = item.IdProduct.GetHashCode().ToString();
+                element.AppendChild(e);
+
+
+                string name = brand.Name + " " + model.Name + " " + marking.Accomadation + " " + marking.Width + "/"
+                    + marking.Height + "R" + marking.Diameter;
+
+                if (model.Commercial) {
+                    name += "C";
+                }
+
+                name += " " + marking.LoadIndex + marking.SpeedIndex;
+
+                if (marking.ExtraLoad) {
+                    name += " XL";
+                }
+
+                if (marking.RunFlat) {
+                    if (!(name.ToLower().Contains("runflat"))) {
+                        name += " RunFlat";
+                    }
+                }
+
+                if (marking.Spikes) {
+                    if (!(name.ToLower().Contains("шип"))) {
+                        name += " (шип.)";
+                    }
+                }
+
+                e = xmlDocument.CreateElement("title");
+                e.InnerText = name;
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("brand");
+                e.InnerText = brand.Name;
+                element.AppendChild(e);
+
+   
+
+
+                string seasson = model.Season;
+
+                if (seasson == "Зимние") {
+                    if (marking.Spikes) {
+
+                        seasson += " шипованные";
+                    }
+                    else
+                    {
+                        seasson += " нешипованные";
+                    }
+                }
+
+                e = xmlDocument.CreateElement("season");
+                e.InnerText = seasson;
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("commercial");
+                e.InnerText = model.Commercial ? "Легкогрузовая" : "Легковая";
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("description");
+                e.InnerText = brand.Description + " " + model.Description + " Скоро будет описание";
+                element.AppendChild(e);
+
+
+                e = xmlDocument.CreateElement("width");
+                e.InnerText = marking.Width;
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("height");
+                e.InnerText = marking.Height;
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("diameter");
+                e.InnerText = marking.Diameter;
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("loadIndex");
+                e.InnerText = marking.LoadIndex;
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("SpeedIndex");
+                e.InnerText = marking.SpeedIndex;
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("priceOne");
+                e.InnerText = (Math.Round((item.PriceProv * (1.0 + 15.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0).ToString();
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("priceTwo");
+                e.InnerText = ((Math.Round((item.PriceProv * (1.0 + 15.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0) 
+                    - (Math.Round((item.PriceProv * (1.0 + 10.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0)).ToString();
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("priceThree");
+                e.InnerText = ((Math.Round((item.PriceProv * (1.0 + 15.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0)
+                    - (Math.Round((item.PriceProv * (1.0 + 10.0 / 100.0) * 2.0 + item.PriceProv * (1.0 + 15.0 / 100.0)) / 30.0, MidpointRounding.AwayFromZero) * 10.0)).ToString();
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("priceFour");
+                e.InnerText = ((Math.Round((item.PriceProv * (1.0 + 15.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0)
+                    - item.TotalPrice).ToString();
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("count");
+                e.InnerText = item.Count.ToString();
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("shipping");
+                e.InnerText = item.Time.ToString();
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("buttonText");
+                e.InnerText = item.Time.Days == 0 ? "Купить" : "Заказать";
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("image");
+                e.InnerText = model.GetImages().First();
+                element.AppendChild(e);
+
+                xroot.AppendChild(element);
+
+            }
+
+            xmlDocument.Save(filepath);
+
+
+
+        }
+
+
+        public List<RepotingRow> Repotings(string idOld, string idNew)
+        {
+
+            var oldProvider = DBRows.Where(x => x.IdPosition.Split('-').First() == idOld).ToList();
+
+            var newProvider = DBRows.Where(x => x.IdPosition.Split('-').First() == idNew).ToList();
+
+            List<RepotingRow> repotings = new List<RepotingRow>();
+
+
+            foreach (DBRow row in oldProvider)
+            {
+
+
+                DBRow newRow;
+                if ((newRow = newProvider.Find(x => x.IdProduct == row.IdProduct && x.Addition == row.Addition)) != null)
+                {
+
+                    if (newRow.PriceProv != row.PriceProv)
+                    {
+                        string mes = newRow.PriceProv > row.PriceProv ? "Больше" : "Меньше";
+
+                       
+
+                        repotings.Add(new RepotingRow()
+                        {
+                            Id = row.IdProduct,
+                            OldPrice = row.PriceProv,
+                            NewPrice = newRow.PriceProv,
+                            Message = mes
+                        });
+
+
+                        row.PriceProv = newRow.PriceProv;
+
+                        row.TotalPrice = Math.Round((row.PriceProv * (1 + row.Markup / 100)) / 10, MidpointRounding.AwayFromZero) * 10;
+
+                    }
+                }
+            }
+
+            return repotings;
+
+        }
+
+
+        public void SaveReporting(string filepath, string idOld, string idNew)
+        {
+
+            var reporings = Repotings(idOld, idNew);
+
+            CreateExcel(filepath);
+
+            using (SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(filepath, true))
+            {
+                SharedStringTablePart shareStringPart;
+                if (spreadSheet.WorkbookPart.GetPartsOfType<SharedStringTablePart>().Count() > 0)
+                {
+                    shareStringPart = spreadSheet.WorkbookPart.GetPartsOfType<SharedStringTablePart>().First();
+                }
+                else
+                {
+                    shareStringPart = spreadSheet.WorkbookPart.AddNewPart<SharedStringTablePart>();
+                }
+
+                if (shareStringPart.SharedStringTable == null)
+                {
+                    shareStringPart.SharedStringTable = new SharedStringTable();
+                }
+
+                int shareIndex = 0;
+
+                WorkbookPart workbookPart = spreadSheet.WorkbookPart;
+                WorksheetPart worksheet;
+                IEnumerable<Sheet> sheets = workbookPart.Workbook.GetFirstChild<Sheets>().Elements<Sheet>().Where(s => s.Name == "Data");
+                if (sheets.Count() == 0)
+                    throw new ArgumentException("Лист не найден");
+                string relationshipId = sheets.First().Id.Value;
+                worksheet = (WorksheetPart)workbookPart.GetPartById(relationshipId);
+                Worksheet workSheet = worksheet.Worksheet;
+                SheetData sheetData = workSheet.GetFirstChild<SheetData>();
+
+                ExcelCellList cellList = new ExcelCellList();
+
+                Cell cell = null;
+
+                Row row = new Row() { RowIndex = 1 };
+
+                CellSave(shareStringPart, row, cell, "Производитель", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Модель", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Ширина", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Высота", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Диаметр", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Индекс нагрузки", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Индекс скорости", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Шипы", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "RunFlat", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Амологация", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Примечание", cellList.NextVal() + "1", shareIndex++);
+
+                CellSave(shareStringPart, row, cell, "Старая цена", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Новая цена", cellList.NextVal() + "1", shareIndex++);
+
+                CellSave(shareStringPart, row, cell, "Сообщение", cellList.NextVal() + "1", shareIndex++);
+
+                sheetData.Append(row);
+
+                Dictionary dictionary = new Dictionary();
+                dictionary.Close();
+
+                uint index = 2;
+                foreach (var item in reporings) {
+
+                    cellList.Restart();
+
+                    string[] arrStr = item.Id.Split('-');
+
+                    Brand b = dictionary[arrStr[0]];
+                    Model m = b[arrStr[1]];
+                    Marking marking = m[arrStr[2]];
+
+                    row = new Row() { RowIndex = index };
+
+                    CellSave(shareStringPart, row, cell, b.Name, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, m.Name, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, marking.Width, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, marking.Height, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, marking.Diameter, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, marking.LoadIndex, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, marking.SpeedIndex, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, marking.Spikes?"Да":"Нет", cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, marking.RunFlat?"Да":"Нет", cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, marking.Accomadation, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.Additional, cellList.NextVal() + index, shareIndex++);
+
+                    CellSave(shareStringPart, row, cell, item.OldPrice.ToString(), cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.NewPrice.ToString(), cellList.NextVal() + index, shareIndex++);
+
+                    CellSave(shareStringPart, row, cell, item.Message, cellList.NextVal() + index, shareIndex++);
+
+                    sheetData.Append(row);
+
+                    index++;
+                }
+
+            }
+        }
+
     }
     
+
 
     public class DBRow
     {
@@ -873,7 +1344,7 @@ namespace ProjectX.DataBase
 
         public double PriceProv { get; set; }
         public double Markup { get; set; }
-        public double TotalPrice { get; private set; }
+        public double TotalPrice { get;  set; }
         public int Count { get; set; }
         public string Addition { get; set; }
 
@@ -960,6 +1431,7 @@ namespace ProjectX.DataBase
         public TimeInterval Time { get; set; }
     }
 
+   [Serializable]
     public class ExcelDefaultOutParametrics
     {
         public bool IsIdRows { get; set; }
@@ -1034,9 +1506,25 @@ namespace ProjectX.DataBase
         }
     }
 
+    [Serializable]
     public class ExcelProviderOutParametrics
     {
-        public Providers ProvidersSrc { get;  set; }
+
+        public Providers ProvidersSrc
+        {
+            get {
+                return src;
+            }
+
+            set {
+                src = value;
+            }
+
+        }
+
+        [NonSerialized]
+        private Providers src;
+
         public bool IsProviderName { get; set; }
         public bool IsProviderPriority { get; set; }
         public bool IsStockName { get; set; }
@@ -1083,14 +1571,31 @@ namespace ProjectX.DataBase
         }
     }
 
+    [Serializable]
     public class ExcelProductOutParametrics
     {
-        public Dictionary DictionarySrc { get; set; }
+        public Dictionary DictionarySrc
+        {
+            get
+            {
+                return src;
+            }
+
+            set
+            {
+                src = value;
+            }
+
+        }
+
+        [NonSerialized]
+        private Dictionary src;
 
         public bool IsBrandName { get; set; }
         public bool IsBrandCountry { get; set; }
         public bool IsBrandDescription { get; set; }
         public bool IsBrandRunFlatName { get; set; }
+
         public bool IsModelType { get; set; }
         public bool IsModelName { get; set; }
         public bool IsModelSeason { get; set; }
@@ -1098,6 +1603,7 @@ namespace ProjectX.DataBase
         public bool IsModelCommercial { get; set; }
         public bool IsModelWhileLetters { get; set; }
         public bool IsModelMudSnow { get; set; }
+
         public bool IsMarkingWidth { get; set; }
         public bool IsMarkingHeight { get; set; }
         public bool IsMarkingDiameter { get; set; }
@@ -1112,12 +1618,14 @@ namespace ProjectX.DataBase
         public bool IsMarkingFlangeProtection { get; set; }
         public bool IsMarkingAccomadation { get; set; }
         public bool IsMarkingSpikes { get; set; }
+        
 
 
         public string Name_BrandName { get; set; }
         public string Name_BrandCountry { get; set; }
         public string Name_BrandDescription { get; set; }
         public string Name_BrandRunFlatName { get; set; }
+
         public string Name_ModelType { get; set; }
         public string Name_ModelName { get; set; }
         public string Name_ModelSeason { get; set; }
@@ -1125,6 +1633,7 @@ namespace ProjectX.DataBase
         public string Name_ModelCommercial { get; set; }
         public string Name_ModelWhileLetters { get; set; }
         public string Name_ModelMudSnow { get; set; }
+
         public string Name_MarkingWidth { get; set; }
         public string Name_MarkingHeight { get; set; }
         public string Name_MarkingDiameter { get; set; }
@@ -1210,9 +1719,9 @@ namespace ProjectX.DataBase
         private void SetNames()
         {
             SetNames("Название производителя", "Страна производителя", "Описание производителя", "Название технологии RunFlat",
-                "Тип модели", "Название модели", "Сезонность", "Описание модели", "Commercial", "БУКВЫ", "M+S", "Ширина", "Высота",
+                "Тип модели", "Название модели", "Сезонность", "Описание модели", "Commercial", "Рельефные буквы", "M+S", "Ширина", "Высота",
                 "Диаметр", "Индекс скорости", "Индекс нагрузки", "Страна производства", "TractionIndex", "TemperatureIndex", "TreadwearIndex",
-                "ExtraLoad", "Технология RunFlat", "FlangeProtection","Аккомадация","Шиповка");
+                "ExtraLoad", "Технология RunFlat", "FlangeProtection", "Аккомадация", "Шиповка");
         }
 
         public void SetNames(string name_BrandName, string name_BrandCountry, string name_BrandDescription, string name_BrandRunFlatName, string name_ModelType, string name_ModelName,
@@ -1248,4 +1757,20 @@ namespace ProjectX.DataBase
             Name_MarkingSpikes = name_MarkingSpikes;
         }
     }
+
+
+    public class RepotingRow {
+
+        public string Id { get; set; }
+
+        public double OldPrice { get; set; }
+
+        public double NewPrice { get; set; }
+
+        public string Additional { get; set; }
+
+        public string Message { get; set; }
+
+    }
+    
 }

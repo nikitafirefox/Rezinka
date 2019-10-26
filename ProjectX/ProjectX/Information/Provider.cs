@@ -1,5 +1,6 @@
 ﻿using ProjectX.Dict;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,8 +9,23 @@ using System.Xml;
 
 namespace ProjectX.Information
 {
-    public class Providers
+
+   
+    public class Providers: IEnumerable
     {
+
+        public Provider this[int i] {
+            get {
+                return ProvidersList[i];
+            }
+        }
+
+        public Provider this[string id] {
+            get {
+                return ProvidersList.Find(x => x.Id == id);
+            }
+        }
+
         private GenId GenId { get; set; }
         private readonly string pathXML;
 
@@ -61,6 +77,8 @@ namespace ProjectX.Information
             {
                 ProvidersList.Add(new Provider(x));
             }
+
+            ProvidersList.Sort((x1, x2) => x1.Name.CompareTo(x2.Name));
         }
 
         public Dictionary<string, object> GetValuesById(string idProv, string idStock)
@@ -161,10 +179,27 @@ namespace ProjectX.Information
         public List<string> GetId() {
             return ProvidersList.Select(x => x.Id).ToList();
         }
+
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)ProvidersList).GetEnumerator();
+        }
     }
 
-    public class Provider
+    public class Provider: IEnumerable
     {
+        public Stock this[int i] {
+            get {
+                return Stocks[i];
+            }
+        }
+
+        public Stock this[string id] {
+            get {
+                return Stocks.Find(x => x.Id == id);
+            }
+        }
+
         private GenId GenId { set; get; }
         public string Id { get; private set; }
         public string Name { get; set; }
@@ -198,7 +233,17 @@ namespace ProjectX.Information
             {
                 Stocks.Add(new Stock(xNode));
             }
+
+            Stocks.Sort((x1, x2) => x1.Name.CompareTo(x2.Name));
         }
+
+        public string AddStock(string name, TimeInterval time)
+        {
+            string id = GenId.NexVal();
+            Stocks.Add(new Stock(id, name, time));
+            return id;
+        }
+
 
         public string AddStock(string name, string time)
         {
@@ -263,6 +308,11 @@ namespace ProjectX.Information
         public TimeInterval GetTimeInterval(string id) {
             return Stocks.Where(x => x.Id == id).First().Time;
         }
+
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)Stocks).GetEnumerator();
+        }
     }
 
     public class Stock
@@ -270,6 +320,12 @@ namespace ProjectX.Information
         public string Name { get; set; }
         public string Id { get; private set; }
         public TimeInterval Time { get; set; }
+
+        public Stock(string id, string name, TimeInterval time) {
+            Name = name;
+            Id = id;
+            Time = time;
+        }
 
         public Stock(string id, string name, string time)
         {

@@ -1,12 +1,19 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace ProjectX.Dict
 {
-    public class Model
+    public class Model:IEnumerable
     {
+        public Marking this[string id] {
+            get {
+                return Markings.Find(x => x.Id == id);
+            }
+        }
+
         public string Id { get; private set; }
         public string Type { get; set; }
 
@@ -18,14 +25,14 @@ namespace ProjectX.Dict
         public bool MudSnow { get; set; }
 
         private GenId IdGen { get; set; }
-        private HashSet<string> Variations { get; set; }
+        private List<string> Variations { get; set; }
         private List<Marking> Markings { get; set; }
-        private HashSet<string> Images { get; set; }
+        private List<string> Images { get; set; }
 
         public Model(XmlNode x)
         {
-            Images = new HashSet<string>();
-            Variations = new HashSet<string>();
+            Images = new List<string>();
+            Variations = new List<string>();
             Markings = new List<Marking>();
 
             Id = x.Attributes.GetNamedItem("id").Value;
@@ -59,14 +66,17 @@ namespace ProjectX.Dict
             {
                 Markings.Add(new Marking(xNode));
             }
+
+            Markings.Sort((x1, x2) => x1.Width.CompareTo(x2.Width));
+
         }
 
         public Model(string id, string type, string name, string season, string description, bool commercial,
             string whileLetters, bool mudSnow)
         {
-            Images = new HashSet<string>();
+            Images = new List<string>();
             IdGen = new GenId('A', -1, 1);
-            Variations = new HashSet<string>();
+            Variations = new List<string>();
             Markings = new List<Marking>();
 
             Id = id;
@@ -197,11 +207,51 @@ namespace ProjectX.Dict
 
         public bool IsMatched(string parsingBufer, bool wordSearching, out string variation)
         {
+
+            Variations.Sort((x, y) => y.Length.CompareTo(x.Length));
             variation = "";
             bool b = false;
             foreach (var item in Variations)
             {
+               
+                
+
                 string regexStr = wordSearching ? "\\b" + Regex.Escape(item) + "\\b" : Regex.Escape(item);
+
+                
+                
+                if (item.Contains(@"\") || item.Contains("+") || item.Contains("*") || item.Contains("?") 
+                    || item.Contains("|") || item.Contains(".") || item.Contains("$") || item.Contains("{") || item.Contains("[") ||
+                    item.Contains("(") || item.Contains(")") || item.Contains("#") || item.Contains("@")) {
+
+                    regexStr = Regex.Escape(item);
+
+
+
+                    if (wordSearching) {
+
+                        char first = item[0];
+                        char last = item[item.Length - 1];
+
+
+                        if (first != '\\'&& first != '+'  && first != '*' && first != '?'
+                            && first != '|' && first != '.' && first != '$' && first != '{' && first != '[' &&
+                            first != '(' && first != ')' && first != '#' && first != '@') {
+                            regexStr = "\\b" + regexStr;
+                        }
+
+                        if (last != '\\' && last != '+' && last != '*' && last != '?'
+                            && last != '|' && last != '.' && last != '$' && last != '{' && last != '[' &&
+                            last != '(' && last != ')' && last != '#' && last != '@')
+                        {
+                            regexStr = regexStr + "\\b";
+                        }
+
+                    }
+
+                }
+                
+
                 if (Regex.IsMatch(parsingBufer, regexStr, RegexOptions.IgnoreCase))
                 {
                     b = true;
@@ -311,6 +361,32 @@ namespace ProjectX.Dict
             {
                 res.Add(item.Diameter);
             }
+        }
+
+        public void GetAccomadation(List<string> res) {
+            foreach (Marking item in Markings)
+            {
+                res.Add(item.Accomadation);
+            }
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)Markings).GetEnumerator();
+        }
+
+        public IEnumerable<string> GetVariations() {
+            return Variations;
+        }
+
+        public void ChangeStringValue(string sOld, string sNew) {
+            DeleteStringValue(sOld);
+            AddStringValue(sNew);
+        }
+
+        public void ChangeImage(string iOld, string iNew) {
+            DeleteImage(iOld);
+            AddImage(iNew);
         }
     }
 }

@@ -8,6 +8,10 @@ namespace ProjectX.ExcelParsing
     {
         public string ExcelRowIndex { get; set; }
 
+        public string FileName { get; set; }
+
+        public string SheetName { get; set; }
+
         public string IdProvider { get; set; }
 
         public string ParsingBufer { get; private set; }
@@ -56,5 +60,15 @@ namespace ProjectX.ExcelParsing
         }
 
         public override string ToString() => Id + '\t' + Count;
+    }
+
+    public class WarningParsingRow {
+   
+        public string FileName { get; set; }
+        public string SheetName { get; set; }
+        public string RowIndex { get; set; }
+        public string CellIndex { get; set; }
+        public string Message { get; set; }
+
     }
 }

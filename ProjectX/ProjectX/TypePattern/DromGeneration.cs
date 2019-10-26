@@ -1,4 +1,8 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using ProjectX.ExcelParsing;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,11 +13,10 @@ using System.Xml;
 
 namespace ProjectX.TypePattern
 {
-    public static class AvtoruGenarator
+   public class DromGeneration
     {
-
-        public static List<AvtoruAd> Generate(List<Element> elements, GroupPattern groupPattern,
-           int count, List<AvtoruAd> avtoruAds)
+        public static List<DromAd> Generate(List<Element> elements, GroupPattern groupPattern,
+           int count, List<DromAd> dromAds)
         {
 
             Patterns patterns = new Patterns();
@@ -27,6 +30,14 @@ namespace ProjectX.TypePattern
 
                 pattern = patterns.GetPattern(groupPattern.GetIdPatter());
 
+                string name = item.BrandName + " " + item.ModelName + " " + item.Accomadation;
+
+                if (item.RunFlat == "Да") {
+                    if (!(name.ToLower().Contains("runflat"))) {
+                        name += " RunFlat";
+                    }
+                }
+
                 string price = item.Price;
 
                 if (int.Parse(item.Count) == 1)
@@ -39,10 +50,10 @@ namespace ProjectX.TypePattern
                 }
 
 
-                var el = avtoruAds.Find(x => x.IdProduct == item.IdProduct);
+                var el = dromAds.Find(x => x.IdProduct == item.IdProduct);
                 if (el == null)
                 {
-                    avtoruAds.Add(new AvtoruAd()
+                    dromAds.Add(new DromAd()
                     {
                         IdProduct = item.IdProduct,
                         Diametr = item.Diameter,
@@ -61,7 +72,10 @@ namespace ProjectX.TypePattern
                         Time = item.TimeFromTo,
                         LoadIndex = item.LoadIndex,
                         SpeedIndex = item.SpeedIndex,
-                        Count = item.Count
+                        Count = item.Count,
+                        Model = item.ModelName,
+                        Commertial = item.Commercial,
+                        Name = name
 
                     });
 
@@ -69,9 +83,10 @@ namespace ProjectX.TypePattern
                 }
                 else if (el.Priority > item.Priority)
                 {
-                    avtoruAds.Remove(el);
 
-                    avtoruAds.Add(new AvtoruAd()
+                    dromAds.Remove(el);
+
+                    dromAds.Add(new DromAd()
                     {
                         IdProduct = item.IdProduct,
                         Diametr = item.Diameter,
@@ -90,7 +105,10 @@ namespace ProjectX.TypePattern
                         Time = item.TimeFromTo,
                         LoadIndex = item.LoadIndex,
                         SpeedIndex = item.SpeedIndex,
-                        Count = item.Count
+                        Count = item.Count,
+                        Model = item.ModelName,
+                        Commertial = item.Commercial,
+                        Name = name
 
 
                     });
@@ -103,7 +121,7 @@ namespace ProjectX.TypePattern
                 }
             }
 
-            return avtoruAds;
+            return dromAds;
         }
 
 
@@ -160,7 +178,7 @@ namespace ProjectX.TypePattern
                 .Replace("<Date>", element.Date).Replace("<Дата>", element.Date)
                 .Replace("<Diameter>", element.Diameter).Replace("<D>", element.Diameter).Replace("<d>", element.Diameter).Replace("<Диаметр>", element.Diameter).Replace("<Д>", element.Diameter).Replace("<д>", element.Diameter)
                 .Replace("<ExtraLoad>", element.ExtraLoad.Replace("Да", "XL").Replace("Нет", "")).Replace("<XL>", element.ExtraLoad.Replace("Да", "XL").Replace("Нет", ""))
-                .Replace("<xl>", element.ExtraLoad.Replace("Да", "xl").Replace("Нет", "")).Replace("<Повышенная_нагрузка>", element.ExtraLoad.Replace("Да", "xl").Replace("Нет", ""))
+                .Replace("<xl>", element.ExtraLoad.Replace("Да", "xl").Replace("Нет", "")).Replace("<Повышенная_нагрузка>", element.ExtraLoad.Replace("Да", "XL").Replace("Нет", ""))
                 .Replace("<FlangeProtection>", element.FlangeProtection).Replace("<FP>", element.FlangeProtection).Replace("<Защита борта>", element.FlangeProtection)
                 .Replace("<Height>", element.Height).Replace("<H>", element.Height).Replace("<h>", element.Height).Replace("<Высота>", element.Height).Replace("<В>", element.Height).Replace("<в>", element.Height)
                 .Replace("<LoadIndex>", element.LoadIndex).Replace("<LI>", element.LoadIndex).Replace("<Индекс_нагрузки>", element.LoadIndex)
@@ -205,9 +223,9 @@ namespace ProjectX.TypePattern
                 .Replace("<Нумерованный список>", "").Replace("<НC>", "").Replace("<ol>", "").Replace("</Нумерованный список>", "").Replace("</НC>", "").Replace("</ol>", "")
                 .Replace("<Элемемнт списка>", "").Replace("<ЭС>", "").Replace("<li>", "").Replace("</Элемемнт списка>", "").Replace("</ЭС>", "").Replace("</li>", "")
                 .Replace("<p>", "").Replace("</p>", "").Replace("<br>", "");
-                ;
+            ;
 
-            
+
 
             return str;
 
@@ -279,185 +297,215 @@ namespace ProjectX.TypePattern
             return str;
         }
 
-        public static void ToXML(string path, List<AvtoruAd> avtoruAds)
+        private static void CreateExcel(string filepath)
+        {
+            SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.
+                Create(filepath, SpreadsheetDocumentType.Workbook);
+
+            WorkbookPart workbookpart = spreadsheetDocument.AddWorkbookPart();
+            workbookpart.Workbook = new Workbook();
+
+            WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+            SheetData sheetData;
+            worksheetPart.Worksheet = new Worksheet(sheetData = new SheetData());
+
+            Sheets sheets = spreadsheetDocument.WorkbookPart.Workbook.
+                AppendChild(new Sheets());
+
+            Sheet sheet = new Sheet()
+            {
+                Id = spreadsheetDocument.WorkbookPart.
+                GetIdOfPart(worksheetPart),
+                SheetId = 1,
+                Name = "Лист1"
+            };
+            sheets.Append(sheet);
+
+            workbookpart.Workbook.Save();
+
+            spreadsheetDocument.Close();
+        }
+
+        private static void CellSave(SharedStringTablePart shareStringPart, Row row, Cell cell, string value, string cellReference, int index)
+        {
+            shareStringPart.SharedStringTable.AppendChild(
+                         new SharedStringItem(new DocumentFormat.OpenXml.Spreadsheet.Text(value)));
+            cell = new Cell() { CellReference = cellReference };
+            cell.CellValue = new CellValue(index.ToString());
+            cell.DataType = new EnumValue<CellValues>(CellValues.SharedString);
+            row.AppendChild(cell);
+        }
+
+        private static void CellSave(SharedStringTablePart shareStringPart, Row row, Cell cell, string value, string cellReference)
+        {
+            CellSave(shareStringPart, row, cell, value, cellReference, shareStringPart.SharedStringTable.Count());
+        }
+
+
+        public static void ToXLSX(string path, List<DromAd> dromAds)
         {
 
-            FileStream fs = new FileStream(path, FileMode.Create);
-            XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.Unicode)
+            CreateExcel(path);
+
+            using (SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(path, true))
             {
-                Formatting = Formatting.Indented
-            };
-           
-
-            xmlOut.WriteStartElement("parts");
-            xmlOut.Close();
-            fs.Close();
-
-            XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.Load(path);
-
-            XmlDeclaration xmlDeclaration = xmlDocument.CreateXmlDeclaration("1.0", "utf-8", null);
-
-            XmlElement xroot = xmlDocument.DocumentElement;
-
-            xmlDocument.InsertBefore(xmlDeclaration, xroot);
-
-            foreach (var item in avtoruAds)
-            {
-                XmlElement element = xmlDocument.CreateElement("part");
-
-                XmlElement e = xmlDocument.CreateElement("id");
-                var s = item.Addition == "" ? "" : item.Addition.GetHashCode().ToString();
-                e.InnerText = item.IdProduct.GetHashCode().ToString() + s;
-                element.AppendChild(e);
-
-                e = xmlDocument.CreateElement("title");
-                e.InnerText = item.Head;
-                element.AppendChild(e);
-
-                e = xmlDocument.CreateElement("stores");
-                element.AppendChild(e);
-
-                XmlNode store = xmlDocument.CreateElement("store");
-                store.InnerText = "strore_1";
-                e.AppendChild(store);
-
-
-                e = xmlDocument.CreateElement("manufacturer");
-                e.InnerText = item.Brand;
-                element.AppendChild(e);
-
-                e = xmlDocument.CreateElement("description");
-                e.InnerText = item.Body;
-                element.AppendChild(e);
-
-                e = xmlDocument.CreateElement("is_new");
-                e.InnerText = "да";
-                element.AppendChild(e);
-
-                e = xmlDocument.CreateElement("price");
-                e.InnerText = item.Price;
-                element.AppendChild(e);
-
-
-                XmlNode availability = xmlDocument.CreateElement("availability");
-                element.AppendChild(availability);
-                if (item.Time == 0)
+                SharedStringTablePart shareStringPart;
+                if (spreadSheet.WorkbookPart.GetPartsOfType<SharedStringTablePart>().Count() > 0)
                 {
-                    XmlNode isAvailable = xmlDocument.CreateElement("isAvailable");
-                    isAvailable.InnerText = "да";
-                    availability.AppendChild(isAvailable);
+                    shareStringPart = spreadSheet.WorkbookPart.GetPartsOfType<SharedStringTablePart>().First();
                 }
                 else
                 {
-                    XmlNode isAvailable = xmlDocument.CreateElement("isAvailable");
-                    isAvailable.InnerText = "нет";
-                    availability.AppendChild(isAvailable);
-
-                    XmlNode daysFrom = xmlDocument.CreateElement("daysFrom");
-                    daysFrom.InnerText = "1";
-                    availability.AppendChild(daysFrom);
-
-                    XmlNode daysTo = xmlDocument.CreateElement("daysTo");
-                    daysTo.InnerText = item.Time.ToString();
-                    availability.AppendChild(daysTo);
+                    shareStringPart = spreadSheet.WorkbookPart.AddNewPart<SharedStringTablePart>();
                 }
 
-                XmlNode propeties = xmlDocument.CreateElement("properties");
-                element.AppendChild(propeties);
-
-                XmlNode property = xmlDocument.CreateElement("property");
-                XmlAttribute atr = xmlDocument.CreateAttribute("name");
-                atr.Value = "width";
-                property.Attributes.Append(atr);
-                property.InnerText = item.Width;
-                propeties.AppendChild(property);
-
-                property = xmlDocument.CreateElement("property");
-                atr = xmlDocument.CreateAttribute("name");
-                atr.Value = "height";
-                property.Attributes.Append(atr);
-                property.InnerText = item.Height;
-                propeties.AppendChild(property);
-
-                property = xmlDocument.CreateElement("property");
-                atr = xmlDocument.CreateAttribute("name");
-                atr.Value = "diameter";
-                property.Attributes.Append(atr);
-                property.InnerText = item.Diametr;
-                propeties.AppendChild(property);
-
-                property = xmlDocument.CreateElement("property");
-                atr = xmlDocument.CreateAttribute("name");
-                atr.Value = "load_index";
-                property.Attributes.Append(atr);
-                property.InnerText = item.LoadIndex;
-                propeties.AppendChild(property);
-
-                property = xmlDocument.CreateElement("property");
-                atr = xmlDocument.CreateAttribute("name");
-                atr.Value = "speed_index";
-                property.Attributes.Append(atr);
-                property.InnerText = item.SpeedIndex;
-                propeties.AppendChild(property);
-
-
-                XmlNode images = xmlDocument.CreateElement("images");
-                element.AppendChild(images);
-
-                XmlNode image;
-                foreach (string i in item.Images)
+                if (shareStringPart.SharedStringTable == null)
                 {
-                    image = xmlDocument.CreateElement("image");
-                    image.InnerText = i;
-                    images.AppendChild(image);
+                    shareStringPart.SharedStringTable = new SharedStringTable();
                 }
 
-                XmlNode count = xmlDocument.CreateElement("count");
+                int shareIndex = 0;
 
-                string buf = "";
+                WorkbookPart workbookPart = spreadSheet.WorkbookPart;
+                WorksheetPart worksheet;
+                IEnumerable<Sheet> sheets = workbookPart.Workbook.GetFirstChild<Sheets>().Elements<Sheet>().Where(s => s.Name == "Лист1");
+                if (sheets.Count() == 0)
+                    throw new ArgumentException("Лист не найден");
+                string relationshipId = sheets.First().Id.Value;
+                worksheet = (WorksheetPart)workbookPart.GetPartById(relationshipId);
+                Worksheet workSheet = worksheet.Worksheet;
+                SheetData sheetData = workSheet.GetFirstChild<SheetData>();
 
-                if (Convert.ToInt32(item.Count) < 4)
+                ExcelCellList cellList = new ExcelCellList();
+
+                Cell cell = null;
+
+                Row row = new Row() { RowIndex = 1 };
+
+                CellSave(shareStringPart, row, cell, "Артикул", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Товар", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Наименование", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Индекс нагрузки", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Индекс скорости", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Маркировка", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Сезонность", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Шиповка", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Тип шины", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Тип диска", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Остаток", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Продажа", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Описание", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Цена", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Состояние", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Наличие", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Срок доставки", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Картинка", cellList.NextVal() + "1", shareIndex++);
+
+                sheetData.Append(row);
+
+
+                uint index = 2;
+                foreach (var item in dromAds)
                 {
-                    buf = item.Count;
-                }
-                else if (Convert.ToInt32(item.Count) < 6)
-                {
-                    buf = "4";
-                }
-                else if (Convert.ToInt32(item.Count) < 8)
-                {
-                    buf = "6";
-                }
-                else {
-                    buf = "8";
-                }
+
+                    string seasson = "";
+                    string spikes = "";
+                    string type = item.Commertial == "Легкогрузовая" ? "": "Обычная";
+
+                    string buf = "";
+
+                    if (Convert.ToInt32(item.Count) < 4)
+                    {
+                        buf = item.Count;
+                    }
+                    else if (Convert.ToInt32(item.Count) < 6)
+                    {
+                        buf = "4";
+                    }
+                    else if (Convert.ToInt32(item.Count) < 8)
+                    {
+                        buf = "6";
+                    }
+                    else
+                    {
+                        buf = "8";
+                    }
 
 
-                    count.InnerText = buf;
-                element.AppendChild(count);
 
-                xroot.AppendChild(element);
+                    if (item.Seasson == "Летние")
+                    {
+                        seasson = "Летняя";
+                    }
+                    else if (item.Seasson == "Зимние")
+                    {
+                        seasson = "Зимняя";
+                        if (item.Spikes == "Да") {
+                            spikes = "шипованная";
+                        }
+                    }
+                    else if (item.Seasson == "Всесезонные")
+                    {
+                        seasson = "Всесезонная";
+                    }
+                    else {
+                        continue;
+                    }
+
+                    cellList.Restart();
+
+
+                    row = new Row() { RowIndex = index };
+
+                    string image = "";
+
+                    if (item.Images.Count > 0) {
+                        image = item.Images.First();
+                    }
+
+                    var s = item.Addition == "" ? "" : item.Addition.GetHashCode().ToString();
+
+                    
+
+                    CellSave(shareStringPart, row, cell, item.IdProduct.GetHashCode().ToString() + s, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, "Шина", cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.Name, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.LoadIndex, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.SpeedIndex, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.Width+"/"+item.Height + " R"+item.Diametr, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, seasson, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, spikes, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, type, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, "", cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, buf, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, "шт", cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.Body, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.Price, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, "новая", cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.Time == 0 ? "В наличии" : "Под заказ", cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.Time == 0? "": item.Time.ToString(), cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, image, cellList.NextVal() + index, shareIndex++);
+
+                    sheetData.Append(row);
+
+                    index++;
+                }
 
             }
 
-
-
-
-            xmlDocument.Save(path);
-
-
         }
-
     }
 
-    public class AvtoruAd
+
+    public class DromAd
     {
 
         public string IdProduct;
         public string IdProvider;
         public int Priority;
         public string Addition;
+        public string Commertial;
+        public string Name;
 
         public string Width;
         public string Height;
@@ -470,6 +518,7 @@ namespace ProjectX.TypePattern
         public string Count;
 
         public string Brand;
+        public string Model;
 
         public List<string> Images;
 
@@ -478,4 +527,5 @@ namespace ProjectX.TypePattern
 
         public int Time;
     }
+
 }

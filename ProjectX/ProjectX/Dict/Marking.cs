@@ -7,9 +7,9 @@ namespace ProjectX.Dict
     public class Marking
     {
         public string Id { get; private set; }
-        public string Width { get; private set; }
-        public string Height { get; private set; }
-        public string Diameter { get; private set; }
+        public string Width { get;  set; }
+        public string Height { get;  set; }
+        public string Diameter { get;  set; }
         public string SpeedIndex { get; set; }
         public string LoadIndex { get; set; }
         public string Country { get; set; }

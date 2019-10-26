@@ -26,6 +26,15 @@ namespace ProjectX.TypePattern
 
                 pattern = patterns.GetPattern(groupPattern.GetIdPatter());
 
+                string price = item.Price;
+
+                if (int.Parse(item.Count) == 1)
+                {
+                    price = item.PriceForOne;
+                }
+                else if (int.Parse(item.Count) < 4) {
+                    price = item.PriceForTwo;
+                }
 
                 var el = avitoAds.Find(x => x.IdProduct == item.IdProduct);
                 if (el == null)
@@ -42,16 +51,18 @@ namespace ProjectX.TypePattern
                         Head = GetLogicString(GetString(pattern.Head, item), item),
                         Body = GetLogicString(AddGetString(GetString(pattern.Body, item)), item),
                         Addition = item.Addition,
-                        Price = item.Price,
-                        Images = item.Images
+                        Price = price,
+                        Images = item.Images,
+         
 
 
                     });
 
                     curCount++;
                 }
-                else if (el.Priority < item.Priority) {
+                else if (el.Priority > item.Priority) {
 
+                    avitoAds.Remove(el);
 
                     avitoAds.Add(new AvitoAd()
                     {
@@ -65,9 +76,10 @@ namespace ProjectX.TypePattern
                         Head = GetLogicString(GetString(pattern.Head, item), item),
                         Body = GetLogicString(AddGetString(GetString(pattern.Body, item)), item),
                         Addition = item.Addition,
-                        Price = item.Price,
-                        Images = item.Images
-                        
+                        Price = price,
+                        Images = item.Images,
+         
+
 
 
                     });
@@ -84,52 +96,88 @@ namespace ProjectX.TypePattern
 
         public static string GetString(string str, Element element) {
 
-            str = str.Replace("<BrandCountry>", element.BrandCountry).Replace("<BCountry>", element.BrandCountry);
-            str = str.Replace("<ModelDescription>", element.ModelDescription).Replace("<MDesc>", element.ModelDescription);
+            str = str.Replace("<BrandDescription>", element.BrandDescription).Replace("<BDesc>", element.BrandDescription)
+                .Replace("<Описание_производителя>", element.BrandDescription);
+            str = str.Replace("<ModelDescription>", element.ModelDescription).Replace("<MDesc>", element.ModelDescription)
+                .Replace("<Описание_модели>", element.ModelDescription);
 
-            if (element.Season == "")
+            if (string.IsNullOrEmpty(element.Season))
             {
-                str = str.Replace("<Low_Season>", "").Replace("<Up_Season>", "");
+                str = str.Replace("<Season>", "").Replace("<LowSeason>", "").Replace("<UpSeason>", "")
+                .Replace("<SeasonWihtSpikes>", "")
+                .Replace("<LowSeasonWithSpikes>", "")
+                .Replace("<UpSeasonWithSpikes>", "")
+                .Replace("<Сезонность>", "").Replace("<Сезонность(мал.)>", "").Replace("<Сезоность(Бол.)>", "")
+                .Replace("<Сезонность_с_шиповкой>", "")
+                .Replace("<Сезонность_с_шиповкой(мал)>", "")
+                .Replace("<Сезонность_с_шиповкой(Бол)>", "");
+            }
+            else if (element.Season != "") {
+                str = str.Replace("<Season>", element.Season).Replace("<LowSeason>", element.Season.ToLower()).Replace("<UpSeason>", element.Season.First().ToString().ToUpper() + element.Season.Remove(0, 1))
+                    .Replace("<Сезонность>", element.Season).Replace("<Сезонность(мал.)>", element.Season.ToLower()).Replace("<Сезоность(Бол.)>", element.Season.First().ToString().ToUpper() + element.Season.Remove(0, 1));
             }
 
-            str = str.Replace("<Accomadation>", element.Accomadation).Replace("<Ac>", element.Accomadation)
-                .Replace("<Addition>", element.Addition).Replace("<Add>", element.Addition)
-                .Replace("<BrandDescription>", element.BrandDescription).Replace("<BDesc>", element.BrandDescription)
-                .Replace("<BrandName>", element.BrandName).Replace("<BName>", element.BrandName)
-                .Replace("<Commercial>", "C").Replace("<C>", "C")
-                .Replace("<Count>", element.Count).Replace("<Ост>", element.Count)
-                .Replace("<Date>", element.Date)
-                .Replace("<Diameter>", element.Diameter).Replace("<D>", element.Diameter).Replace("<d>", element.Diameter)
-                .Replace("<ExtraLoad>", "XL").Replace("<XL>", "XL").Replace("<xl>", "xl")
-                .Replace("<FlangeProtection>", element.FlangeProtection).Replace("<FP>", element.FlangeProtection)
-                .Replace("<Height>", element.Height).Replace("<H>", element.Height).Replace("<h>", element.Height)
-                .Replace("<LoadIndex>", element.LoadIndex).Replace("<LI>", element.LoadIndex)
-                .Replace("<MarkingCountry>", element.MarkingCountry).Replace("<MCountry>", element.MarkingCountry)
-                .Replace("<ModelName>", element.ModelName).Replace("<MName>", element.ModelName)
-                .Replace("<MudSnow>", "M+S").Replace("<M+S>", "M+S")
-                .Replace("<Price>", element.Price).Replace("<$>", element.Price)
-                .Replace("<RunFlat>", element.RunFlat).Replace("<RF>", element.RunFlatName)
-                .Replace("<RunFlatName>", element.RunFlatName)
-                .Replace("<Season>", element.Season).Replace("<Low_Season>", element.Season.ToLower()).Replace("<Up_Season>", element.Season.First().ToString().ToUpper() + element.Season.Remove(0, 1))
-                .Replace("<SpeedIndex>", element.SpeedIndex).Replace("<SI>", element.SpeedIndex)
+            string com = element.Commercial == "Да" ? "C" : "";
 
+            string seasWithSpikes = element.Season;
+
+            string runFlat = element.ModelName.ToLower().Contains("runflat")? "" : "RunFlat";
+
+            if (seasWithSpikes == "Зимние") {
+                if (element.Spikes == "Да")
+                {
+                    seasWithSpikes = "Зимние шипованные";
+                }
+                else {
+                    seasWithSpikes = "Зимние нешипованные";
+                }
+            }
+
+            
+
+                   
+
+            str = str.Replace("<Accomadation>", element.Accomadation).Replace("<Ac>", element.Accomadation).Replace("<Амологация>", element.Accomadation)
+                .Replace("<Addition>", element.Addition).Replace("<Add>", element.Addition).Replace("<Примичание>", element.Addition)
+                .Replace("<BrandCountry>", element.BrandCountry).Replace("<BCountry>", element.BrandCountry).Replace("<Страна_производителя>", element.BrandCountry)
+                .Replace("<BrandName>", element.BrandName).Replace("<BName>", element.BrandName).Replace("<Производитель>", element.BrandName)
+                .Replace("<Commercial>", com).Replace("<C>", com).Replace("<Тип_шины(C)>", com)
+                .Replace("<Count>", element.Count).Replace("<Ост>", element.Count).Replace("<Остаток>", element.Count)
+                .Replace("<Date>", element.Date).Replace("<Дата>", element.Date)
+                .Replace("<Diameter>", element.Diameter).Replace("<D>", element.Diameter).Replace("<d>", element.Diameter).Replace("<Диаметр>", element.Diameter).Replace("<Д>", element.Diameter).Replace("<д>", element.Diameter)
+                .Replace("<ExtraLoad>", element.ExtraLoad.Replace("Да", "XL").Replace("Нет", "")).Replace("<XL>", element.ExtraLoad.Replace("Да","XL").Replace("Нет",""))
+                .Replace("<xl>", element.ExtraLoad.Replace("Да", "xl").Replace("Нет", "")).Replace("<Повышенная_нагрузка>", element.ExtraLoad.Replace("Да", "xl").Replace("Нет", ""))
+                .Replace("<FlangeProtection>", element.FlangeProtection).Replace("<FP>", element.FlangeProtection).Replace("<Защита борта>", element.FlangeProtection)
+                .Replace("<Height>", element.Height).Replace("<H>", element.Height).Replace("<h>", element.Height).Replace("<Высота>", element.Height).Replace("<В>", element.Height).Replace("<в>", element.Height)
+                .Replace("<LoadIndex>", element.LoadIndex).Replace("<LI>", element.LoadIndex).Replace("<Индекс_нагрузки>", element.LoadIndex)
+                .Replace("<MarkingCountry>", element.MarkingCountry).Replace("<MCountry>", element.MarkingCountry).Replace("<Страна_производства>", element.MarkingCountry)
+                .Replace("<ModelName>", element.ModelName).Replace("<MName>", element.ModelName).Replace("<Модель>", element.ModelName)
+                .Replace("<MudSnow>", element.MudSnow.Replace("Да", "M+S").Replace("Нет", "")).Replace("<M+S>", element.MudSnow.Replace("Да", "M+S").Replace("Нет", ""))
+                .Replace("<Price>", element.Price).Replace("<$>", element.Price).Replace("<Цена>", element.Price)
+                .Replace("<RunFlat>", element.RunFlat.Replace("Да", runFlat).Replace("Нет", "")).Replace("<RF>", element.RunFlat.Replace("Да", runFlat).Replace("Нет", ""))
+                .Replace("<RunFlatName>", element.RunFlatName).Replace("<Название_технологии_RunFlat>", element.RunFlatName)
+                .Replace("<SeasonWihtSpikes>", seasWithSpikes).Replace("<Сезонность_с_шиповкой>", seasWithSpikes)
+                .Replace("<LowSeasonWithSpikes>",seasWithSpikes.ToLower()).Replace("<Сезонность_с_шиповкой(мал)>", seasWithSpikes.ToLower())
+                .Replace("<UpSeasonWithSpikes>", seasWithSpikes.First().ToString().ToUpper() + seasWithSpikes.Remove(0, 1)).Replace("<Сезонность_с_шиповкой(Бол)>", seasWithSpikes.First().ToString().ToUpper() + seasWithSpikes.Remove(0, 1))
+
+                .Replace("<SpeedIndex>", element.SpeedIndex).Replace("<SI>", element.SpeedIndex).Replace("<Индекс_скорости>", element.SpeedIndex)
                 .Replace("<Spikes>", element.Spikes.Replace("Да", "шипованные").Replace("Нет", "нешипованные"))
                 .Replace("<Шип>", element.Spikes.Replace("Да", "шипованные").Replace("Нет", "нешипованные"))
-                .Replace("<Up_Spikes>", element.Spikes.Replace("Да", "Шипованные").Replace("Нет", "Нешипованные"))
-                .Replace("<Up_Шип>", element.Spikes.Replace("Да", "Шипованные").Replace("Нет", "Нешипованные"))
+                .Replace("<UpSpikes>", element.Spikes.Replace("Да", "Шипованные").Replace("Нет", "Нешипованные"))
+                .Replace("<Шип(Бол)>", element.Spikes.Replace("Да", "Шипованные").Replace("Нет", "Нешипованные"))
 
 
-                .Replace("<TemperatureIndex>", element.TemperatureIndex).Replace("<Temper>", element.TemperatureIndex)
-                .Replace("<Time>", element.Time)
-                .Replace("<TimeTransit>", element.TimeTransit).Replace("<Дост>", element.TimeTransit)
-                .Replace("<TractionIndex>", element.TractionIndex).Replace("<Tract>", element.TractionIndex)
-                .Replace("<TreadwearIndex>", element.TreadwearIndex).Replace("<Treadwear>", element.TreadwearIndex)
-                .Replace("<Type>", element.Type)
-                .Replace("<WhileLetters>", element.WhileLetters).Replace("<WL>", element.WhileLetters)
-                .Replace("<Width>", element.Width).Replace("<W>", element.Width).Replace("<w>", element.Width)
+                .Replace("<TemperatureIndex>", element.TemperatureIndex).Replace("<Temperature>", element.TemperatureIndex).Replace("<Индекс_температуры>", element.TemperatureIndex)
+                .Replace("<Time>", element.Time).Replace("<Время>", element.Time)
+                .Replace("<TimeTransit>", element.TimeTransit).Replace("<Срок_доставки>", element.TimeTransit)
+                .Replace("<TractionIndex>", element.TractionIndex).Replace("<Traction>", element.TractionIndex).Replace("<Индекс_сцепления>", element.TractionIndex)
+                .Replace("<TreadwearIndex>", element.TreadwearIndex).Replace("<Treadwear>", element.TreadwearIndex).Replace("<Индекс_ходимости>", element.TreadwearIndex)
+                .Replace("<Type>", element.Type).Replace("<Тип_шины>", element.Type)
+                .Replace("<WhileLetters>", element.WhileLetters).Replace("<WL>", element.WhileLetters).Replace("<Рефленные буквы>", element.WhileLetters)
+                .Replace("<Width>", element.Width).Replace("<W>", element.Width).Replace("<w>", element.Width).Replace("<Ширина>", element.Width).Replace("<ш>", element.Width).Replace("<Ш>", element.Width)
                 ;
 
-
+                
 
 
             return str;
@@ -143,7 +191,7 @@ namespace ProjectX.TypePattern
                 .Replace("<Элемемнт списка>", "<li>").Replace("<ЭС>", "<li>").Replace("<li>", "<li>").Replace("</Элемемнт списка>", "</li>").Replace("</ЭС>", "</li>").Replace("</li>", "</li>")
             ;
 
-            str = "<p>" + str.Replace(Environment.NewLine, "</p><p>") + "<p>";
+            
 
             return str;
 
@@ -312,6 +360,13 @@ namespace ProjectX.TypePattern
                     e.AppendChild(el);
                 }
 
+                foreach (string str in config.AddingImages)
+                {
+                    XmlElement el = xmlDocument.CreateElement("Image");
+                    el.SetAttribute("url", str);
+                    e.AppendChild(el);
+                }
+
                 element.AppendChild(e);
 
                 xroot.AppendChild(element);
@@ -334,6 +389,7 @@ namespace ProjectX.TypePattern
         public int Priority;
         public string Addition;
 
+
         public string Width;
         public string Height;
         public string Diametr;
@@ -343,18 +399,20 @@ namespace ProjectX.TypePattern
 
         public List<string> Images;
 
-        public string Head;
-        public string Body;
+        public string Head { get; set; }
+        public string Body { get; set; }
 
     }
 
     public class AvitoConfig{
 
         private readonly string pathXML;
-        private List<AvitoConfigParam> AvitoConfigParams { get; set; }
+        public List<AvitoConfigParam> AvitoConfigParams { get; set; }
+        public List<string> AddingImages { get; set; }
 
         public AvitoConfig() {
             AvitoConfigParams = new List<AvitoConfigParam>();
+            AddingImages = new List<string>();
 
             pathXML = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\AvitoConfig.xml");
 
@@ -395,6 +453,15 @@ namespace ProjectX.TypePattern
             {
                 paramsElement.AppendChild(item.GetXmlNode(xmlDocument));
             }
+
+            xroot.AppendChild(paramsElement = xmlDocument.CreateElement("imgs"));
+            foreach (var item in AddingImages)
+            {
+                XmlElement e = xmlDocument.CreateElement("img");
+                e.InnerText = item;
+                paramsElement.AppendChild(e);
+            }
+
             xmlDocument.Save(pathXML);
         }
 
@@ -408,6 +475,11 @@ namespace ProjectX.TypePattern
             foreach (XmlNode x in xmlNode.ChildNodes)
             {
                 AvitoConfigParams.Add(new AvitoConfigParam(x));
+            }
+
+            xmlNode = xroot.GetElementsByTagName("imgs").Item(0);
+            foreach (XmlNode x in xmlNode.ChildNodes) {
+                AddingImages.Add(x.InnerText);
             }
         }
 

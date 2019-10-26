@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using ProjectX.TypePattern;
-
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ProjectX
 {
@@ -17,11 +17,11 @@ namespace ProjectX
     {
         public static void Main(string[] args)
         {
-           // Test1();
+            // Test1();
 
+            TEST4();
 
-
-            Test3();
+          // Test3();
         }
 
         private static void Test1()
@@ -335,7 +335,7 @@ namespace ProjectX
 
             sw.Restart();
 
-            List<ParsingRow> parsings = EParsing.GetParsingRows(eParsingParams.ToArray(), out List<string> warning);
+            List<ParsingRow> parsings = EParsing.GetParsingRows(eParsingParams.ToArray(), out List<WarningParsingRow> warning);
 
             sw.Stop();
             Console.WriteLine("Парсинг файлов xlsx " + sw.ElapsedMilliseconds + " мс");
@@ -393,11 +393,21 @@ namespace ProjectX
 
             sw.Restart();
             dBase.SaveDataOnlyUniqueProviderExcell(@"C:\Users\ACER\Desktop\Прайсы\Data.xlsx", new string[] { "A1","A0" }, new ExcelDefaultOutParametrics() {
-                IsNameProduct = false
+                IsNameProduct = true,
+                IsAddition = true,
+                IsCount = true,
+                IsIdPosition = true,
+                IsIdProduct = true,
+                IsIdRows = true,
+                IsMarkup = true,
+                IsProviderPrice = true,
+                IsTotalPrice = true
 
             },new ExcelProviderOutParametrics() {ProvidersSrc = providers,
                 IsStockTime = true,
-                IsStockName = true } ,
+                IsStockName = true,
+            IsProviderName = true,
+            IsProviderPriority = true} ,
                 new ExcelProductOutParametrics() { DictionarySrc = dictionary,
                     IsMarkingHeight = true,
                     IsMarkingDiameter = true,
@@ -409,8 +419,21 @@ namespace ProjectX
                     IsMarkingRunFlat = true,
                     IsBrandName = true,
                     IsModelName = true,
-                    IsMarkingSpikes = true
-
+                    IsMarkingSpikes = true,
+                    IsBrandCountry = true,
+                    IsBrandDescription = true,
+                    IsBrandRunFlatName = true,
+                    IsMarkingCountry = true,
+                    IsMarkingFlangeProtection = true,
+                    IsMarkingTemperatureIndex = true,
+                    IsMarkingTractionIndex = true,
+                    IsMarkingTreadwearIndex = true,
+                    IsModelCommercial = true,
+                    IsModelDescription = true,
+                    IsModelMudSnow = true,
+                    IsModelSeason = true,
+                    IsModelType = true,
+                    IsModelWhileLetters = true
                 });
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data.xlsx' " + sw.ElapsedMilliseconds + " мс");
@@ -421,7 +444,24 @@ namespace ProjectX
             sw.Stop();
             Console.WriteLine("Сохранение базы в xlsx 'Data3.xlsx' " + sw.ElapsedMilliseconds + " мс");
 
+            dictionary.Save();
             sw.Restart();
+
+            dBase.SaveCSVFile(@"C:\Users\ACER\Desktop\Прайсы\PriceWP.csv", new string[] { "A0", "A1" });
+            sw.Stop();
+            Console.WriteLine("Генерация прайса " + sw.ElapsedMilliseconds + " мс");
+
+
+
+
+
+            sw.Restart();
+
+            
+
+
+
+
             EParsingParam parsingParam2 = new EParsingParam(fileName1, "A0");
             ESheet eSheet2 = new ESheet(null, "D");
             eSheet2.AddBufIndex(bufIndex1);
@@ -429,7 +469,7 @@ namespace ProjectX
             parsingParam2.Add(eSheet2);
             sw.Stop();
 
-            dictionary.Save();
+            
 
             dictionary.Close();
 
@@ -529,14 +569,14 @@ namespace ProjectX
 
             List<AvitoAd> avitoAds = AvitoGenerator.Generate(elements, groupPattern, 10, new List<AvitoAd>());
 
-            /*
+            
             foreach (var item in avitoAds)
             {
                 Console.WriteLine(item.Head);
                 Console.WriteLine();
                 Console.WriteLine(item.Body);
             }
-            */
+            
 
             AvitoGenerator.ToXML(@"C:\Users\ACER\Desktop\TEST_AVITO.xml", avitoAds);
 
@@ -544,6 +584,36 @@ namespace ProjectX
 
             Console.WriteLine(stopwatch.ElapsedMilliseconds.ToString());
             Console.ReadLine();
+        }
+
+        private static void TEST4() {
+
+
+            EParsingParam EParsingParam;
+
+            string path = @"C:\Users\ACER\source\repos\NewReZINA\NewReZINA\bin\Debug\Data\Templates\ВячеСлавик.temp";
+
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
+            {
+
+                EParsingParam = (EParsingParam)formatter.Deserialize(fs);
+
+            }
+
+            EParsingParam.FilePath = @"C:\Users\ACER\Desktop\Прайс-лист для рассылки (XLS).xlsx";
+
+            Dictionary dictionary = new Dictionary();
+            dictionary.Close();
+
+            List<ParsingRow> parsings = EParsing.GetParsingRows(EParsingParam, out List<WarningParsingRow> warning);
+
+            var res = dictionary.Analysis(ref parsings, true, true);
+            ParsingRow[] rows = res.Where(x => x.Resault is GResault).ToArray();
+            ParsingRow[] bRows = res.Where(x => x.Resault is BResault).ToArray();
+            ParsingRow[] NRows = res.Where(x => x.Resault is NResault).ToArray();
+
         }
     }
 }

@@ -16,6 +16,10 @@ namespace ProjectX.ExcelParsing
             return ((IEnumerable)Log).GetEnumerator();
         }
 
+        public string[] GetArrayLog() {
+            return Log.ToArray();
+        }
+
         public void AddLog(string str) {
             Log.Add(str);
         }
@@ -55,7 +59,11 @@ namespace ProjectX.ExcelParsing
 
     public class NResault : Resault
     {
-        private Dictionary<string, string> KeyValuePairs { get; set; }
+        public string FindModelId{ get; set; }
+
+        public string FindBrandId { get; set; }
+
+        public Dictionary<string, string> KeyValuePairs { get; set; }
 
         public string BufferAfterParse;
 

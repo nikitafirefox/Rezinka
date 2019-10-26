@@ -28,6 +28,11 @@ namespace ProjectX.Information
                 buf += Days + "дн.";
             }
 
+            if (Days == 0 && Weeks == 0 && Month == 0) {
+
+                buf = "в наличии";
+            }
+
             return buf;
         }
 

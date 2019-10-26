@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace ProjectX.Dict
 {
-    public class Brand
+
+    public class Brand:IEnumerable
     {
+
         public string Id { get; private set; }
         public string Name { get; set; }
         public string Country { get; set; }
@@ -15,14 +18,20 @@ namespace ProjectX.Dict
         public string RunFlatName { get; set; }
 
         private GenId IdGen { get; set; }
-        private HashSet<string> Variations { get; set; }
+        private List<string> Variations { get; set; }
         private List<Model> Models { get; set; }
-        private HashSet<string> Images { get; set; }
+        private List<string> Images { get; set; }
+
+        public Model this[string id] {
+            get {
+                return Models.Find(x => x.Id == id);
+            }
+        }
 
         public Brand(XmlNode x)
         {
-            Images = new HashSet<string>();
-            Variations = new HashSet<string>();
+            Images = new List<string>();
+            Variations = new List<string>();
             Models = new List<Model>();
 
             Id = x.Attributes.GetNamedItem("id").Value;
@@ -51,13 +60,15 @@ namespace ProjectX.Dict
             {
                 Models.Add(new Model(xNode));
             }
+
+            Models.Sort((x1, x2) => x1.Name.CompareTo(x2.Name));
         }
 
         public Brand(string id, string name, string country, string description, string runFlatName)
         {
-            Images = new HashSet<string>();
+            Images = new List<string>();
             IdGen = new GenId('A', -1, 1);
-            Variations = new HashSet<string>();
+            Variations = new List<string>();
             Models = new List<Model>();
 
             Id = id;
@@ -160,6 +171,10 @@ namespace ProjectX.Dict
             return Models.Find(x=> x.Id == v2).GetImages();
         }
 
+        public IEnumerable<string> GetVariations() {
+            return Variations;
+        }
+
         public void AddStringValue(string value)
         {
             Variations.Add(value);
@@ -190,6 +205,7 @@ namespace ProjectX.Dict
                 {
                     bool isAdding = true;
                     List<string> resModels = new List<string>();
+
                     foreach (var var2 in variationStrings)
                     {
                         string minStr = variation.Length > var2.Length ? var2 : variation;
@@ -204,13 +220,14 @@ namespace ProjectX.Dict
                             }
                         }
                     }
+
                     foreach (var resModel in resModels)
                     {
                         Resault.RemoveAt(variationStrings.FindIndex(x => x == resModel));
                         variationStrings.Remove(resModel);
                     }
 
-                    if (resModels.Count != 0 || isAdding)
+                    if (resModels.Count!=0 || isAdding)
                     {
                         Resault.Add(item);
                         variationStrings.Add(variation);
@@ -309,10 +326,45 @@ namespace ProjectX.Dict
         public bool IsMatch(string buffer, bool wordSearching, out string variationString)
         {
             bool b = false;
+            Variations.Sort((x, y) => y.Length.CompareTo(x.Length));
             variationString = "";
             foreach (var item in Variations)
             {
-                string regeexStr = wordSearching ? "\\b" + Regex.Escape(item.Trim(' ')) + "\\b" : Regex.Escape(item.Trim(' '));
+                string regeexStr = wordSearching ? "\\b" + Regex.Escape(item) + "\\b" : Regex.Escape(item);
+
+                
+                if (item.Contains(@"\") || item.Contains("+") || item.Contains("*") || item.Contains("?")
+                        || item.Contains("|") || item.Contains(".") || item.Contains("$") || item.Contains("{") || item.Contains("[") ||
+                        item.Contains("(") || item.Contains(")") || item.Contains("#")||item.Contains("@"))
+                {
+                    regeexStr = Regex.Escape(item);
+
+                    if (wordSearching)
+                    {
+
+                        char first = item[0];
+                        char last = item[item.Length - 1];
+
+
+                        if (first != '\\' && first != '+' && first != '*' && first != '?'
+                            && first != '|' && first != '.' && first != '$' && first != '{' && first != '[' &&
+                            first != '(' && first != ')' && first != '#' && first != '@')
+                        {
+                            regeexStr = "\\b" + regeexStr;
+                        }
+
+                        if (last != '\\' && last != '+' && last != '*' && last != '?'
+                            && last != '|' && last != '.' && last != '$' && last != '{' && last != '[' &&
+                            last != '(' && last != ')' && last != '#' && last != '@')
+                        {
+                            regeexStr = regeexStr + "\\b";
+                        }
+
+                    }
+                }
+
+                
+
                 if (Regex.IsMatch(buffer,regeexStr, RegexOptions.IgnoreCase))
                 {
                     b = true;
@@ -376,6 +428,41 @@ namespace ProjectX.Dict
             {
                 res.Add(item.Season);
             }
+        }
+
+        public void GetAccomadation(List<string> res) {
+
+            foreach (Model item in Models)
+            {
+                item.GetAccomadation(res);
+            }
+        }
+
+        public void GetModelsName(List<string> res)
+        {
+            foreach (Model item in Models)
+            {
+                res.Add(item.Name);
+            }
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)Models).GetEnumerator();
+        }
+
+        public void ChangeStringValue(string sOld,string sNew) {
+            DeleteStringValue(sOld);
+            AddStringValue(sNew);
+        }
+
+        public IEnumerable<string> GetImages() {
+            return Images;
+        }
+
+        public void ChangeImage(string iOld, string iNew) {
+            DeleteImage(iOld);
+            AddImage(iNew);
         }
     }
 }

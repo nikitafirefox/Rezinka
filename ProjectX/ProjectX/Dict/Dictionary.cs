@@ -2,6 +2,7 @@
 using ProjectX.ExcelParsing;
 using ProjectX.Loger;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -13,8 +14,22 @@ using System.Xml;
 
 namespace ProjectX.Dict
 {
-    public class Dictionary
+
+    public class Dictionary:IEnumerable
     {
+
+        public int AnalysisCount { get; set;}
+
+        public int AnalysisMax { get; set; }
+
+        public string AnalysisRowName { get; set; }
+
+        public Brand this[string id] {
+            get {
+                return Brands.Find(x => x.Id == id);
+            }
+        }
+
         private List<Brand> Brands { get; set; }
         private GenId IdGen { get; set; }
         private readonly string pathXML;
@@ -79,6 +94,8 @@ namespace ProjectX.Dict
             {
                 Brands.Add(new Brand(x));
             }
+
+            Brands.Sort((x1,x2)=> x1.Name.CompareTo(x2.Name));
         }
 
         public void Save() => Save("Сохранение");
@@ -464,7 +481,7 @@ namespace ProjectX.Dict
                         Resault.RemoveAt(variationsStrings.FindIndex(x => x == resBrand));
                         variationsStrings.Remove(resBrand);
                     }
-                    if (resBrands.Count != 0 || isAdding)
+                    if (resBrands.Count!=0 || isAdding)
                     {
                         Resault.Add(item);
                         variationsStrings.Add(variation);
@@ -484,14 +501,35 @@ namespace ProjectX.Dict
             return Analysis(ref parsingRows, deepSearch, false);
         }
 
-        public List<ParsingRow> Analysis(ref List<ParsingRow> parsingRows, bool deepSearch,bool wordSearching)
+        public List<ParsingRow> Analysis(ref List<ParsingRow> parsingRows, bool deepSearch, bool wordSearching) {
+            return Analysis(ref parsingRows, deepSearch, wordSearching, false);
+        }
+
+       
+
+        public List<ParsingRow> Analysis(ref List<ParsingRow> parsingRows, bool deepSearch,bool wordSearching,bool autoComplate)
         {
             List<ParsingRow> Resault = new List<ParsingRow>();
 
             ProviderRegulars providerRegulars = new ProviderRegulars();
 
+            AnalysisMax = parsingRows.Count;
+
+            AnalysisCount = 0;
+
+            AnalysisRowName = "";
+
             foreach (var item in parsingRows)
             {
+
+                if (item.ExcelRowIndex == "102"|| item.ExcelRowIndex == "336") {
+                    int itrtr = 0;
+                }
+
+
+                AnalysisCount++;
+
+                AnalysisRowName = item.ParsingBufer;
 
                 List<string> lStr = new List<string>();
                 int countLog = 0;
@@ -688,14 +726,37 @@ namespace ProjectX.Dict
 
 
 
+                            
 
+                          
 
                             lStr.Add(++countLog + ") Требуются уточнения");
-                            item.Resault = new NResault(mes, keyValuePairs, str.Trim(),inf);
+                            item.Resault = new NResault(mes, keyValuePairs, str.Trim(), inf) {FindBrandId = brands.Count == 1 ? brands.First().Id : null };
                             item.Resault.AddLog(lStr);
                         }
                         continue;
                     }
+
+                    logStr = ++countLog + ") Удаление всех вхождений модели";
+
+                    variationsStringsModels.Sort((x, y) => y.Length.CompareTo(x.Length));
+
+                    foreach (string variation in variationsStringsModels)
+                    {
+                        logStr += "\nИсходная строка: " + parsBuf;
+                        logStr += " Найденная вариация: " + variation;
+                        sov_variation = Regex.Match(parsBuf, Regex.Escape(variation), RegexOptions.IgnoreCase).Value;
+                        logStr += " Найденное вхождение: " + sov_variation;
+                        if (sov_variation != "")
+                        {
+                            parsBuf = parsBuf.Replace(sov_variation, "");
+                            logStr += "(успешно) результат: " + parsBuf;
+                        }
+                        logStr += "(ошибка удаления)";
+                    }
+
+                    lStr.Add(logStr);
+
 
                     logStr = ++countLog + ") Удаление всех вхождений производителя";
 
@@ -717,25 +778,7 @@ namespace ProjectX.Dict
 
                     lStr.Add(logStr);
 
-                    logStr = ++countLog + ") Удаление всех вхождений производителя";
 
-                    variationsStringsModels.Sort((x, y) => y.Length.CompareTo(x.Length));
-
-                    foreach (string variation in variationsStringsModels)
-                    {
-                        logStr += "\nИсходная строка: " + parsBuf;
-                        logStr += " Найденная вариация: " + variation; 
-                        sov_variation = Regex.Match(parsBuf, Regex.Escape(variation), RegexOptions.IgnoreCase).Value;
-                        logStr += " Найденное вхождение: " + sov_variation;
-                        if (sov_variation != "")
-                        {
-                            parsBuf = parsBuf.Replace(sov_variation, "");
-                            logStr += "(успешно) результат: " + parsBuf;
-                        }
-                        logStr += "(ошибка удаления)";
-                    }
-
-                    lStr.Add(logStr);
 
                     id = findedBrand.Id;
                     name += " " + findedBrand.Name;
@@ -760,8 +803,12 @@ namespace ProjectX.Dict
 
                     if (s.Trim() != "")
                     {
+                       
                         lStr.Add(++countLog + ") Требуются уточнения");
-                        item.Resault = new NResault("При парсинги остались символы в исходной строке", keyValues, s.Trim(),2);
+                        item.Resault = new NResault("При парсинги остались символы в исходной строке", keyValues, s.Trim(), 2) {
+                            FindBrandId = findedBrand.Id,
+                            FindModelId = findedModel.Id
+                        };
                         item.Resault.AddLog(lStr);
                         continue;
                     }
@@ -812,23 +859,129 @@ namespace ProjectX.Dict
                         continue;
                     }
 
-                    if (keyValues.ContainsKey("commercial")) { commercial = true; }
-                    if (keyValues.ContainsKey("extraLoad")) { extraLoad = true; }
-                    if (keyValues.ContainsKey("season")) { season = keyValues["season"]; }
-                    if (keyValues.ContainsKey("runFlat")) { runFlat = true; }
-                    if (keyValues.ContainsKey("countryBrand")) { countryBrand = keyValues["countryBrand"]; }
-                    if (keyValues.ContainsKey("countryMarking")) { countryMarking = keyValues["countryMarking"]; }
-                    if (keyValues.ContainsKey("tractionIndex")) { tractionIndex = keyValues["tractionIndex"]; }
-                    if (keyValues.ContainsKey("temperatureIndex")) { temperatureIndex = keyValues["temperatureIndex"]; }
-                    if (keyValues.ContainsKey("treadwearIndex")) { treadwearIndex = keyValues["treadwearIndex"]; }
-                    if (keyValues.ContainsKey("whileLetters")) { whileLetters = keyValues["whileLetters"]; }
-                    if (keyValues.ContainsKey("mudSnow")) { mudSnow = true; }
-                    if (keyValues.ContainsKey("runFlatName")) { runFlatName = keyValues["runFlatName"]; }
-                    if (keyValues.ContainsKey("type")) { type = keyValues["type"]; }
-                    if (keyValues.ContainsKey("accomadation")) { accomadation = keyValues["accomadation"]; }
-                    if (keyValues.ContainsKey("additional")) { additional = keyValues["additional"]; }
-                    if (keyValues.ContainsKey("spikes")) { spikes = true; }
-                    if (keyValues.ContainsKey("flangeProtection")) { flangeProtection = keyValues["flangeProtection"]; }
+                    if (keyValues.ContainsKey("commercial"))
+                    {
+                        commercial = true;
+                        if (autoComplate && !findedModel.Commercial)
+                        {
+                            findedModel.Commercial = commercial;
+                        }
+                    }
+
+                    if (keyValues.ContainsKey("extraLoad"))
+                    {
+                        extraLoad = true;
+                        
+                    }
+
+                    if (keyValues.ContainsKey("season"))
+                    {
+                        season = keyValues["season"];
+
+                        if ( string.IsNullOrEmpty(findedModel.Season)  && autoComplate)
+                        {
+                            findedModel.Season = season;
+                        }
+                    }
+
+                    if (keyValues.ContainsKey("runFlat"))
+                    {
+                        runFlat = true;
+                    }
+
+                    if (keyValues.ContainsKey("countryBrand"))
+                    {
+                        countryBrand = keyValues["countryBrand"];
+
+                        if (string.IsNullOrEmpty(findedBrand.Country) && autoComplate)
+                        {
+                            findedBrand.Country = countryBrand;
+                        }
+                    }
+
+                    if (keyValues.ContainsKey("countryMarking"))
+                    {
+                        countryMarking = keyValues["countryMarking"];
+
+                    }
+
+                    if (keyValues.ContainsKey("tractionIndex"))
+                    {
+                        tractionIndex = keyValues["tractionIndex"];
+                    }
+
+                    if (keyValues.ContainsKey("temperatureIndex"))
+                    {
+                        temperatureIndex = keyValues["temperatureIndex"];
+                    }
+
+                    if (keyValues.ContainsKey("treadwearIndex"))
+                    {
+                        treadwearIndex = keyValues["treadwearIndex"];
+                    }
+
+                    if (keyValues.ContainsKey("whileLetters"))
+                    {
+                        whileLetters = keyValues["whileLetters"];
+
+                        if (string.IsNullOrEmpty(findedModel.WhileLetters) && autoComplate)
+                        {
+                            findedModel.WhileLetters = whileLetters;
+                        }
+                    }
+
+                    if (keyValues.ContainsKey("mudSnow"))
+                    {
+                        mudSnow = true;
+
+                        if (!findedModel.MudSnow && autoComplate)
+                        {
+                            findedModel.MudSnow = mudSnow;
+                        }
+                        
+                    }
+
+                    if (keyValues.ContainsKey("runFlatName"))
+                    {
+                        runFlatName = keyValues["runFlatName"];
+
+                        if (string.IsNullOrEmpty(findedBrand.RunFlatName) && autoComplate)
+                        {
+                            findedBrand.RunFlatName = runFlatName;
+                        }
+                    }
+
+                    if (keyValues.ContainsKey("type"))
+                    {
+                        type = keyValues["type"];
+
+                        if (string.IsNullOrEmpty(findedModel.Type) && autoComplate)
+                        {
+                            findedModel.Type = type;
+                        }
+
+                        
+                    }
+
+                    if (keyValues.ContainsKey("accomadation"))
+                    {
+                        accomadation = keyValues["accomadation"];
+                    }
+
+                    if (keyValues.ContainsKey("additional"))
+                    {
+                        additional = keyValues["additional"];
+                    }
+
+                    if (keyValues.ContainsKey("spikes"))
+                    {
+                        spikes = true;
+                    }
+
+                    if (keyValues.ContainsKey("flangeProtection"))
+                    {
+                        flangeProtection = keyValues["flangeProtection"];
+                    }
 
 
                     lStr.Add(++countLog + ") Попытка парсинга маркировки");
@@ -839,6 +992,35 @@ namespace ProjectX.Dict
                         id += "-" + marking.Id;
                         name += " " + marking.Width + "/" + marking.Height + "R" + marking.Diameter;
                         if (marking.Accomadation != "") { name += " акомадация" + marking.Accomadation; }
+
+                        if (string.IsNullOrEmpty(marking.Country) && autoComplate) {
+                            marking.Country = countryMarking;
+                        }
+
+                        if (string.IsNullOrEmpty(marking.TractionIndex) && autoComplate)
+                        {
+                            marking.TractionIndex = tractionIndex;
+                        }
+
+                        if (string.IsNullOrEmpty(marking.TemperatureIndex) && autoComplate)
+                        {
+                            marking.TemperatureIndex = temperatureIndex;
+                        }
+
+                        if (string.IsNullOrEmpty(marking.TreadwearIndex) && autoComplate)
+                        {
+                            marking.TreadwearIndex = treadwearIndex;
+                        }
+
+                        if (string.IsNullOrEmpty(marking.FlangeProtection) && autoComplate)
+                        {
+                            marking.FlangeProtection = flangeProtection;
+                        }
+
+                        if (!marking.ExtraLoad && autoComplate)
+                        {
+                            marking.ExtraLoad = extraLoad;
+                        }
 
                         lStr.Add(++countLog + ") Маркировка найдена\n Определена как: " + id + "\nЗаписана в базу как: " + name);
 
@@ -932,6 +1114,27 @@ namespace ProjectX.Dict
             return res.Distinct().ToList();
         }
 
+        public List<string> GetAccomadation()
+        {
+            List<string> res = new List<string>();
+            foreach (Brand item in Brands)
+            {
+                item.GetAccomadation(res);
+            }
+            res.Sort();
+            return res.Distinct().ToList();
+        }
+
+        public List<string> GetModelsName() {
+            List<string> res = new List<string>();
+            foreach (Brand item in Brands)
+            {
+                item.GetModelsName(res);
+            }
+            res.Sort();
+            return res.Distinct().ToList();
+        }
+
         //********************************************************//
 
         private struct M
@@ -964,7 +1167,7 @@ namespace ProjectX.Dict
             }
         }
 
-        internal void GetItemFromTxt(string path)
+        public void GetItemFromTxt(string path)
         {
             List<P> ps = new List<P>();
 
@@ -1020,6 +1223,11 @@ namespace ProjectX.Dict
                     }
                 }
             }
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)Brands).GetEnumerator();
         }
 
         //*******************************************************************//

@@ -201,7 +201,9 @@ namespace ProjectX.AnalysisType
             outBuffer = buffer;
 
             var thisProviderRegular = ProviderRegularsList.Where(x => x.IdProvier == idProv).First();
-            var priorityArray = thisProviderRegular.GetPrioritys();
+            var priorityArray = thisProviderRegular.GetPrioritys().ToList();
+            priorityArray.Sort();
+
             foreach (var item in priorityArray)
             {
                 var config = ProviderRegularsList.Where(x => x.IdProvier == idProv).First().GetListByPriority(item);
@@ -234,7 +236,7 @@ namespace ProjectX.AnalysisType
         }
     }
 
-    public class ProviderRegular
+    public class ProviderRegular:IEnumerable
     {
         private GenId Gen { get; set; }
         public string IdProvier { get; private set; }
@@ -302,7 +304,18 @@ namespace ProjectX.AnalysisType
 
         public void AddPassString(string s)
         {
-            PassString.Add(s);
+            
+                PassString.Add(s);
+        }
+
+        public string AddPrimaryRegular(PrimaryRegular primary) {
+            string id = Gen.NexVal();
+            primary.Id = id;
+
+            PrimaryRegulars.Add(primary);
+
+            return id;
+
         }
 
         public string Add(string reg, int priority)
@@ -358,6 +371,22 @@ namespace ProjectX.AnalysisType
             return PrimaryRegulars.Select(x => x.Priority).Distinct().ToArray();
         }
 
+        public void DeleteString(string s) {
+            PassString.Remove(s);
+        }
+
+        public void ChangeString(string sNew, string sOld) {
+
+            DeleteString(sOld);
+            AddPassString(sNew);
+
+        }
+
+        public void DeletePrimaryRegular(string id) {
+            PrimaryRegular primaryRegular = GetPrimaryRegularById(id);
+
+            PrimaryRegulars.Remove(primaryRegular);
+        }
 
         public string Replace(string str)
         {
@@ -367,10 +396,19 @@ namespace ProjectX.AnalysisType
                 string sov_item = Regex.Match(outStr, Regex.Escape(item), RegexOptions.IgnoreCase).Value;
                 if (sov_item != "")
                 {
-                    outStr = (" " + outStr + " ").Replace(" " + sov_item + " ", "").Trim();
+                    outStr = (" " + outStr + " ").Replace(" " + sov_item + " ", " ").Trim();
                 }
             }
             return outStr;
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)PrimaryRegulars).GetEnumerator();
+        }
+
+        public IEnumerable GetPassString() {
+            return PassString;
         }
     }
 
@@ -379,9 +417,11 @@ namespace ProjectX.AnalysisType
 
         protected GenId GenForRegularParams { get; set; }
 
-        public string Id { get; protected set; }
+        public string Id { get;  set; }
 
         public string RegularString { get; set; }
+
+       
 
         protected List<RegularParam> RegularParams { get; set; }
 
@@ -397,6 +437,20 @@ namespace ProjectX.AnalysisType
             string id = GenForRegularParams.NexVal();
             RegularParams.Add(new RegularParam(id, value, name));
             return id;
+        }
+
+        public string AddRegularParam(RegularParam regularParam) {
+
+            string id = GenForRegularParams.NexVal();
+            regularParam.Id = id;
+            RegularParams.Add(regularParam);
+
+            return id;
+        }
+
+        public void DeleteRegularParam(string id) {
+            RegularParam param = RegularParams.Find(x => x.Id == id);
+            RegularParams.Remove(param);
         }
 
         public RegularParam GetRegularParamById(string id) {
@@ -497,6 +551,13 @@ namespace ProjectX.AnalysisType
             GroupRegulars = new List<GroupRegular>();
         }
 
+        public PrimaryRegular() {
+            GenForRegularParams = new GenId('A', -1, 1);
+            RegularParams = new List<RegularParam>();
+            GenIdForGroupRegulars = new GenId('A', -1, 1);
+            GroupRegulars = new List<GroupRegular>();
+        }
+
         public override XmlNode GetXmlNode(XmlDocument xmlDocument)
         {
             XmlElement element = xmlDocument.CreateElement("regular");
@@ -533,7 +594,14 @@ namespace ProjectX.AnalysisType
 
         protected List<GroupRegular> GroupRegulars { get; set;}
 
-        protected GroupRegular() { }
+        public GroupRegular() {
+
+            GenForRegularParams = new GenId('A', -1, 1);
+            RegularParams = new List<RegularParam>();
+            GenIdForGroupRegulars = new GenId('A', -1, 1);
+            GroupRegulars = new List<GroupRegular>();
+
+        }
 
         public GroupRegular(string id, string reg)
         {
@@ -582,6 +650,16 @@ namespace ProjectX.AnalysisType
             return id;
         }
 
+        public string AddGroupRegular(GroupRegular group) {
+            string id = GenIdForGroupRegulars.NexVal();
+
+            group.Id = id;
+
+            GroupRegulars.Add(group);
+
+            return id;
+        }
+
         public GroupRegular GetGroupRegularById(string id) {
             return GroupRegulars.Where(x => x.Id == id).First();
         }
@@ -627,6 +705,16 @@ namespace ProjectX.AnalysisType
 
         }
 
+        public IEnumerable GetGroupRegular() {
+            return GroupRegulars;
+        }
+
+        public void DeleteGroupRegular(string id) {
+            GroupRegular group = GetGroupRegularById(id);
+            GroupRegulars.Remove(group);
+
+        }
+
     }
 
     public class RegularParam
@@ -638,6 +726,8 @@ namespace ProjectX.AnalysisType
         public string Value { get; set; }
         public bool IsConstant { get; set; }
 
+        public RegularParam() {}
+   
         public RegularParam(XmlNode x)
         {
             Id = x.Attributes.GetNamedItem("id").Value;
