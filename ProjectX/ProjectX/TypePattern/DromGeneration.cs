@@ -156,6 +156,16 @@ namespace ProjectX.TypePattern
 
             string runFlat = element.ModelName.ToLower().Contains("runflat") ? "" : "RunFlat";
 
+            if (element.RunFlat == "Нет")
+            {
+
+                if (element.ModelName.ToLower().Contains("runflat"))
+                {
+                    string s = Regex.Match(element.ModelName, "runflat", RegexOptions.IgnoreCase).Value;
+                    element.ModelName = element.ModelName.Replace(s, "");
+                }
+            }
+
             if (seasWithSpikes == "Зимние")
             {
                 if (element.Spikes == "Да")
@@ -482,8 +492,8 @@ namespace ProjectX.TypePattern
                     CellSave(shareStringPart, row, cell, item.Body, cellList.NextVal() + index, shareIndex++);
                     CellSave(shareStringPart, row, cell, item.Price, cellList.NextVal() + index, shareIndex++);
                     CellSave(shareStringPart, row, cell, "новая", cellList.NextVal() + index, shareIndex++);
-                    CellSave(shareStringPart, row, cell, item.Time == 0 ? "В наличии" : "Под заказ", cellList.NextVal() + index, shareIndex++);
-                    CellSave(shareStringPart, row, cell, item.Time == 0? "": item.Time.ToString(), cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.Time == 0 || item.Time == 1? "В наличии" : "Под заказ", cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.Time == 0 || item.Time == 1? "": item.Time.ToString(), cellList.NextVal() + index, shareIndex++);
                     CellSave(shareStringPart, row, cell, image, cellList.NextVal() + index, shareIndex++);
 
                     sheetData.Append(row);

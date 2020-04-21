@@ -94,8 +94,8 @@ namespace ProjectX.TypePattern
                     Addition = item.Addition,
                     Count = item.Count.ToString(),
                     Price = item.TotalPrice.ToString(),
-                    PriceForOne = (Math.Round((item.PriceProv * (1.0 + 15.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0).ToString(),
-                    PriceForTwo = (Math.Round((item.PriceProv * (1.0 + 10.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0).ToString(),
+                    PriceForOne = item.TotalPriceForOne.ToString(),
+                    PriceForTwo = item.TotalPriceForTwo.ToString(),
                     BrandId = item.IdProduct.Split('-')[0],
                     ProvaiderId = item.IdPosition.Split('-')[0],
                     TimeTransit = valuePairsProv["Stock_Time"].ToString(),
@@ -160,6 +160,9 @@ namespace ProjectX.TypePattern
             elements.Sort((x, y) => x.Priority.CompareTo(y.Priority));
             foreach (var item in elements)
             {
+                if (double.Parse(item.Price) <= 0) {
+                    continue;
+                }
 
                 var el = res.Find(x => x.IdProduct == item.IdProduct && item.Addition == x.Addition);
 

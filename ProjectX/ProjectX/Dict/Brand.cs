@@ -21,6 +21,7 @@ namespace ProjectX.Dict
         private List<string> Variations { get; set; }
         private List<Model> Models { get; set; }
         private List<string> Images { get; set; }
+        private List<string> Tags { get; set; }
 
         public Model this[string id] {
             get {
@@ -31,6 +32,7 @@ namespace ProjectX.Dict
         public Brand(XmlNode x)
         {
             Images = new List<string>();
+            Tags = new List<string>();
             Variations = new List<string>();
             Models = new List<Model>();
 
@@ -56,6 +58,21 @@ namespace ProjectX.Dict
                 Variations.Add(xNode.InnerText);
             }
 
+            XmlNode xmlTags = null;
+
+            try {
+                xmlTags = x.SelectSingleNode("tags");
+            }
+            catch{}
+
+            if (xmlTags != null) {
+                foreach (XmlNode xNode in xmlTags.ChildNodes) {
+                    Tags.Add(xNode.InnerText);
+                }
+            }
+
+            Tags.Sort();
+
             foreach (XmlNode xNode in x.SelectSingleNode("models").ChildNodes)
             {
                 Models.Add(new Model(xNode));
@@ -70,6 +87,7 @@ namespace ProjectX.Dict
             IdGen = new GenId('A', -1, 1);
             Variations = new List<string>();
             Models = new List<Model>();
+            Tags = new List<string>();
 
             Id = id;
             Name = name;
@@ -129,6 +147,15 @@ namespace ProjectX.Dict
                 e = document.CreateElement("image");
                 e.SetAttribute("src", item);
                 imagesElement.AppendChild(e);
+            }
+
+            XmlElement tagsElement;
+
+            element.AppendChild(tagsElement = document.CreateElement("tags"));
+            foreach (string item in Tags) {
+                e = document.CreateElement("tag");
+                e.InnerText = item;
+                tagsElement.AppendChild(e);
             }
 
             XmlElement modelsElement;
@@ -458,6 +485,27 @@ namespace ProjectX.Dict
 
         public IEnumerable<string> GetImages() {
             return Images;
+        }
+
+        public IEnumerable<string> GetTags()
+        {
+            return Tags;
+        }
+
+        public void AddTag(string tag)
+        {
+            Tags.Add(tag);
+        }
+
+        public void DeleteTag(string tag)
+        {
+            Tags.Remove(tag);
+        }
+
+        public void ChangeTag(string tOld, string tNew)
+        {
+            DeleteTag(tOld);
+            AddTag(tNew);
         }
 
         public void ChangeImage(string iOld, string iNew) {

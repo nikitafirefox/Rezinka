@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using System.IO;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace ProjectX.TypePattern
 {
-    public static class AvitoGenerator
+    public class YmlGeneration
     {
-
-        public static List<AvitoAd> Generate(List<Element> elements, GroupPattern groupPattern,
-            int count, List<AvitoAd> avitoAds) {
+        public static List<YmlAd> Generate(List<Element> elements, GroupPattern groupPattern,
+            int count, List<YmlAd> ymlAds)
+        {
 
             Patterns patterns = new Patterns();
             Pattern pattern;
@@ -32,14 +32,16 @@ namespace ProjectX.TypePattern
                 {
                     price = item.PriceForOne;
                 }
-                else if (int.Parse(item.Count) < 4) {
+                else if (int.Parse(item.Count) < 4)
+                {
                     price = item.PriceForTwo;
                 }
 
-                var el = avitoAds.Find(x => x.IdProduct == item.IdProduct);
+
+                var el = ymlAds.Find(x => x.IdProduct == item.IdProduct);
                 if (el == null)
                 {
-                    avitoAds.Add(new AvitoAd()
+                    ymlAds.Add(new YmlAd()
                     {
                         IdProduct = item.IdProduct,
                         Diametr = item.Diameter,
@@ -52,19 +54,24 @@ namespace ProjectX.TypePattern
                         Body = GetLogicString(AddGetString(GetString(pattern.Body, item)), item),
                         Addition = item.Addition,
                         Price = price,
+                        PriceForMrc = item.PriceForOne,
                         Images = item.Images,
-         
-
+                        IdProvider = item.ProvaiderId,
+                        Brand = item.BrandName,
+                        Time = item.TimeFromTo,
+                        LoadIndex = item.LoadIndex,
+                        SpeedIndex = item.SpeedIndex,
+                        Count = item.Count
 
                     });
 
                     curCount++;
                 }
-                else if (el.Priority > item.Priority) {
+                else if (el.Priority > item.Priority)
+                {
+                    ymlAds.Remove(el);
 
-                    avitoAds.Remove(el);
-
-                    avitoAds.Add(new AvitoAd()
+                    ymlAds.Add(new YmlAd()
                     {
                         IdProduct = item.IdProduct,
                         Diametr = item.Diameter,
@@ -77,24 +84,31 @@ namespace ProjectX.TypePattern
                         Body = GetLogicString(AddGetString(GetString(pattern.Body, item)), item),
                         Addition = item.Addition,
                         Price = price,
+                        PriceForMrc = item.PriceForOne,
                         Images = item.Images,
-         
-
+                        IdProvider = item.ProvaiderId,
+                        Brand = item.BrandName,
+                        Time = item.TimeFromTo,
+                        LoadIndex = item.LoadIndex,
+                        SpeedIndex = item.SpeedIndex,
+                        Count = item.Count
 
 
                     });
 
                 }
 
-                if (curCount == count) {
+                if (curCount == count)
+                {
                     break;
                 }
             }
 
-            return avitoAds;
+            return ymlAds;
         }
 
-        public static string GetString(string str, Element element) {
+        public static string GetString(string str, Element element)
+        {
 
             str = str.Replace("<BrandDescription>", element.BrandDescription).Replace("<BDesc>", element.BrandDescription)
                 .Replace("<Описание_производителя>", element.BrandDescription);
@@ -112,7 +126,8 @@ namespace ProjectX.TypePattern
                 .Replace("<Сезонность_с_шиповкой(мал)>", "")
                 .Replace("<Сезонность_с_шиповкой(Бол)>", "");
             }
-            else if (element.Season != "") {
+            else if (element.Season != "")
+            {
                 str = str.Replace("<Season>", element.Season).Replace("<LowSeason>", element.Season.ToLower()).Replace("<UpSeason>", element.Season.First().ToString().ToUpper() + element.Season.Remove(0, 1))
                     .Replace("<Сезонность>", element.Season).Replace("<Сезонность(мал.)>", element.Season.ToLower()).Replace("<Сезоность(Бол.)>", element.Season.First().ToString().ToUpper() + element.Season.Remove(0, 1));
             }
@@ -121,7 +136,7 @@ namespace ProjectX.TypePattern
 
             string seasWithSpikes = element.Season;
 
-            string runFlat = element.ModelName.ToLower().Contains("runflat")? "" : "RunFlat";
+            string runFlat = element.ModelName.ToLower().Contains("runflat") ? "" : "RunFlat";
 
             if (element.RunFlat == "Нет")
             {
@@ -133,19 +148,18 @@ namespace ProjectX.TypePattern
                 }
             }
 
-            if (seasWithSpikes == "Зимние") {
+            if (seasWithSpikes == "Зимние")
+            {
                 if (element.Spikes == "Да")
                 {
                     seasWithSpikes = "Зимние шипованные";
                 }
-                else {
+                else
+                {
                     seasWithSpikes = "Зимние нешипованные";
                 }
             }
 
-            
-
-                   
 
             str = str.Replace("<Accomadation>", element.Accomadation).Replace("<Ac>", element.Accomadation).Replace("<Амологация>", element.Accomadation)
                 .Replace("<Addition>", element.Addition).Replace("<Add>", element.Addition).Replace("<Примичание>", element.Addition)
@@ -155,7 +169,7 @@ namespace ProjectX.TypePattern
                 .Replace("<Count>", element.Count).Replace("<Ост>", element.Count).Replace("<Остаток>", element.Count)
                 .Replace("<Date>", element.Date).Replace("<Дата>", element.Date)
                 .Replace("<Diameter>", element.Diameter).Replace("<D>", element.Diameter).Replace("<d>", element.Diameter).Replace("<Диаметр>", element.Diameter).Replace("<Д>", element.Diameter).Replace("<д>", element.Diameter)
-                .Replace("<ExtraLoad>", element.ExtraLoad.Replace("Да", "XL").Replace("Нет", "")).Replace("<XL>", element.ExtraLoad.Replace("Да","XL").Replace("Нет",""))
+                .Replace("<ExtraLoad>", element.ExtraLoad.Replace("Да", "XL").Replace("Нет", "")).Replace("<XL>", element.ExtraLoad.Replace("Да", "XL").Replace("Нет", ""))
                 .Replace("<xl>", element.ExtraLoad.Replace("Да", "xl").Replace("Нет", "")).Replace("<Повышенная_нагрузка>", element.ExtraLoad.Replace("Да", "xl").Replace("Нет", ""))
                 .Replace("<FlangeProtection>", element.FlangeProtection).Replace("<FP>", element.FlangeProtection).Replace("<Защита борта>", element.FlangeProtection)
                 .Replace("<Height>", element.Height).Replace("<H>", element.Height).Replace("<h>", element.Height).Replace("<Высота>", element.Height).Replace("<В>", element.Height).Replace("<в>", element.Height)
@@ -167,7 +181,7 @@ namespace ProjectX.TypePattern
                 .Replace("<RunFlat>", element.RunFlat.Replace("Да", runFlat).Replace("Нет", "")).Replace("<RF>", element.RunFlat.Replace("Да", runFlat).Replace("Нет", ""))
                 .Replace("<RunFlatName>", element.RunFlatName).Replace("<Название_технологии_RunFlat>", element.RunFlatName)
                 .Replace("<SeasonWihtSpikes>", seasWithSpikes).Replace("<Сезонность_с_шиповкой>", seasWithSpikes)
-                .Replace("<LowSeasonWithSpikes>",seasWithSpikes.ToLower()).Replace("<Сезонность_с_шиповкой(мал)>", seasWithSpikes.ToLower())
+                .Replace("<LowSeasonWithSpikes>", seasWithSpikes.ToLower()).Replace("<Сезонность_с_шиповкой(мал)>", seasWithSpikes.ToLower())
                 .Replace("<UpSeasonWithSpikes>", seasWithSpikes.First().ToString().ToUpper() + seasWithSpikes.Remove(0, 1)).Replace("<Сезонность_с_шиповкой(Бол)>", seasWithSpikes.First().ToString().ToUpper() + seasWithSpikes.Remove(0, 1))
 
                 .Replace("<SpeedIndex>", element.SpeedIndex).Replace("<SI>", element.SpeedIndex).Replace("<Индекс_скорости>", element.SpeedIndex)
@@ -187,27 +201,30 @@ namespace ProjectX.TypePattern
                 .Replace("<Width>", element.Width).Replace("<W>", element.Width).Replace("<w>", element.Width).Replace("<Ширина>", element.Width).Replace("<ш>", element.Width).Replace("<Ш>", element.Width)
                 ;
 
-                
+
 
 
             return str;
         }
 
-        public static string AddGetString(string str) {
-            str = str.Replace("<Жирный>", "<strong>").Replace("<Ж>", "<strong>").Replace("</Жирный>", "</strong>").Replace("</Ж>", "</strong>").Replace("<strong>", "<strong>").Replace("</strong>", "</strong>")
-                .Replace("<Курсив>", "<em>").Replace("<К>", "<em>").Replace("</Курсив>", "</em>").Replace("</К>", "</em>").Replace("<K>", "<em>").Replace("</K>", "</em>").Replace("<em>", "<em>").Replace("</em>", "</em>")
-                .Replace("<Маркированный список>", "<ul>").Replace("<MC>", "<ul>").Replace("<ul>", "<ul>").Replace("</Маркированный список>", "</ul>").Replace("</MC>", "</ul>").Replace("</ul>", "</ul>")
-                .Replace("<Нумерованный список>", "<ol>").Replace("<НC>", "<ol>").Replace("<ol>", "<ol>").Replace("</Нумерованный список>", "</ol>").Replace("</НC>", "</ol>").Replace("</ol>", "</ol>")
-                .Replace("<Элемемнт списка>", "<li>").Replace("<ЭС>", "<li>").Replace("<li>", "<li>").Replace("</Элемемнт списка>", "</li>").Replace("</ЭС>", "</li>").Replace("</li>", "</li>")
+        public static string AddGetString(string str)
+        {
+            str = str.Replace("<Жирный>", "").Replace("<Ж>", "").Replace("</Жирный>", "").Replace("</Ж>", "").Replace("<strong>", "").Replace("</strong>", "")
+                .Replace("<Курсив>", "").Replace("<К>", "").Replace("</Курсив>", "").Replace("</К>", "").Replace("<K>", "").Replace("</K>", "").Replace("<em>", "").Replace("</em>", "")
+                .Replace("<Маркированный список>", "").Replace("<MC>", "").Replace("<ul>", "").Replace("</Маркированный список>", "").Replace("</MC>", "").Replace("</ul>", "")
+                .Replace("<Нумерованный список>", "").Replace("<НC>", "").Replace("<ol>", "").Replace("</Нумерованный список>", "").Replace("</НC>", "").Replace("</ol>", "")
+                .Replace("<Элемемнт списка>", "").Replace("<ЭС>", "").Replace("<li>", "").Replace("</Элемемнт списка>", "").Replace("</ЭС>", "").Replace("</li>", "")
+                .Replace("<p>", "").Replace("</p>", "").Replace("<br>", "");
             ;
 
-            
+
 
             return str;
 
         }
 
-        public static string GetLogicString(string str, Element element) {
+        public static string GetLogicString(string str, Element element)
+        {
             MatchCollection matchCollection = Regex.Matches(str, "\\{\\[[^\\[\\]\\{\\}\\(\\)]*\\][!=]='[^\\[\\]\\{\\}\\(\\)]*'\\([^\\[\\]\\{\\}\\(\\)]*\\)(\\([^\\[\\]\\{\\}\\(\\)]*\\))?\\}");
             foreach (Match item in matchCollection)
             {
@@ -225,7 +242,8 @@ namespace ProjectX.TypePattern
                 value1 = value1.Remove(value1.Length - 1, 1).Remove(0, 1);
                 string value2 = "";
 
-                if (Regex.Matches(val, "\\([^\\[\\]\\{\\}\\(\\)]*\\)").Count > 1) {
+                if (Regex.Matches(val, "\\([^\\[\\]\\{\\}\\(\\)]*\\)").Count > 1)
+                {
                     value2 = Regex.Matches(val, "\\([^\\[\\]\\{\\}\\(\\)]*\\)")[1].Value;
                     value2 = value2.Remove(value2.Length - 1, 1).Remove(0, 1);
                 }
@@ -242,7 +260,8 @@ namespace ProjectX.TypePattern
                     {
                         str = str.Replace(val, value1);
                     }
-                    else {
+                    else
+                    {
                         str = str.Replace(val, value2);
                     }
                 }
@@ -257,7 +276,8 @@ namespace ProjectX.TypePattern
                         str = str.Replace(val, value2);
                     }
                 }
-                else {
+                else
+                {
                     str = str.Replace(val, "");
                 }
 
@@ -269,122 +289,137 @@ namespace ProjectX.TypePattern
             return str;
         }
 
-        public static void ToXML(string path, List<AvitoAd> avitoAds) {
+        public static void ToYandexMarket(string path, List<YmlAd> avtoruAds,bool mrc)
+        {
 
             FileStream fs = new FileStream(path, FileMode.Create);
-            XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.Unicode)
+            XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.UTF8)
             {
                 Formatting = Formatting.Indented
             };
 
-            xmlOut.WriteStartElement("Ads");
-            xmlOut.WriteAttributeString("", "formatVersion", "", "3");
-            xmlOut.WriteAttributeString("", "target", "", "Avito.ru");
+
+            xmlOut.WriteStartElement("yml_catalog");
             xmlOut.Close();
             fs.Close();
 
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(path);
+
+            XmlDeclaration xmlDeclaration = xmlDocument.CreateXmlDeclaration("1.0", "utf-8", null);
+
             XmlElement xroot = xmlDocument.DocumentElement;
 
-            AvitoConfig config = new AvitoConfig();
+            xmlDocument.InsertBefore(xmlDeclaration, xroot);
+            string stringDateTime = DateTime.Now.Year + "-" + DateTime.Now.Month + "-" + DateTime.Now.Day + " " + DateTime.Now.ToShortTimeString();
+            xroot.SetAttribute("date", stringDateTime);
 
-            foreach (var item in avitoAds)
+            XmlElement xmlShop = xmlDocument.CreateElement("shop");
+            XmlElement xmlShopElement = xmlDocument.CreateElement("name");
+            xmlShopElement.InnerText = "ReZina123.ru";
+            xmlShop.AppendChild(xmlShopElement);
+
+            xmlShopElement = xmlDocument.CreateElement("company");
+            xmlShopElement.InnerText = "ИП Кочкина О.В.";
+            xmlShop.AppendChild(xmlShopElement);
+
+            xmlShopElement = xmlDocument.CreateElement("url");
+            xmlShopElement.InnerText = "http://rezina123.ru";
+            xmlShop.AppendChild(xmlShopElement);
+
+            XmlElement currencies = xmlDocument.CreateElement("currencies");
+            xmlShopElement = xmlDocument.CreateElement("currency");
+            xmlShopElement.SetAttribute("id", "RUB");
+            xmlShopElement.SetAttribute("rate", "1");
+            currencies.AppendChild(xmlShopElement);
+            xmlShop.AppendChild(currencies);
+
+            XmlElement categories = xmlDocument.CreateElement("categories");
+            xmlShopElement = xmlDocument.CreateElement("category");
+            xmlShopElement.SetAttribute("id", "1");
+            xmlShopElement.InnerText = "Шины";
+            categories.AppendChild(xmlShopElement);
+            xmlShop.AppendChild(categories);
+
+            XmlElement xmlOffers = xmlDocument.CreateElement("offers");
+
+            foreach (var item in avtoruAds)
             {
-                XmlElement element = xmlDocument.CreateElement("Ad");
+                if (item.Addition != "")
+                {
+                    continue;
+                }
 
-                XmlElement e = xmlDocument.CreateElement("Id");
-                var s = item.Addition == "" ? "" : item.Addition.GetHashCode().ToString();
-                e.InnerText = item.IdProduct.GetHashCode().ToString() + s;
+                XmlElement element = xmlDocument.CreateElement("offer");
+                element.SetAttribute("id", "id" + item.IdProduct.GetHashCode().ToString());
+                element.SetAttribute("bid","50");
+
+                string head = item.Head;
+
+                XmlElement e = xmlDocument.CreateElement("name");
+                e.InnerText = head;
                 element.AppendChild(e);
 
-                e = xmlDocument.CreateElement("AllowEmail");
-                e.InnerText = "Да";
+                e = xmlDocument.CreateElement("vendor");
+                e.InnerText = item.Brand;
                 element.AppendChild(e);
 
-                e = xmlDocument.CreateElement("ManagerName");
-                e.InnerText = "Сергей";
+                e = xmlDocument.CreateElement("url");
+                e.InnerText = "http://rezina123.ru/i" + item.IdProduct.GetHashCode().ToString().Replace("-", "m") + "/";
                 element.AppendChild(e);
 
-                e = xmlDocument.CreateElement("ContactPhone");
-                e.InnerText = "+7 918 6355543";
-                element.AppendChild(e);
-
-                e = xmlDocument.CreateElement("Address");
-                e.InnerText = "Россия, Краснодарский край, Краснодар, Сормовская, 7/C";
-                element.AppendChild(e);
-
-                e = xmlDocument.CreateElement("AdType");
-                e.InnerText = "Товар приобретен на продажу";
-                element.AppendChild(e);
-
-                e = xmlDocument.CreateElement("Title");
-                e.InnerText = item.Head;
-                element.AppendChild(e);
-
-                e = xmlDocument.CreateElement("Description");
-                e.AppendChild(xmlDocument.CreateCDataSection(item.Body));
-                element.AppendChild(e);
-
-                e = xmlDocument.CreateElement("Category");
-                e.InnerText = "Запчасти и аксессуары";
-                element.AppendChild(e);
-
-                e = xmlDocument.CreateElement("TypeId");
-                e.InnerText = "10-048";
-                element.AppendChild(e);
-
-                e = xmlDocument.CreateElement("Price");
+                e = xmlDocument.CreateElement("price");
                 e.InnerText = item.Price;
                 element.AppendChild(e);
 
-                e = xmlDocument.CreateElement("RimDiameter");
-                e.InnerText = item.Diametr;
+                e = xmlDocument.CreateElement("currencyId");
+                e.InnerText = "RUB";
                 element.AppendChild(e);
 
-                var season = config.AvitoSeason(item.Seasson, item.Spikes == "Да");
-
-                e = xmlDocument.CreateElement("TireType");
-                e.InnerText = season;
+                e = xmlDocument.CreateElement("categoryId");
+                e.InnerText = "1";
                 element.AppendChild(e);
 
+                e = xmlDocument.CreateElement("picture");
+                e.InnerText = item.Images.First();
+                element.AppendChild(e);
 
-                if (Regex.IsMatch(item.Width.Trim(), "^[0-9]{3}$")) {
-                    e = xmlDocument.CreateElement("TireSectionWidth");
-                    e.InnerText = item.Width;
-                    element.AppendChild(e);
+                string desc = "";
+
+                if (item.Time == 0) {
+                    desc = "Товар в наличии в Краснодаре.";
+                } else if (item.Time == 1) {
+                    desc = "Доставка 1 рабочий день. Товар в наличии в Краснодаре.";
+                }
+                else {
+                    desc = "Доставка "+ item.Time + " раб. дн.";
                 }
 
-                if (Regex.IsMatch(item.Height.Trim(), "^[0-9]{2,3}$"))
+                if (!mrc) {
+                    desc += " Бесплатный шиномонтаж или шиномонтаж со скидкой.";
+                }
+
+                e = xmlDocument.CreateElement("description");
+                e.AppendChild(xmlDocument.CreateCDataSection(desc));
+                element.AppendChild(e);
+
+                if ((int.Parse(item.Count) >= 2))
                 {
-                    e = xmlDocument.CreateElement("TireAspectRatio");
-                    e.InnerText = item.Height;
+
+                    e = xmlDocument.CreateElement("min-quantity");
+                    int s = int.Parse(item.Count) >= 4? 4 : 2;
+                    e.InnerText = s.ToString();
                     element.AppendChild(e);
+
                 }
 
-                e = xmlDocument.CreateElement("Images");
-
-                foreach (string str in item.Images) {
-                    XmlElement el = xmlDocument.CreateElement("Image");
-                    el.SetAttribute("url", str);
-                    e.AppendChild(el);
-                }
-
-                foreach (string str in config.AddingImages)
-                {
-                    XmlElement el = xmlDocument.CreateElement("Image");
-                    el.SetAttribute("url", str);
-                    e.AppendChild(el);
-                }
-
-                element.AppendChild(e);
-
-                xroot.AppendChild(element);
+                xmlOffers.AppendChild(element);
 
             }
 
+            xmlShop.AppendChild(xmlOffers);
 
-
+            xroot.AppendChild(xmlShop);
 
             xmlDocument.Save(path);
 
@@ -393,164 +428,34 @@ namespace ProjectX.TypePattern
 
     }
 
-    public class AvitoAd {
+
+    public class YmlAd
+    {
 
         public string IdProduct;
+        public string IdProvider;
         public int Priority;
         public string Addition;
-
 
         public string Width;
         public string Height;
         public string Diametr;
+        public string LoadIndex;
+        public string SpeedIndex;
         public string Spikes;
         public string Seasson;
         public string Price;
+        public string PriceForMrc;
+        public string Count;
+
+        public string Brand;
+
 
         public List<string> Images;
 
         public string Head { get; set; }
-        public string Body { get; set; }
+        public string Body;
 
-    }
-
-    public class AvitoConfig{
-
-        private readonly string pathXML;
-        public List<AvitoConfigParam> AvitoConfigParams { get; set; }
-        public List<string> AddingImages { get; set; }
-
-        public AvitoConfig() {
-            AvitoConfigParams = new List<AvitoConfigParam>();
-            AddingImages = new List<string>();
-
-            pathXML = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\AvitoConfig.xml");
-
-            if (!File.Exists(pathXML))
-            {
-                string dataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data");
-                if (!Directory.Exists(dataDirectory)) { Directory.CreateDirectory(dataDirectory); }
-
-                FileStream fs = new FileStream(pathXML, FileMode.Create);
-                XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.Unicode)
-                {
-                    Formatting = Formatting.Indented
-                };
-                xmlOut.WriteStartDocument();
-                xmlOut.WriteStartElement("root");
-                xmlOut.WriteEndElement();
-                xmlOut.WriteEndDocument();
-                xmlOut.Close();
-                fs.Close();
-                Save();
-            }
-            else
-            {
-                Init();
-            }
-
-        }
-
-        public void Save() {
-
-            XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.Load(pathXML);
-            XmlElement xroot = xmlDocument.DocumentElement;
-            xroot.RemoveAll();
-            XmlElement paramsElement;
-            xroot.AppendChild(paramsElement = xmlDocument.CreateElement("params"));
-            foreach (var item in AvitoConfigParams)
-            {
-                paramsElement.AppendChild(item.GetXmlNode(xmlDocument));
-            }
-
-            xroot.AppendChild(paramsElement = xmlDocument.CreateElement("imgs"));
-            foreach (var item in AddingImages)
-            {
-                XmlElement e = xmlDocument.CreateElement("img");
-                e.InnerText = item;
-                paramsElement.AppendChild(e);
-            }
-
-            xmlDocument.Save(pathXML);
-        }
-
-        private void Init()
-        {
-            XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.Load(pathXML);
-            XmlElement xroot = xmlDocument.DocumentElement;
-
-            XmlNode xmlNode = xroot.GetElementsByTagName("params").Item(0);
-            foreach (XmlNode x in xmlNode.ChildNodes)
-            {
-                AvitoConfigParams.Add(new AvitoConfigParam(x));
-            }
-
-            xmlNode = xroot.GetElementsByTagName("imgs").Item(0);
-            foreach (XmlNode x in xmlNode.ChildNodes) {
-                AddingImages.Add(x.InnerText);
-            }
-        }
-
-        public string AvitoSeason(string season, bool spikes) {
-            
-            if (season == "") { return "NULL"; }
-            var str = season;
-
-            foreach (var item in AvitoConfigParams)
-            {
-                if ((spikes == item.Spikes) && (season == item.Season)) {
-                    str = item.TotalSeason;
-                    break;
-                }
-            }
-
-            return str;
-        }
-
-        public void Add(string season, bool spikes, string total) {
-            AvitoConfigParams.Add(new AvitoConfigParam(season,spikes,total));
-        }
-
-    }
-
-    public class AvitoConfigParam {
-
-        public bool Spikes { get; set;}
-        public string Season { get; set;}
-        public string TotalSeason { get; set;}
-
-        public AvitoConfigParam(string season, bool spikes, string total) {
-            Season = season;
-            Spikes = spikes;
-            TotalSeason = total;
-        }
-
-        public AvitoConfigParam(XmlNode x)
-        {
-            Spikes = bool.Parse(x.SelectSingleNode("Spikes").InnerText);
-            Season = x.SelectSingleNode("Season").InnerText;
-            TotalSeason = x.SelectSingleNode("Total").InnerText;
-        }
-
-        public XmlNode GetXmlNode(XmlDocument xmlDocument)
-        {
-            XmlElement element = xmlDocument.CreateElement("param");
-
-            XmlElement e = xmlDocument.CreateElement("Spikes");
-            e.InnerText = Spikes.ToString();
-            element.AppendChild(e);
-
-            e = xmlDocument.CreateElement("Season");
-            e.InnerText = Season;
-            element.AppendChild(e);
-
-            e = xmlDocument.CreateElement("Total");
-            e.InnerText = TotalSeason;
-            element.AppendChild(e);
-
-            return element;
-        }
+        public int Time;
     }
 }

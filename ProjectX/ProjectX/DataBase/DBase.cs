@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Text.RegularExpressions;
 
 namespace ProjectX.DataBase
 {
@@ -27,6 +28,8 @@ namespace ProjectX.DataBase
 
         private GenId GenId { get; set; }
         public double DefaultMarkup { get; set; }
+        public double DefaultMarkupForTwo { get; set; }
+        public double DefaultMarkupForOne { get; set; }
         private readonly string pathXML;
         public List<DBRow> DBRows { get; private set; }
 
@@ -54,6 +57,8 @@ namespace ProjectX.DataBase
                 if (!Directory.Exists(dataDirectory)) { Directory.CreateDirectory(dataDirectory); }
                 GenId = new GenId('A', -1, 1);
                 DefaultMarkup = 10;
+                DefaultMarkupForTwo = 15;
+                DefaultMarkupForOne = 20;
                 FileStream fs = new FileStream(pathXML, FileMode.Create);
                 XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.Unicode)
                 {
@@ -87,6 +92,8 @@ namespace ProjectX.DataBase
                 int.Parse(xmlSet.ChildNodes.Item(2).InnerText));
 
             DefaultMarkup = double.Parse(xmlSet.ChildNodes.Item(3).InnerText);
+            DefaultMarkupForTwo = double.Parse(xmlSet.ChildNodes.Item(4).InnerText);
+            DefaultMarkupForOne = double.Parse(xmlSet.ChildNodes.Item(5).InnerText);
 
             XmlNode xmlNode = xroot.GetElementsByTagName("dRows").Item(0);
             foreach (XmlNode x in xmlNode.ChildNodes)
@@ -106,7 +113,7 @@ namespace ProjectX.DataBase
                 GResault gResault = (GResault)item.Resault;
                 foreach (ParsingCount item1 in item)
                 {
-                    AddRow(gResault.Id, gResault.Name, item.IdProvider + '-' + item1.Id, item.Price, DefaultMarkup, item1.Count, gResault.Addition);
+                    AddRow(gResault.Id, gResault.Name, item.IdProvider + '-' + item1.Id, item.Price, DefaultMarkup,DefaultMarkupForTwo,DefaultMarkupForOne, item1.Count, gResault.Addition);
                 }
             }
         }
@@ -123,6 +130,12 @@ namespace ProjectX.DataBase
             XmlElement element = xmlDocument.CreateElement("defaultMarkup");
             element.InnerText = DefaultMarkup.ToString();
             xmlSet.AppendChild(element);
+            element = xmlDocument.CreateElement("defaultMarkupForTwo");
+            element.InnerText = DefaultMarkupForTwo.ToString();
+            xmlSet.AppendChild(element);
+            element = xmlDocument.CreateElement("defaultMarkupForOne");
+            element.InnerText = DefaultMarkupForOne.ToString();
+            xmlSet.AppendChild(element);
 
             XmlElement rowsElement;
             xroot.AppendChild(rowsElement = xmlDocument.CreateElement("dRows"));
@@ -134,9 +147,9 @@ namespace ProjectX.DataBase
         }
 
         private void AddRow(string idProduct, string nameProduct, string idPosition, double priceProv, double markup,
-            int count, string addition)
+            double markupForTwo, double markupForOne, int count, string addition)
         {
-            DBRows.Add(new DBRow(GenId.NexVal(), idProduct, nameProduct, idPosition, priceProv, markup, count, addition));
+            DBRows.Add(new DBRow(GenId.NexVal(), idProduct, nameProduct, idPosition, priceProv, markup,markupForTwo,markupForOne, count, addition));
         }
 
         private void CellSave(SharedStringTablePart shareStringPart, Row row, Cell cell, string value, string cellReference, int index)
@@ -402,10 +415,6 @@ namespace ProjectX.DataBase
         {
             SaveDataExcel(filepath, idProviders, new ExcelDefaultOutParametrics(), providerOutParametrics, productOutParametrics);
         }
-
-
-
-
 
         public void SaveDataOnlyProviderExcell(string filepath, string[] idProviders, ExcelDefaultOutParametrics defaultOutParametrics,
             ExcelProviderOutParametrics providerOutParametrics, ExcelProductOutParametrics productOutParametrics)
@@ -678,6 +687,8 @@ namespace ProjectX.DataBase
                             if (itemRes.TotalPrice < item.TotalPrice)
                             {
                                 itemRes.TotalPrice = item.TotalPrice;
+                                item.TotalPriceForTwo = item.TotalPriceForTwo;
+                                itemRes.TotalPriceForOne = item.TotalPriceForOne;
                                 itemRes.PriceProv = item.PriceProv;
                             }
 
@@ -706,8 +717,9 @@ namespace ProjectX.DataBase
                                 Count = item.Count,
                                 Addition = item.Addition,
                                 Time = time,
-                                CountInMinStock = item.Count
-
+                                CountInMinStock = item.Count,
+                                TotalPriceForOne = item.TotalPriceForOne,
+                                TotalPriceForTwo = item.TotalPriceForTwo
 
                             });
 
@@ -765,8 +777,17 @@ namespace ProjectX.DataBase
                 if (productOutParametrics.IsBrandDescription) CellSave(shareStringPart, row, cell, productOutParametrics.Name_BrandDescription, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsBrandRunFlatName) CellSave(shareStringPart, row, cell, productOutParametrics.Name_BrandRunFlatName, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsModelName) CellSave(shareStringPart, row, cell, productOutParametrics.Name_ModelName, cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Полное наименование модели", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Маркировка", cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsModelType) CellSave(shareStringPart, row, cell, productOutParametrics.Name_ModelType, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsModelSeason) CellSave(shareStringPart, row, cell, productOutParametrics.Name_ModelSeason, cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Сезонность + шипы", cellList.NextVal() + "1", shareIndex++);
+
+                CellSave(shareStringPart, row, cell, "Цена за 4шт нал.", cellList.NextVal() + "1", shareIndex++);
+                
+
+                if (providerOutParametrics.IsStockTime) CellSave(shareStringPart, row, cell, providerOutParametrics.Name_StockTime, cellList.NextVal() + "1", shareIndex++);
+
                 if (productOutParametrics.IsModelCommercial) CellSave(shareStringPart, row, cell, productOutParametrics.Name_ModelCommercial, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsModelDescription) CellSave(shareStringPart, row, cell, productOutParametrics.Name_ModelDescription, cellList.NextVal() + "1", shareIndex++);
                 if (productOutParametrics.IsModelWhileLetters) CellSave(shareStringPart, row, cell, productOutParametrics.Name_ModelWhileLetters, cellList.NextVal() + "1", shareIndex++);
@@ -794,9 +815,20 @@ namespace ProjectX.DataBase
                 if (defaultOutParametrics.IsProviderPrice) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_ProviderPrice, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsMarkup) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Markup, cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsTotalPrice) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_TotalPrice, cellList.NextVal() + "1", shareIndex++);
+
+
+
+                if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, "Быстро", cellList.NextVal() + "1", shareIndex++);
                 if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Count, cellList.NextVal() + "1", shareIndex++);
-                if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, "остаток с мин. сроком доставки", cellList.NextVal() + "1", shareIndex++);
-                if (providerOutParametrics.IsStockTime) CellSave(shareStringPart, row, cell, providerOutParametrics.Name_StockTime, cellList.NextVal() + "1", shareIndex++);
+
+                CellSave(shareStringPart, row, cell, "Цена за 3шт нал.", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Цена за 2шт нал.", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Цена за 1шт нал.", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Цена за 4шт безнал.", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Цена за 3шт безнал.", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Цена за 2шт безнал.", cellList.NextVal() + "1", shareIndex++);
+                CellSave(shareStringPart, row, cell, "Цена за 1шт безнал.", cellList.NextVal() + "1", shareIndex++);
+
                 if (defaultOutParametrics.IsAddition) CellSave(shareStringPart, row, cell, defaultOutParametrics.Name_Addition, cellList.NextVal() + "1", shareIndex++);
                 CellSave(shareStringPart, row, cell, "Картинки", cellList.NextVal() + "1", shareIndex++);
 
@@ -838,6 +870,10 @@ namespace ProjectX.DataBase
                     List<string> imgs = productOutParametrics.DictionarySrc.GetImages(item.IdProduct.Split('-')[0],
                         item.IdProduct.Split('-')[1]).ToList();
 
+                    Brand brand = productOutParametrics.DictionarySrc[item.IdProduct.Split('-')[0]];
+                    Model model = brand[item.IdProduct.Split('-')[1]];
+                    Marking marking = model[item.IdProduct.Split('-')[2]];
+
                     string im = "";
 
                     foreach (string s in imgs)
@@ -854,8 +890,81 @@ namespace ProjectX.DataBase
                     if (productOutParametrics.IsBrandDescription) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Brand_Description"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsBrandRunFlatName) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Brand_RunFlatName"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsModelName) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Model_Name"], cellList.NextVal() + index, shareIndex++);
+
+
+                    string name = model.Name;
+
+                    if (marking.RunFlat)
+                    {
+
+                        if (!(model.Name.ToLower().Contains("runflat")))
+                        {
+                            name += " RunFlat";
+                        }
+
+                    }
+                    else {
+
+                        if (model.Name.ToLower().Contains("runflat")) {
+                            string s = Regex.Match(model.Name, "runflat", RegexOptions.IgnoreCase).Value;
+                            name = name.Replace(s, "");
+                        }
+                    }
+
+                    name += " " + marking.Accomadation;
+
+                    if (marking.Spikes) {
+                        name += " (шип.)";
+                    }
+
+
+                    if (item.Addition != "")
+                    {
+                        name += " (См. прим)";
+                    }
+
+
+                    string excellMarking = marking.Width + "/" + marking.Height + "R" + marking.Diameter;
+
+                    if (model.Commercial) {
+                        excellMarking += "C";
+                    }
+
+                    if (marking.ExtraLoad)
+                    {
+                        excellMarking += " XL";
+                    }
+
+                    excellMarking += " " + marking.LoadIndex + marking.SpeedIndex;
+
+
+                    CellSave(shareStringPart, row, cell, name, cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, excellMarking, cellList.NextVal() + index, shareIndex++);
+
                     if (productOutParametrics.IsModelType) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Model_Type"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsModelSeason) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Model_Season"], cellList.NextVal() + index, shareIndex++);
+
+
+                    string season = model.Season;
+
+                    if (season.ToLower().Contains("зим")) {
+                        if (marking.Spikes)
+                        {
+                            season = "Зимние шипованные";
+                        }
+                        else {
+                            
+                            season = "Зимние нешипованные";
+                        }
+                    }
+
+                    CellSave(shareStringPart, row, cell, season, cellList.NextVal() + index, shareIndex++);
+
+                    CellSave(shareStringPart, row, cell, item.TotalPrice.ToString(), cellList.NextVal() + index, shareIndex++);
+
+                    if (providerOutParametrics.IsStockTime) CellSave(shareStringPart, row, cell, item.Time.ToString(), cellList.NextVal() + index, shareIndex++);
+
+
                     if (productOutParametrics.IsModelCommercial) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Model_Commercial"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsModelDescription) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Model_Description"], cellList.NextVal() + index, shareIndex++);
                     if (productOutParametrics.IsModelWhileLetters) CellSave(shareStringPart, row, cell, (string)valuePairsDictionary["Model_WhileLetters"], cellList.NextVal() + index, shareIndex++);
@@ -883,9 +992,31 @@ namespace ProjectX.DataBase
                     if (defaultOutParametrics.IsProviderPrice) CellSave(shareStringPart, row, cell, item.PriceProv.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsMarkup) CellSave(shareStringPart, row, cell, item.Markup.ToString(), cellList.NextVal() + index, shareIndex++);
                     if (defaultOutParametrics.IsTotalPrice) CellSave(shareStringPart, row, cell, item.TotalPrice.ToString(), cellList.NextVal() + index, shareIndex++);
-                    if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, item.Count.ToString(), cellList.NextVal() + index, shareIndex++);
+
+
+
                     if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, item.CountInMinStock.ToString(), cellList.NextVal() + index, shareIndex++);
-                    if (providerOutParametrics.IsStockTime) CellSave(shareStringPart, row, cell, item.Time.ToString(), cellList.NextVal() + index, shareIndex++);
+                    if (defaultOutParametrics.IsCount) CellSave(shareStringPart, row, cell, item.Count.ToString(), cellList.NextVal() + index, shareIndex++);
+
+                    double priceForThree = (Math.Round((item.TotalPriceForTwo * 2.0 + item.TotalPriceForOne) / 30.0, MidpointRounding.AwayFromZero) * 10.0);
+
+                    CellSave(shareStringPart, row, cell, priceForThree.ToString(), cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.TotalPriceForTwo.ToString(), cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, item.TotalPriceForOne.ToString(), cellList.NextVal() + index, shareIndex++);
+
+
+                    double priceForFourCart = item.TotalPrice * 1.02;
+                    double priceForThreeCart = priceForThree * 1.02;
+                    double priceForTwoCart = item.TotalPriceForTwo * 1.02;
+                    double priceForOneCart = item.TotalPriceForOne * 1.02;
+
+
+                    CellSave(shareStringPart, row, cell, priceForFourCart.ToString(), cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, priceForThreeCart.ToString(), cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, priceForTwoCart.ToString(), cellList.NextVal() + index, shareIndex++);
+                    CellSave(shareStringPart, row, cell, priceForOneCart.ToString(), cellList.NextVal() + index, shareIndex++);
+
+
                     if (defaultOutParametrics.IsAddition) CellSave(shareStringPart, row, cell, item.Addition, cellList.NextVal() + index, shareIndex++);
                     CellSave(shareStringPart, row, cell, im, cellList.NextVal() + index, shareIndex++);
 
@@ -943,6 +1074,8 @@ namespace ProjectX.DataBase
 
             List<DBSortedMarking> res = new List<DBSortedMarking>();
 
+            string dateTime = DateTime.Now.ToShortDateString();
+
             Providers providers = new Providers();
             Dictionary dictionary = new Dictionary();
             dictionary.Close();
@@ -967,6 +1100,8 @@ namespace ProjectX.DataBase
                             if (itemRes.TotalPrice < item.TotalPrice)
                             {
                                 itemRes.TotalPrice = item.TotalPrice;
+                                itemRes.TotalPriceForOne = item.TotalPriceForOne;
+                                itemRes.TotalPriceForTwo = item.TotalPriceForTwo;
                                 itemRes.PriceProv = item.PriceProv;
                             }
 
@@ -995,7 +1130,9 @@ namespace ProjectX.DataBase
                                 Count = item.Count,
                                 Addition = item.Addition,
                                 Time = time,
-                                CountInMinStock = item.Count
+                                CountInMinStock = item.Count,
+                                TotalPriceForOne = item.TotalPriceForOne,
+                                TotalPriceForTwo= item.TotalPriceForTwo,
 
 
                             });
@@ -1008,14 +1145,8 @@ namespace ProjectX.DataBase
 
             }
 
-
-        
-
-
-
-
             FileStream fs = new FileStream(filepath, FileMode.Create);
-            XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.Unicode)
+            XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.UTF8)
             {
                 Formatting = Formatting.Indented
             };
@@ -1038,10 +1169,39 @@ namespace ProjectX.DataBase
             {
 
 
-
                 Brand brand = dictionary[item.IdProduct.Split('-')[0]];
                 Model model = brand[item.IdProduct.Split('-')[1]];
                 Marking marking = model[item.IdProduct.Split('-')[2]];
+
+                List<DBSortedMarking> upSels = new List<DBSortedMarking>();
+
+                foreach (var item2 in res) {
+
+                    Brand brand2 = dictionary[item2.IdProduct.Split('-')[0]];
+                    Model model2 = brand2[item2.IdProduct.Split('-')[1]];
+                    Marking marking2 = model2[item2.IdProduct.Split('-')[2]];
+
+                    if (marking2.Width == marking.Width && marking2.Height == marking.Height
+                        && marking2.Diameter == marking.Diameter && marking2.Spikes == marking.Spikes
+                        && model2.Season == model.Season && model2.Commercial == model.Commercial) {
+                        upSels.Add(item2);
+                    }
+
+                }
+
+
+                if (upSels.Count > 3) {
+
+
+                    upSels.Sort(delegate (DBSortedMarking x, DBSortedMarking y)
+                    {
+                        double priceX = Math.Abs(x.TotalPrice - item.TotalPrice);
+                        double priceY = Math.Abs(y.TotalPrice - item.TotalPrice);
+
+                        return priceX.CompareTo(priceY);
+
+                    });
+                }
 
 
                 XmlElement element = xmlDocument.CreateElement("post");
@@ -1051,12 +1211,17 @@ namespace ProjectX.DataBase
                 element.AppendChild(e);
 
                 e = xmlDocument.CreateElement("url");
-                e.InnerText = item.IdProduct.GetHashCode().ToString();
+                e.InnerText ="i" + item.IdProduct.GetHashCode().ToString().Replace("-", "m");
                 element.AppendChild(e);
 
 
-                string name = brand.Name + " " + model.Name + " " + marking.Accomadation + " " + marking.Width + "/"
-                    + marking.Height + "R" + marking.Diameter;
+                string name = brand.Name + " " + model.Name;
+
+                if (marking.Accomadation != "") {
+                    name += " " + marking.Accomadation;
+                }
+
+                name += " " + marking.Width + "/" + marking.Height + "R" + marking.Diameter;
 
                 if (model.Commercial) {
                     name += "C";
@@ -1113,7 +1278,8 @@ namespace ProjectX.DataBase
                 element.AppendChild(e);
 
                 e = xmlDocument.CreateElement("description");
-                e.InnerText = brand.Description + " " + model.Description + " Скоро будет описание";
+                string desc = brand.Description.Trim() != "" || model.Description.Trim() != ""? brand.Description + " " + model.Description:"Скоро появится описание";
+                e.AppendChild(xmlDocument.CreateCDataSection(desc.Trim()));
                 element.AppendChild(e);
 
 
@@ -1138,30 +1304,46 @@ namespace ProjectX.DataBase
                 element.AppendChild(e);
 
                 e = xmlDocument.CreateElement("priceOne");
-                e.InnerText = (Math.Round((item.PriceProv * (1.0 + 15.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0).ToString();
+                e.InnerText = item.TotalPriceForOne.ToString();
                 element.AppendChild(e);
 
                 e = xmlDocument.CreateElement("priceTwo");
-                e.InnerText = ((Math.Round((item.PriceProv * (1.0 + 15.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0) 
-                    - (Math.Round((item.PriceProv * (1.0 + 10.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0)).ToString();
+                e.InnerText = item.TotalPriceForTwo.ToString();
                 element.AppendChild(e);
 
+                e = xmlDocument.CreateElement("priceTwoDiscount");
+                e.InnerText = item.Count >=2? (item.TotalPriceForOne - item.TotalPriceForTwo).ToString():"";
+                element.AppendChild(e);
+
+                double priceForThree = Math.Round((item.TotalPriceForTwo * 2.0 + item.TotalPriceForOne) / 30.0, MidpointRounding.AwayFromZero) * 10.0;
                 e = xmlDocument.CreateElement("priceThree");
-                e.InnerText = ((Math.Round((item.PriceProv * (1.0 + 15.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0)
-                    - (Math.Round((item.PriceProv * (1.0 + 10.0 / 100.0) * 2.0 + item.PriceProv * (1.0 + 15.0 / 100.0)) / 30.0, MidpointRounding.AwayFromZero) * 10.0)).ToString();
+                e.InnerText = priceForThree.ToString();
+                element.AppendChild(e);
+
+
+                e = xmlDocument.CreateElement("priceThreeDiscount");
+                e.InnerText = item.Count >=3? (item.TotalPriceForOne - priceForThree).ToString() : "";
                 element.AppendChild(e);
 
                 e = xmlDocument.CreateElement("priceFour");
-                e.InnerText = ((Math.Round((item.PriceProv * (1.0 + 15.0 / 100.0)) / 10.0, MidpointRounding.AwayFromZero) * 10.0)
-                    - item.TotalPrice).ToString();
+                e.InnerText = item.TotalPrice.ToString();
                 element.AppendChild(e);
 
-                e = xmlDocument.CreateElement("count");
-                e.InnerText = item.Count.ToString();
+                e = xmlDocument.CreateElement("priceFourDiscount");
+                e.InnerText =item.Count>=4? (item.TotalPriceForOne- item.TotalPrice).ToString() : "";
                 element.AppendChild(e);
+
+                
+                e = xmlDocument.CreateElement("count");
+                e.InnerText = item.Count>20? "20" : item.Count.ToString();
+                element.AppendChild(e);
+
+                int daysShipping = item.Time.Month * 30 + item.Time.Weeks * 7 + item.Time.Days;
+
+                string timeShipping = daysShipping == 0 ? "в наличии" : daysShipping + "р.дн.";
 
                 e = xmlDocument.CreateElement("shipping");
-                e.InnerText = item.Time.ToString();
+                e.InnerText = timeShipping;
                 element.AppendChild(e);
 
                 e = xmlDocument.CreateElement("buttonText");
@@ -1170,6 +1352,82 @@ namespace ProjectX.DataBase
 
                 e = xmlDocument.CreateElement("image");
                 e.InnerText = model.GetImages().First();
+                element.AppendChild(e);
+
+                string upSell = "";
+
+                if (upSels.Count > 1) {
+                    upSell = upSels[0].IdProduct;
+                }
+
+                e = xmlDocument.CreateElement("upSell1");
+                e.InnerText = upSell;
+                element.AppendChild(e);
+
+                upSell = "";
+
+                if (upSels.Count > 2)
+                {
+                    upSell = upSels[1].IdProduct;
+                }
+
+                e = xmlDocument.CreateElement("upSell2");
+                e.InnerText = upSell;
+                element.AppendChild(e);
+
+                 upSell = "";
+
+                if (upSels.Count > 3)
+                {
+                    upSell = upSels[2].IdProduct;
+                }
+
+                e = xmlDocument.CreateElement("upSell3");
+                e.InnerText = upSell;
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("dateUpdate");
+                e.InnerText = dateTime;
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("SEOHeader");
+                string com = model.Commercial ? "C" : "";
+                e.InnerText = brand.Name + " " + marking.Width + " " + marking.Height + " R" + marking.Diameter + com + " | Интернет магазин шин ReZina123.ru";
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("SEOBody");
+                e.InnerText = "Купить " + seasson.ToLower() + " " + brand.Name + " " + model.Name + " "
+                    + marking.Width + "/" + marking.Height + "R" + marking.Diameter + com + " по доступной цене в интернет магазине автошин ReZina123.ru";
+                element.AppendChild(e);
+
+                e = xmlDocument.CreateElement("SEOWords");
+                e.InnerText = brand.Name + marking.Width + "/" + marking.Height + "R" + marking.Diameter + com;
+                element.AppendChild(e);
+
+                List<string> tags = new List<string>();
+
+                foreach (string tag in brand.GetTags()) {
+                    if (!tags.Contains(tag)) {
+                        tags.Add(tag);
+                    }
+                }
+
+                foreach (string tag in model.GetTags())
+                {
+                    if (!tags.Contains(tag))
+                    {
+                        tags.Add(tag);
+                    }
+                }
+
+                if (marking.RunFlat && !tags.Contains("RunFlat")) {
+                    tags.Add("RunFlat");
+                }
+
+                tags.Sort();
+
+                e = xmlDocument.CreateElement("tags");
+                e.InnerText = string.Join(",", tags.ToArray());
                 element.AppendChild(e);
 
                 xroot.AppendChild(element);
@@ -1331,9 +1589,34 @@ namespace ProjectX.DataBase
             }
         }
 
-    }
-    
+        public void DeleteBrand(string idBrand) {
+            DBRows.RemoveAll(x => x.IdProduct.Split('-')[0] == idBrand);
+        }
 
+        public void DeleteModel(string idBrand, string idModel)
+        {
+            DBRows.RemoveAll(x => x.IdProduct.Split('-')[0] == idBrand 
+                && x.IdProduct.Split('-')[1] == idModel);
+        }
+
+        public void DeleteMarking(string idBrand, string idModel, string idMarking)
+        {
+            DBRows.RemoveAll(x => x.IdProduct.Split('-')[0] == idBrand 
+                && x.IdProduct.Split('-')[1] == idModel 
+                && x.IdProduct.Split('-')[2] == idMarking);
+        }
+
+        public void DeleteProvider(string idProvider)
+        {
+            DBRows.RemoveAll(x => x.IdPosition.Split('-')[0] == idProvider);
+        }
+
+        public void DeleteStock(string idProvider, string idStock)
+        {
+            DBRows.RemoveAll(x => x.IdPosition.Split('-')[0] == idProvider && x.IdPosition.Split('-')[1] == idStock);
+        }
+
+    }
 
     public class DBRow
     {
@@ -1344,7 +1627,11 @@ namespace ProjectX.DataBase
 
         public double PriceProv { get; set; }
         public double Markup { get; set; }
+        public double MarkupForTwo { get; set; }
+        public double MarkupForOne { get; set; }
         public double TotalPrice { get;  set; }
+        public double TotalPriceForTwo { get; set; }
+        public double TotalPriceForOne { get; set; }
         public int Count { get; set; }
         public string Addition { get; set; }
 
@@ -1356,13 +1643,17 @@ namespace ProjectX.DataBase
             IdPosition = x.SelectSingleNode("idPosition").InnerText;
             PriceProv = double.Parse(x.SelectSingleNode("priceProvider").InnerText);
             Markup = double.Parse(x.SelectSingleNode("markup").InnerText);
+            MarkupForTwo = double.Parse(x.SelectSingleNode("markupForTwo").InnerText);
+            MarkupForOne = double.Parse(x.SelectSingleNode("markupForOne").InnerText);
             TotalPrice = double.Parse(x.SelectSingleNode("totalPrice").InnerText);
+            TotalPriceForTwo = double.Parse(x.SelectSingleNode("totalPriceForTwo").InnerText);
+            TotalPriceForOne = double.Parse(x.SelectSingleNode("totalPriceForOne").InnerText);
             Count = int.Parse(x.SelectSingleNode("count").InnerText);
             Addition = x.SelectSingleNode("addition").InnerText;
         }
 
-        public DBRow(string idRow, string idProduct, string nameProduct, string idPosition, double priceProv, double markup,
-             int count,string addition)
+        public DBRow(string idRow, string idProduct, string nameProduct, string idPosition, double priceProv, double markup, 
+            double markupForTwo, double markupForOne, int count,string addition)
         {
             IdRow = idRow;
             IdProduct = idProduct;
@@ -1370,7 +1661,11 @@ namespace ProjectX.DataBase
             IdPosition = idPosition;
             PriceProv = priceProv;
             Markup = markup;
+            MarkupForOne = markupForOne;
+            MarkupForTwo = markupForTwo;
             TotalPrice = Math.Round((priceProv * (1 + markup / 100)) / 10, MidpointRounding.AwayFromZero) * 10;
+            TotalPriceForTwo = Math.Round((priceProv * (1 + markupForTwo / 100)) / 10, MidpointRounding.AwayFromZero) * 10;
+            TotalPriceForOne = Math.Round((priceProv * (1 + markupForOne / 100)) / 10, MidpointRounding.AwayFromZero) * 10;
             Count = count;
             Addition = addition;
         }
@@ -1401,8 +1696,24 @@ namespace ProjectX.DataBase
             e.InnerText = Markup.ToString();
             element.AppendChild(e);
 
+            e = xmlDocument.CreateElement("markupForTwo");
+            e.InnerText = MarkupForTwo.ToString();
+            element.AppendChild(e);
+
+            e = xmlDocument.CreateElement("markupForOne");
+            e.InnerText = MarkupForOne.ToString();
+            element.AppendChild(e);
+
             e = xmlDocument.CreateElement("totalPrice");
             e.InnerText = TotalPrice.ToString();
+            element.AppendChild(e);
+
+            e = xmlDocument.CreateElement("totalPriceForTwo");
+            e.InnerText = TotalPriceForTwo.ToString();
+            element.AppendChild(e);
+
+            e = xmlDocument.CreateElement("totalPriceForOne");
+            e.InnerText = TotalPriceForOne.ToString();
             element.AppendChild(e);
 
             e = xmlDocument.CreateElement("count");
@@ -1425,6 +1736,8 @@ namespace ProjectX.DataBase
         public double Markup { get; set; }
         public double PriceProv { get; set; }
         public double TotalPrice { get; set; }
+        public double TotalPriceForTwo { get; set; }
+        public double TotalPriceForOne { get; set; }
         public int Count { get; set; }
         public string Addition { get; set; }
         public int CountInMinStock { get; set;}

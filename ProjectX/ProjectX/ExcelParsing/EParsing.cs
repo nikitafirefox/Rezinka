@@ -57,8 +57,7 @@ namespace ProjectX.ExcelParsing
                 {
                     IEnumerable<Sheet> sheets = workbookPart.Workbook.GetFirstChild<Sheets>().Elements<Sheet>().Where(s => s.Name == param.SheetName);
                     if (sheets.Count() == 0)
-                        throw new ArgumentException("Лист не найден");
-
+                        continue;
                     string relationshipId = sheets.First().Id.Value;
                     worksheet = (WorksheetPart)workbookPart.GetPartById(relationshipId);
                 }
@@ -101,6 +100,19 @@ namespace ProjectX.ExcelParsing
                             });
                             continue;
                         }
+                        else if(price <=0) {
+
+                            warning.Add(new WarningParsingRow()
+                            {
+                                FileName = eParam.FilePath,
+                                SheetName = sheetName,
+                                RowIndex = row.RowIndex,
+                                CellIndex = param.PriceIndex,
+                                Message = "Цена меньше или равен 0"
+                            });
+                            continue;
+
+                        }
 
                         List<ParsingCount> counts = new List<ParsingCount>();
 
@@ -137,7 +149,6 @@ namespace ProjectX.ExcelParsing
                                 if (!eParam.IsStringValues(res, out count))
                                 {
                                     if (res.Trim() != "")
-                                    {
 
                                         warning.Add(new WarningParsingRow()
                                         {
@@ -147,9 +158,23 @@ namespace ProjectX.ExcelParsing
                                             CellIndex = countIndex.Index,
                                             Message = "Не распознан остаток"
                                         });
-                                    }
+                                    
 
                                     continue;
+                                }
+                                else if (price <= 0)
+                                {
+
+                                    warning.Add(new WarningParsingRow()
+                                    {
+                                        FileName = eParam.FilePath,
+                                        SheetName = sheetName,
+                                        RowIndex = row.RowIndex,
+                                        CellIndex = param.PriceIndex,
+                                        Message = "Остаток меньше или равен 0"
+                                    });
+                                    continue;
+
                                 }
                             }
 

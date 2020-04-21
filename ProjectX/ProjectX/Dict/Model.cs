@@ -23,17 +23,20 @@ namespace ProjectX.Dict
         public bool Commercial { get; set; }
         public string WhileLetters { get; set; }
         public bool MudSnow { get; set; }
+        public string DescUrl { get; set; }
 
         private GenId IdGen { get; set; }
         private List<string> Variations { get; set; }
         private List<Marking> Markings { get; set; }
         private List<string> Images { get; set; }
+        private List<string> Tags { get; set; }
 
         public Model(XmlNode x)
         {
             Images = new List<string>();
             Variations = new List<string>();
             Markings = new List<Marking>();
+            Tags = new List<string>();
 
             Id = x.Attributes.GetNamedItem("id").Value;
             Type = x.Attributes.GetNamedItem("type").Value;
@@ -52,6 +55,15 @@ namespace ProjectX.Dict
             Commercial = bool.Parse(x.SelectSingleNode("commercial").Attributes.GetNamedItem("value").Value);
             MudSnow = bool.Parse(x.SelectSingleNode("mudSnow").Attributes.GetNamedItem("value").Value);
 
+
+            try
+            {
+                DescUrl = x.SelectSingleNode("shinaGuide").InnerText;
+            }
+            catch {
+                DescUrl = "";
+            }
+
             foreach (XmlNode xNode in x.SelectSingleNode("variations").ChildNodes)
             {
                 Variations.Add(xNode.InnerText);
@@ -61,6 +73,24 @@ namespace ProjectX.Dict
             {
                 Images.Add(xNode.Attributes.GetNamedItem("src").Value);
             }
+
+            XmlNode xmlTags = null;
+
+            try
+            {
+                xmlTags = x.SelectSingleNode("tags");
+            }
+            catch { }
+
+            if (xmlTags != null)
+            {
+                foreach (XmlNode xNode in xmlTags.ChildNodes)
+                {
+                    Tags.Add(xNode.InnerText);
+                }
+            }
+
+            Tags.Sort();
 
             foreach (XmlNode xNode in x.SelectSingleNode("markings").ChildNodes)
             {
@@ -78,6 +108,7 @@ namespace ProjectX.Dict
             IdGen = new GenId('A', -1, 1);
             Variations = new List<string>();
             Markings = new List<Marking>();
+            Tags = new List<string>();
 
             Id = id;
             Type = type;
@@ -129,6 +160,9 @@ namespace ProjectX.Dict
             e = document.CreateElement("description");
             e.AppendChild(document.CreateCDataSection(Description));
             element.AppendChild(e);
+            e = document.CreateElement("shinaGuide");
+            e.InnerText = DescUrl;
+            element.AppendChild(e);
 
             XmlElement variationsElement;
 
@@ -148,6 +182,17 @@ namespace ProjectX.Dict
                 e = document.CreateElement("image");
                 e.SetAttribute("src", item);
                 imagesElement.AppendChild(e);
+            }
+
+
+            XmlElement tagsElement;
+
+            element.AppendChild(tagsElement = document.CreateElement("tags"));
+            foreach (string item in Tags)
+            {
+                e = document.CreateElement("tag");
+                e.InnerText = item;
+                tagsElement.AppendChild(e);
             }
 
             XmlElement markingsElement;
@@ -299,7 +344,6 @@ namespace ProjectX.Dict
             Variations.Remove(value);
         }
 
-
         public void AddImage(string image)
         {
             Images.Add(image);
@@ -377,6 +421,26 @@ namespace ProjectX.Dict
 
         public IEnumerable<string> GetVariations() {
             return Variations;
+        }
+
+        public IEnumerable<string> GetTags() {
+            return Tags;
+        }
+
+        public void AddTag(string tag)
+        {
+            Tags.Add(tag);
+        }
+
+        public void DeleteTag(string tag)
+        {
+            Tags.Remove(tag);
+        }
+
+        public void ChangeTag(string tOld, string tNew)
+        {
+            DeleteTag(tOld);
+            AddTag(tNew);
         }
 
         public void ChangeStringValue(string sOld, string sNew) {

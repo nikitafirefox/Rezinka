@@ -81,6 +81,7 @@
     <Compile Include="AnalysisType\ParsingRow.cs" />
     <Compile Include="AnalysisType\Resault.cs" />
     <Compile Include="Information\TimeInterval.cs" />
+    <Compile Include="TireFitting\FittingDict.cs" />
     <Compile Include="TypeExcel\ExcelCellList.cs" />
     <Compile Include="Information\Provider.cs" />
     <Compile Include="Loger\SystemLoger.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="TypePattern\Filter.cs" />
     <Compile Include="TypePattern\GroupPattern.cs" />
     <Compile Include="TypePattern\Pattern.cs" />
+    <Compile Include="TypePattern\YmlGeneration.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

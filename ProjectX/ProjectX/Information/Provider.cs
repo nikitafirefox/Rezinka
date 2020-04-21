@@ -184,6 +184,15 @@ namespace ProjectX.Information
         {
             return ((IEnumerable)ProvidersList).GetEnumerator();
         }
+
+        public void Delete(string idProvider) {
+            ProvidersList.RemoveAll(x => x.Id == idProvider);
+        }
+
+        public void Delete(string idProvider, string idStock) {
+            var provider = ProvidersList.Find(x => x.Id == idProvider);
+            provider.Delete(idStock);
+        }
     }
 
     public class Provider: IEnumerable
@@ -312,6 +321,10 @@ namespace ProjectX.Information
         public IEnumerator GetEnumerator()
         {
             return ((IEnumerable)Stocks).GetEnumerator();
+        }
+
+        public void Delete(string idStock) {
+            Stocks.RemoveAll(x => x.Id == idStock);
         }
     }
 

@@ -138,6 +138,16 @@ namespace ProjectX.TypePattern
 
             string runFlat = element.ModelName.ToLower().Contains("runflat") ? "" : "RunFlat";
 
+            if (element.RunFlat == "Нет")
+            {
+
+                if (element.ModelName.ToLower().Contains("runflat"))
+                {
+                    string s = Regex.Match(element.ModelName, "runflat", RegexOptions.IgnoreCase).Value;
+                    element.ModelName = element.ModelName.Replace(s, "");
+                }
+            }
+
             if (seasWithSpikes == "Зимние")
             {
                 if (element.Spikes == "Да")
@@ -283,7 +293,7 @@ namespace ProjectX.TypePattern
         {
 
             FileStream fs = new FileStream(path, FileMode.Create);
-            XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.Unicode)
+            XmlTextWriter xmlOut = new XmlTextWriter(fs, Encoding.UTF8)
             {
                 Formatting = Formatting.Indented
             };
@@ -342,7 +352,7 @@ namespace ProjectX.TypePattern
 
                 XmlNode availability = xmlDocument.CreateElement("availability");
                 element.AppendChild(availability);
-                if (item.Time == 0)
+                if (item.Time == 0 || item.Time == 1)
                 {
                     XmlNode isAvailable = xmlDocument.CreateElement("isAvailable");
                     isAvailable.InnerText = "да";
@@ -436,6 +446,13 @@ namespace ProjectX.TypePattern
 
                     count.InnerText = buf;
                 element.AppendChild(count);
+
+                if (item.Addition == "") {
+                    e = xmlDocument.CreateElement("offer_url");
+                    e.InnerText = "http://rezina123.ru/i" + item.IdProduct.GetHashCode().ToString().Replace("-","m") + "/";
+                    element.AppendChild(e);
+                }
+
 
                 xroot.AppendChild(element);
 
