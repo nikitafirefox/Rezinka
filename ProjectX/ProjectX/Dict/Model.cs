@@ -25,6 +25,9 @@ namespace ProjectX.Dict
         public bool MudSnow { get; set; }
         public string DescUrl { get; set; }
 
+        public bool FreeFitting { get; set; }
+        public int FittingDiameter { get; set; }
+
         private GenId IdGen { get; set; }
         private List<string> Variations { get; set; }
         private List<Marking> Markings { get; set; }
@@ -75,10 +78,14 @@ namespace ProjectX.Dict
             }
 
             XmlNode xmlTags = null;
+            XmlNode xmlFreeFitting = null;
+            XmlNode xmlFittingDiameter = null;
 
             try
             {
                 xmlTags = x.SelectSingleNode("tags");
+                xmlFreeFitting = x.SelectSingleNode("freeFitting");
+                xmlFittingDiameter = x.SelectSingleNode("fittingDiameter");
             }
             catch { }
 
@@ -91,6 +98,9 @@ namespace ProjectX.Dict
             }
 
             Tags.Sort();
+
+            FreeFitting = xmlFreeFitting != null ? bool.Parse(xmlFreeFitting.InnerText) : false;
+            FittingDiameter = xmlFittingDiameter != null ? int.Parse(xmlFittingDiameter.InnerText) : 0;
 
             foreach (XmlNode xNode in x.SelectSingleNode("markings").ChildNodes)
             {
@@ -145,23 +155,37 @@ namespace ProjectX.Dict
             XmlElement e = document.CreateElement("name");
             e.InnerText = Name;
             element.AppendChild(e);
+
             e = document.CreateElement("season");
             e.InnerText = Season;
             element.AppendChild(e);
+
             e = document.CreateElement("whileLetters");
             e.InnerText = WhileLetters;
             element.AppendChild(e);
+
             e = document.CreateElement("commercial");
             e.SetAttribute("value", Commercial.ToString());
             element.AppendChild(e);
+
             e = document.CreateElement("mudSnow");
             e.SetAttribute("value", MudSnow.ToString());
             element.AppendChild(e);
+
             e = document.CreateElement("description");
             e.AppendChild(document.CreateCDataSection(Description));
             element.AppendChild(e);
+
             e = document.CreateElement("shinaGuide");
             e.InnerText = DescUrl;
+            element.AppendChild(e);
+
+            e = document.CreateElement("freeFitting");
+            e.InnerText = FreeFitting.ToString();
+            element.AppendChild(e);
+
+            e = document.CreateElement("fittingDiameter");
+            e.InnerText = FittingDiameter.ToString();
             element.AppendChild(e);
 
             XmlElement variationsElement;

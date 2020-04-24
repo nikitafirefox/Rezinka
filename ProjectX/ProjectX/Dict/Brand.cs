@@ -17,6 +17,9 @@ namespace ProjectX.Dict
 
         public string RunFlatName { get; set; }
 
+        public bool FreeFitting { get; set; }
+        public int FittingDiameter { get; set; }
+
         private GenId IdGen { get; set; }
         private List<string> Variations { get; set; }
         private List<Model> Models { get; set; }
@@ -59,9 +62,13 @@ namespace ProjectX.Dict
             }
 
             XmlNode xmlTags = null;
+            XmlNode xmlFreeFitting = null;
+            XmlNode xmlFittingDiameter = null;
 
             try {
                 xmlTags = x.SelectSingleNode("tags");
+                xmlFreeFitting = x.SelectSingleNode("freeFitting");
+                xmlFittingDiameter = x.SelectSingleNode("fittingDiameter");
             }
             catch{}
 
@@ -72,6 +79,9 @@ namespace ProjectX.Dict
             }
 
             Tags.Sort();
+
+            FreeFitting = xmlFreeFitting != null ? bool.Parse(xmlFreeFitting.InnerText) : false;
+            FittingDiameter = xmlFittingDiameter != null ? int.Parse(xmlFittingDiameter.InnerText) : 0;
 
             foreach (XmlNode xNode in x.SelectSingleNode("models").ChildNodes)
             {
@@ -117,9 +127,11 @@ namespace ProjectX.Dict
             XmlElement e = document.CreateElement("name");
             e.InnerText = Name;
             element.AppendChild(e);
+
             e = document.CreateElement("country");
             e.InnerText = Country;
             element.AppendChild(e);
+
             e = document.CreateElement("runFlatName");
             e.InnerText = RunFlatName;
             element.AppendChild(e);
@@ -127,6 +139,14 @@ namespace ProjectX.Dict
             element.AppendChild(e);
             e = document.CreateElement("description");
             e.AppendChild(document.CreateCDataSection(Description));
+            element.AppendChild(e);
+
+            e = document.CreateElement("freeFitting");
+            e.InnerText = FreeFitting.ToString();
+            element.AppendChild(e);
+
+            e = document.CreateElement("fittingDiameter");
+            e.InnerText = FittingDiameter.ToString();
             element.AppendChild(e);
 
             XmlElement variationsElement;

@@ -12,6 +12,7 @@ namespace ProjectX.TireFitting
     public class FittingDict: IEnumerable
     {
         public double RunFlatCost { get; set; }
+        public double Less50Procent { get; set; }
         private List<Fitting> fittings;
         private List<AddingService> addings;
 
@@ -25,8 +26,9 @@ namespace ProjectX.TireFitting
         private readonly string pathXML;
 
         public FittingDict() {
-
+            addings = new List<AddingService>();
             fittings = new List<Fitting>();
+
             pathXML = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\Fitting.xml");
 
             if (!File.Exists(pathXML))
@@ -47,6 +49,7 @@ namespace ProjectX.TireFitting
                 fs.Close();
 
                 RunFlatCost = 0;
+                Less50Procent = 0;
 
                 Save();
 
@@ -64,6 +67,14 @@ namespace ProjectX.TireFitting
             XmlElement xroot = xmlDocument.DocumentElement;
 
             RunFlatCost = double.Parse(xroot.SelectSingleNode("runFlatCost").InnerText);
+
+            try
+            {
+                Less50Procent = double.Parse(xroot.SelectSingleNode("less50Procent").InnerText);
+            }
+            catch {
+                Less50Procent = 0;
+            }
 
             XmlNode xmlNode = xroot.GetElementsByTagName("fittings").Item(0);
             foreach (XmlNode x in xmlNode.ChildNodes)
@@ -90,6 +101,10 @@ namespace ProjectX.TireFitting
 
             XmlElement e = xmlDocument.CreateElement("runFlatCost");
             e.InnerText = RunFlatCost.ToString();
+            xroot.AppendChild(e);
+
+            e = xmlDocument.CreateElement("less50Procent");
+            e.InnerText = Less50Procent.ToString();
             xroot.AppendChild(e);
 
             XmlElement fittingsElement;

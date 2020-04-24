@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProjectX.TireFitting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -61,7 +62,8 @@ namespace ProjectX.TypePattern
                         Time = item.TimeFromTo,
                         LoadIndex = item.LoadIndex,
                         SpeedIndex = item.SpeedIndex,
-                        Count = item.Count
+                        Count = item.Count,
+                        FreeFitting = item.FreeFitting,
 
                     });
 
@@ -91,8 +93,8 @@ namespace ProjectX.TypePattern
                         Time = item.TimeFromTo,
                         LoadIndex = item.LoadIndex,
                         SpeedIndex = item.SpeedIndex,
-                        Count = item.Count
-
+                        Count = item.Count,
+                        FreeFitting = item.FreeFitting,
 
                     });
 
@@ -343,6 +345,8 @@ namespace ProjectX.TypePattern
 
             XmlElement xmlOffers = xmlDocument.CreateElement("offers");
 
+            List<string> freeFittingsYmlIds = new List<string>(); 
+
             foreach (var item in avtoruAds)
             {
                 if (item.Addition != "")
@@ -350,8 +354,13 @@ namespace ProjectX.TypePattern
                     continue;
                 }
 
+                string ymlid = "id" + item.IdProduct.GetHashCode().ToString().Replace("-", "m");
+                if (item.FreeFitting) {
+                    freeFittingsYmlIds.Add(ymlid);
+                }
+
                 XmlElement element = xmlDocument.CreateElement("offer");
-                element.SetAttribute("id", "id" + item.IdProduct.GetHashCode().ToString());
+                element.SetAttribute("id", ymlid);
                 element.SetAttribute("bid","50");
 
                 string head = item.Head;
@@ -419,6 +428,52 @@ namespace ProjectX.TypePattern
 
             xmlShop.AppendChild(xmlOffers);
 
+            XmlElement xmlGifts = xmlDocument.CreateElement("gifts");
+
+            XmlElement giftElement = xmlDocument.CreateElement("gift");
+            giftElement.SetAttribute("id", "g1promo");
+
+            XmlElement el = xmlDocument.CreateElement("name");
+            el.InnerText = "Бесплатный шиномонтаж";
+            giftElement.AppendChild(el);
+
+            xmlGifts.AppendChild(giftElement);
+
+            xmlShop.AppendChild(xmlGifts);
+
+
+            XmlElement xmlPromos = xmlDocument.CreateElement("promos");
+
+            XmlElement promoElement = xmlDocument.CreateElement("promo");
+            promoElement.SetAttribute("id","p1");
+            promoElement.SetAttribute("type", "gift with purchase");
+
+            XmlElement purchaseElement = xmlDocument.CreateElement("purchase");
+
+            XmlElement requiredQuantityElement = xmlDocument.CreateElement("required-quantity");
+            requiredQuantityElement.InnerText = "4";
+            purchaseElement.AppendChild(requiredQuantityElement);
+
+            foreach (string id in freeFittingsYmlIds) {
+                XmlElement product = xmlDocument.CreateElement("product");
+                product.SetAttribute("offer-id", id);
+                purchaseElement.AppendChild(product);
+            }
+
+            promoElement.AppendChild(purchaseElement);
+
+            XmlElement promoGiftsElement = xmlDocument.CreateElement("promo-gifts");
+
+            XmlElement promoGiftElement = xmlDocument.CreateElement("promo-gift");
+            promoGiftElement.SetAttribute("offer-id", "g1promo");
+            promoGiftsElement.AppendChild(promoGiftElement);
+
+            promoElement.AppendChild(promoGiftsElement);
+
+            xmlPromos.AppendChild(promoElement);
+
+            xmlShop.AppendChild(xmlPromos);
+
             xroot.AppendChild(xmlShop);
 
             xmlDocument.Save(path);
@@ -449,6 +504,8 @@ namespace ProjectX.TypePattern
         public string Count;
 
         public string Brand;
+
+        public bool FreeFitting;
 
 
         public List<string> Images;

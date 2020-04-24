@@ -11,53 +11,55 @@ namespace ProjectX.TypePattern
 {
     public class Element
     {
-        public int Priority;
+        public int Priority { get; set; }
 
-        public string IdProduct;
-        public string IdRow;
+        public string IdProduct { get; set; }
+        public string IdRow { get; set; }
 
-        public string Price;
-        public string PriceForOne;
-        public string PriceForTwo;
-        public string Count;
-        public string Addition;
+        public string Price { get; set; }
+        public string PriceForOne { get; set; }
+        public string PriceForTwo { get; set; }
+        public string Count { get; set; }
+        public string Addition { get; set; }
 
-        public string ProvaiderId;
-        public string TimeTransit;
+        public string ProvaiderId { get; set; }
+        public string TimeTransit { get; set; }
 
-        public string BrandId;
-        public string BrandName;
-        public string BrandCountry;
-        public string BrandDescription;
-        public string RunFlatName;
+        public string BrandId { get; set; }
+        public string BrandName { get; set; }
+        public string BrandCountry { get; set; }
+        public string BrandDescription { get; set; }
+        public string RunFlatName { get; set; }
 
-        public string ModelName;
-        public string Season;
-        public string Type;
-        public string ModelDescription;
-        public string Commercial;
-        public string WhileLetters;
-        public string MudSnow;
+        public string ModelName { get; set; }
+        public string Season { get; set; }
+        public string Type { get; set; }
+        public string ModelDescription { get; set; }
+        public string Commercial { get; set; }
+        public string WhileLetters { get; set; }
+        public string MudSnow { get; set; }
 
-        public string Width;
-        public string Height;
-        public string Diameter;
-        public string SpeedIndex ;
-        public string LoadIndex;
-        public string MarkingCountry;
-        public string TractionIndex ;
-        public string TemperatureIndex ;
-        public string TreadwearIndex ;
-        public string ExtraLoad ;
-        public string RunFlat ;
-        public string FlangeProtection ;
-        public string Accomadation;
-        public string Spikes;
+        public string Width { get; set; }
+        public string Height { get; set; }
+        public string Diameter { get; set; }
+        public string SpeedIndex { get; set; }
+        public string LoadIndex { get; set; }
+        public string MarkingCountry { get; set; }
+        public string TractionIndex { get; set; }
+        public string TemperatureIndex { get; set; }
+        public string TreadwearIndex { get; set; }
+        public string ExtraLoad { get; set; }
+        public string RunFlat { get; set; }
+        public string FlangeProtection { get; set; }
+        public string Accomadation { get; set; }
+        public string Spikes { get; set; }
 
-        public string Date;
-        public string Time;
+        public string Date { get; set; }
+        public string Time { get; set; }
 
-        public int TimeFromTo;
+        public int TimeFromTo { get; set; }
+
+        public bool FreeFitting { get; set; }
 
         public List<string> Images = new List<string>();
 
@@ -73,15 +75,11 @@ namespace ProjectX.TypePattern
 
             foreach (DBRow item in dBase)
             {
-                Dictionary<string, object> valuePairsProv = providers.GetValuesById(
-                    item.IdPosition.Split('-')[0], 
-                    item.IdPosition.Split('-')[1]
-                    );
-                Dictionary<string, object> valuePairsDict = dictionary.GetValuesById(
-                    item.IdProduct.Split('-')[0],
-                    item.IdProduct.Split('-')[1],
-                    item.IdProduct.Split('-')[2]
-                    );
+
+
+                Brand brand = dictionary[item.IdProduct.Split('-')[0]];
+                Model model = brand[item.IdProduct.Split('-')[1]];
+                Marking marking = model[item.IdProduct.Split('-')[2]];
 
 
                 Provider provider = providers[item.IdPosition.Split('-')[0]];
@@ -98,34 +96,35 @@ namespace ProjectX.TypePattern
                     PriceForTwo = item.TotalPriceForTwo.ToString(),
                     BrandId = item.IdProduct.Split('-')[0],
                     ProvaiderId = item.IdPosition.Split('-')[0],
-                    TimeTransit = valuePairsProv["Stock_Time"].ToString(),
-                    Priority = (int)valuePairsProv["Provider_Priority"],
-                    BrandName = valuePairsDict["Brand_Name"].ToString(),
-                    BrandCountry = valuePairsDict["Brand_Country"].ToString(),
-                    BrandDescription = valuePairsDict["Brand_Description"].ToString(),
-                    RunFlatName = valuePairsDict["Brand_RunFlatName"].ToString(),
-                    ModelName = valuePairsDict["Model_Name"].ToString(),
-                    Season = valuePairsDict["Model_Season"].ToString(),
-                    ModelDescription = valuePairsDict["Model_Description"].ToString(),
-                    Commercial = valuePairsDict["Model_Commercial"].ToString(),
-                    Type = valuePairsDict["Model_Type"].ToString(),
-                    MudSnow = valuePairsDict["Model_MudSnow"].ToString(),
-                    WhileLetters = valuePairsDict["Model_WhileLetters"].ToString(),
+                    TimeTransit = stock.Time.ToString(),
+                    Priority = provider.Priority,
+                    BrandName = brand.Name,
+                    BrandCountry = brand.Country,
+                    BrandDescription = brand.Description,
+                    RunFlatName = brand.RunFlatName,
 
-                    Width = valuePairsDict["Marking_Width"].ToString(),
-                    Height = valuePairsDict["Marking_Height"].ToString(),
-                    Accomadation = valuePairsDict["Marking_Accomadation"].ToString(),
-                    Diameter = valuePairsDict["Marking_Diameter"].ToString(),
-                    ExtraLoad = valuePairsDict["Marking_ExtraLoad"].ToString(),
-                    FlangeProtection = valuePairsDict["Marking_FlangeProtection"].ToString(),
-                    LoadIndex = valuePairsDict["Marking_LoadIndex"].ToString(),
-                    MarkingCountry = valuePairsDict["Marking_Country"].ToString(),
-                    RunFlat = valuePairsDict["Marking_RunFlat"].ToString(),
-                    SpeedIndex = valuePairsDict["Marking_SpeedIndex"].ToString(),
-                    Spikes = valuePairsDict["Marking_Spikes"].ToString(),
-                    TemperatureIndex = valuePairsDict["Marking_TemperatureIndex"].ToString(),
-                    TractionIndex = valuePairsDict["Marking_TractionIndex"].ToString(),
-                    TreadwearIndex = valuePairsDict["Marking_TreadwearIndex"].ToString(),
+                    ModelName = model.Name,
+                    Season = model.Season,
+                    ModelDescription = model.Description,
+                    Commercial = model.Commercial.ToString().Replace("True", "Да").Replace("False", "Нет"),
+                    Type = model.Type,
+                    MudSnow = model.MudSnow.ToString().Replace("True", "Да").Replace("False", "Нет"),
+                    WhileLetters = model.WhileLetters,
+
+                    Width = marking.Width,
+                    Height = marking.Height,
+                    Accomadation = marking.Accomadation,
+                    Diameter = marking.Diameter,
+                    ExtraLoad = marking.ExtraLoad.ToString().Replace("True", "Да").Replace("False", "Нет"),
+                    FlangeProtection = marking.FlangeProtection,
+                    LoadIndex = marking.LoadIndex,
+                    MarkingCountry = marking.Country,
+                    RunFlat = marking.RunFlat.ToString().Replace("True", "Да").Replace("False", "Нет"),
+                    SpeedIndex = marking.SpeedIndex,
+                    Spikes = marking.Spikes.ToString().Replace("True", "Да").Replace("False", "Нет"),
+                    TemperatureIndex = marking.TemperatureIndex,
+                    TractionIndex = marking.TractionIndex,
+                    TreadwearIndex = marking.TreadwearIndex,
 
                     Date = date,
                     Time = time,
@@ -133,9 +132,10 @@ namespace ProjectX.TypePattern
                     IdProduct = item.IdProduct,
                     IdRow = item.IdRow,
 
-                    TimeFromTo = timeFromTo
-                
-                    
+                    TimeFromTo = timeFromTo,
+
+                    FreeFitting = item.Count >= 4 && ((brand.FreeFitting && int.Parse(marking.Diameter.Trim()) >= brand.FittingDiameter)
+                    || (model.FreeFitting && int.Parse(marking.Diameter.Trim()) >= model.FittingDiameter)),
 
                 };
 

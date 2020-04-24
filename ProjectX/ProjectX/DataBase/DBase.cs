@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Text.RegularExpressions;
+using ProjectX.TireFitting;
 
 namespace ProjectX.DataBase
 {
@@ -1079,6 +1080,7 @@ namespace ProjectX.DataBase
             Providers providers = new Providers();
             Dictionary dictionary = new Dictionary();
             dictionary.Close();
+            FittingDict fittings = new FittingDict();
 
             List<string> prov = idProviders.ToList();
             prov.Sort((x, y) => providers.GetPriority(x).CompareTo(providers.GetPriority(y)));
@@ -1419,6 +1421,56 @@ namespace ProjectX.DataBase
                         tags.Add(tag);
                     }
                 }
+
+                bool freeFitting =  item.Count >= 4 && ((brand.FreeFitting && int.Parse(marking.Diameter.Trim()) >= brand.FittingDiameter ) 
+                    || (model.FreeFitting && int.Parse(marking.Diameter.Trim()) >= model.FittingDiameter));
+
+                e = xmlDocument.CreateElement("freeFitting");
+                e.InnerText = freeFitting.ToString().ToLower();
+                element.AppendChild(e);
+
+                if (freeFitting && !tags.Contains("Бесплатный монтаж")) {
+                    tags.Add("Бесплатный монтаж");
+                }
+
+                Fitting fitting = fittings[int.Parse(marking.Diameter)];
+                if (fitting != null)
+                {
+
+                    double autoCost = fitting.AutoCost;
+                    double outRiderCost = fitting.OutRiderCost;
+
+                    if (marking.RunFlat) {
+                        autoCost += fittings.RunFlatCost;
+                        outRiderCost += fittings.RunFlatCost;
+                    }
+
+                    if (int.TryParse(marking.Height, out int height) && height < 50) {
+                        autoCost += fittings.Less50Procent;
+                        outRiderCost += fittings.Less50Procent;
+                    }
+
+
+                    e = xmlDocument.CreateElement("autoFittingCost");
+                    e.InnerText = autoCost.ToString();
+                    element.AppendChild(e);
+
+
+                    e = xmlDocument.CreateElement("outRiderFittingCost");
+                    e.InnerText = outRiderCost.ToString();
+                    element.AppendChild(e);
+                }
+                else {
+                    e = xmlDocument.CreateElement("autoFittingCost");
+                    e.InnerText = "0";
+                    element.AppendChild(e);
+
+
+                    e = xmlDocument.CreateElement("outRiderFittingCost");
+                    e.InnerText = "0";
+                    element.AppendChild(e);
+                }
+
 
                 if (marking.RunFlat && !tags.Contains("RunFlat")) {
                     tags.Add("RunFlat");
